@@ -8,7 +8,6 @@ interface AuthProviderProps {
 }
 
 interface DecodedToken {
-  email: string;
   iat: number;
   exp: number;
   userId: number;
