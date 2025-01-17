@@ -1,10 +1,9 @@
 // src/api/axios.js
 import axios from 'axios';
-import { BACKEND_URL } from '../env';
 import Cookies from 'js-cookie';
 
 const instance = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 // Добавляем токен в заголовки для каждого запроса
