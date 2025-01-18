@@ -1,3 +1,11 @@
 .statistics-page{
-  
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+
+
+  .stats-blocks-list{
+    display: flex;
+    gap: 1rem;
+  }
 }

@@ -1,7 +1,11 @@
-$font-size: 36px;
+@use '../../variables' as vars;
+
+$font-size: 24px;
 
 .stats-block{
   display: flex;
+  justify-content: center;
+  align-items: center;
 
   border-width: 4px;
   border-style: solid;
@@ -11,7 +15,18 @@ $font-size: 36px;
   font-size: $font-size;
   padding: 10px;
 
+  max-width: 450px;
+
   .icon{
     font-size: calc($font-size * 3);
   }
+
+  p{
+    margin-bottom: 10px;
+  }
+
+  .bar-chart, .percent{
+    color: vars.$primary-color;
+  }
+
 }

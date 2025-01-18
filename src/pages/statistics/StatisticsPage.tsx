@@ -1,14 +1,23 @@
 import StatsBlock from "../../components/statistics/StatsBlock";
 import "./styles.scss";
-import { BarChartRounded } from "@mui/icons-material";
+import { BarChartRounded, PercentRounded } from "@mui/icons-material";
 
 export default function StatisticsPage() {
+  const totalCount = 25000;
+  const accuracy = 50;
+
   return (
     <div className="statistics-page">
-      <StatsBlock
-        icon={<BarChartRounded className="icon bar-chart" />}
-        label="azaza"
-      />
+      <div className="stats-blocks-list">
+        <StatsBlock
+          icon={<BarChartRounded className="icon bar-chart" />}
+          label={`Количество обнаружений: ${totalCount}`}
+        />
+        <StatsBlock
+          icon={<PercentRounded className="icon percent" />}
+          label={`Общая точность: ${accuracy}%`}
+        /> 
+      </div>
     </div>
   );
 }
