@@ -13,11 +13,13 @@ export default function StatisticsPage() {
         <div className="stats-blocks-list">
           <StatsBlock
             icon={<BarChartRounded className="icon bar-chart" />}
-            label={`Количество обнаружений: ${totalCount}`}
+            value={totalCount.toLocaleString('ru-RU')}
+            title="Общее количество обнаружений"
           />
           <StatsBlock
             icon={<PercentRounded className="icon percent" />}
-            label={`Общая точность: ${accuracy}%`}
+            value={`${accuracy}%`}
+            title="Общая точность"
           />
         </div>
         <div className="charts-container">

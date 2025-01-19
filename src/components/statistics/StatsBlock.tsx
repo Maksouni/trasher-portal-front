@@ -3,14 +3,16 @@ import './styles.scss'
 
 interface StatsBlockProps{
   icon: ReactNode;
-  label: string
+  title: string;
+  value: string
 }
 
-export default function StatsBlock({icon, label} : StatsBlockProps){
+export default function StatsBlock({icon, title, value} : StatsBlockProps){
   return(
     <div className="stats-block">
       {icon}
-      <p>{label}</p>
+      <h2>{value}</h2>
+      <p>{title}</p>
     </div>
   )
 }

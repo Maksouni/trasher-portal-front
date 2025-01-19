@@ -4,8 +4,9 @@ $font-size: 24px;
 
 .stats-block{
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: start;
 
   border:  none;
   border-radius: 5px;
@@ -15,13 +16,25 @@ $font-size: 24px;
   font-size: $font-size;
   padding: 10px;
 
-  max-width: 450px;
+  box-sizing: border-box;
+
+  width: 450px;
 
   .icon{
+    margin-top: 5px;
+    margin-left: 1rem;
     font-size: calc($font-size * 3);
   }
 
+  h2{
+    margin: 0;
+    margin-left: 1rem;
+    font-size: 48px;
+  }
+
   p{
+    margin: 0;
+    margin-left: 1rem;
     margin-bottom: 10px;
   }
 
