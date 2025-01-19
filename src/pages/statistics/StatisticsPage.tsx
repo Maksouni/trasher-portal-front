@@ -21,7 +21,7 @@ export default function StatisticsPage() {
           />
         </div>
         <div className="charts-container">
-          <ChartBlock />
+          <ChartBlock title="Бутылки"/>
         </div>
       </div>
       <div className="filters-container"></div>

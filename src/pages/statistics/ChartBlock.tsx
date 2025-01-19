@@ -20,16 +20,16 @@ ChartJS.register(
   Legend
 );
 
-export default function ChartBlock(){
+interface ChartBlockProps{
+  title: string
+}
+
+export default function ChartBlock({title} : ChartBlockProps){
   const options = {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Sample Line Chart',
+        position: 'bottom' as const,
       },
     },
   };
@@ -40,13 +40,13 @@ export default function ChartBlock(){
     labels,
     datasets: [
       {
-        label: 'Dataset 1',
+        label: 'Обнаружения',
         data: [65, 59, 80, 81, 56, 55, 40],
         borderColor: 'rgb(75, 192, 192)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
       },
       {
-        label: 'Dataset 2',
+        label: 'Точность',
         data: [45, 39, 60, 91, 76, 85, 60],
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -55,6 +55,7 @@ export default function ChartBlock(){
   };
   return(
     <div className="chart-block">
+      <h2>{title}</h2>
       <Line options={options} data={data}/>
     </div>
   )
