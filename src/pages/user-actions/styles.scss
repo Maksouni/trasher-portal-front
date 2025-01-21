@@ -3,13 +3,10 @@
 .register-page {
 	display: flex;
 	justify-content: center;
-	width: 100%;
-	min-height: 100vh;
 	padding: 20px;
 
 	.container {
 		max-width: 800px;
-		width: 100%;
 
 		nav {
 			margin-bottom: 20px;
@@ -89,12 +86,11 @@
 .user-management-page {
 	display: flex;
 	justify-content: center;
-	width: 100%;
-	min-height: 100vh;
 	padding: 20px;
 
 	.container {
 		max-width: 800px;
+
 		width: fit-content;
 		margin: 0 auto;
 
