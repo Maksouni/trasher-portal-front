@@ -22,7 +22,7 @@ const AddUser = () => {
 			return
 		}
 
-		setMessage('User registered successfully')
+		setMessage('Пользователь добавлен')
 		setErrors({})
 	}
 
@@ -34,11 +34,12 @@ const AddUser = () => {
 				</nav>
 
 				<form onSubmit={handleRegister}>
-					<h1>Register User</h1>
+					<h1>Добавить пользователя</h1>
 					<div>
+						<label>Имя пользователя</label>
 						<input
 							type='text'
-							placeholder='Username'
+							placeholder='Имя пользователя'
 							value={username}
 							onChange={(e) => setUsername(e.target.value)}
 							className={errors.username ? 'error' : ''}
@@ -63,14 +64,14 @@ const AddUser = () => {
 							onChange={(e) => setRole(e.target.value)}
 							className={errors.role ? 'error' : ''}
 						>
-							<option value=''>Select Role</option>
+							<option value=''>Выберите роль</option>
 							<option value='user'>User</option>
 							<option value='admin'>Admin</option>
 						</select>
 						{errors.role && <span>{errors.role}</span>}
 					</div>
 
-					<button type='submit'>Register</button>
+					<button type='submit'>Добавить</button>
 				</form>
 				{message && <p>{message}</p>}
 			</div>
