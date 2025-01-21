@@ -1,3 +1,5 @@
+@use '../../variables.scss' as vars;
+
 .statistics-page {
   display: flex;
   // flex-direction: column;
@@ -26,10 +28,11 @@
     margin-bottom: auto;
     margin-left: 2rem;
 
-    border: none;
-    border-radius: 5px;
-    box-shadow: 10px 10px 15px 1px rgba(0, 0, 0, 0.193);
-    background-color: white;
+    // border: none;
+    // border-radius: 5px;
+    // box-shadow: 10px 10px 15px 1px rgba(0, 0, 0, 0.193);
+    // background-color: white;
+    @include vars.container-border;
 
     padding: 2rem;
 
