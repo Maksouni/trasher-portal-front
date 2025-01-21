@@ -1,3 +1,5 @@
+@use '../../variables.scss' as vars;
+
 .register-page {
 	display: flex;
 	justify-content: center;
@@ -30,6 +32,10 @@
 			gap: 15px;
 			max-width: 400px;
 			margin: 0 auto;
+
+			padding: 2rem;
+
+			@include vars.container-border;
 
 			div {
 				input,

@@ -33,9 +33,8 @@ const RegisterUser = () => {
 					<Link to='/users'>User List</Link>
 				</nav>
 
-				<h1>Register User</h1>
-
 				<form onSubmit={handleRegister}>
+					<h1>Register User</h1>
 					<div>
 						<input
 							type='text'
