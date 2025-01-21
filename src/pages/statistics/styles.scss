@@ -1,31 +1,40 @@
-.statistics-page{
+.statistics-page {
   display: flex;
-  flex-direction: column;
-  justify-content: start;
+  // flex-direction: column;
+  justify-content: center;
   align-items: center;
 
-
-
-  .stats-blocks-list{
+  .stats-blocks-list {
     display: flex;
     justify-content: space-between;
     margin-block: 2rem;
     gap: 1rem;
   }
-}
 
-.chart-block{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  .charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
 
-  border:  none;
-  border-radius: 5px;
-  box-shadow: 10px 10px 30px 1px rgba(0, 0, 0, 0.317);
-  background-color: white;
- 
-  padding: 1rem;
-  box-sizing: border-box;
+  .filters-container {
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 2rem;
+    margin-bottom: auto;
+    margin-left: 2rem;
 
+    border: none;
+    border-radius: 5px;
+    box-shadow: 10px 10px 15px 1px rgba(0, 0, 0, 0.193);
+    background-color: white;
+
+    padding: 2rem;
+
+    h2{
+      margin-top: 0;
+      
+    }
+  }
 }
