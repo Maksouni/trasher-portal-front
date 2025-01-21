@@ -40,30 +40,32 @@ const UserManagement = () => {
 					<Link to='/register'>Register New User</Link>
 				</nav>
 
-				<h1>User Management</h1>
+				<div className='users-page'>
+					<h1>User Management</h1>
 
-				<table>
-					<thead>
-						<tr>
-							<th style={{ width: '30px' }}>ID</th>
-							<th style={{ width: '100px' }}>Username</th>
-							<th style={{ width: '100px' }}>Role</th>
-							<th></th>
-						</tr>
-					</thead>
-					<tbody>
-						{users.map((user) => (
-							<tr key={user.id}>
-								<td>{user.id}</td>
-								<td>{user.username}</td>
-								<td>{user.role}</td>
-								<td>
-									<button onClick={() => handleEdit(user.id)}>Edit</button>
-								</td>
+					<table>
+						<thead>
+							<tr>
+								<th style={{ width: '30px' }}>ID</th>
+								<th style={{ width: '100px' }}>Username</th>
+								<th style={{ width: '100px' }}>Role</th>
+								<th></th>
 							</tr>
-						))}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							{users.map((user) => (
+								<tr key={user.id}>
+									<td>{user.id}</td>
+									<td>{user.username}</td>
+									<td>{user.role}</td>
+									<td>
+										<button onClick={() => handleEdit(user.id)}>Edit</button>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	)

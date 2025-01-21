@@ -91,6 +91,14 @@
 	.container {
 		max-width: 800px;
 
+		width: fit-content;
+		margin: 0 auto;
+
+		.users-page {
+			@include vars.container-border;
+			padding: 1.5rem;
+		}
+
 		nav {
 			margin-bottom: 20px;
 			text-align: right;
@@ -108,11 +116,12 @@
 
 		table {
 			width: fit-content;
-			margin: auto;
+			margin: 1rem;
 			border-collapse: collapse;
 			border: 1px solid #ddd;
 			background-color: #e9ecef;
 			box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.1);
+			margin-inline: auto;
 
 			thead {
 				tr {
