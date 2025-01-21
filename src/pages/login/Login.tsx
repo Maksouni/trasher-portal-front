@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { TextField, Button, Box, Typography } from '@mui/material'
 import './styles.scss'
 
 export default function LoginPage() {
@@ -24,32 +25,37 @@ export default function LoginPage() {
 	return (
 		<div className='login-page'>
 			<div className='container'>
-				<h1>Вход</h1>
+				<Typography variant='h4' component='h1' gutterBottom>
+					Вход
+				</Typography>
 
 				<form onSubmit={handleLogin}>
-					<div>
-						<input
-							type='text'
-							placeholder='Имя пользователя'
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
-							className={errors.username ? 'error' : ''}
-						/>
-						{errors.username && <span>{errors.username}</span>}
-					</div>
+					<TextField
+						label='Имя пользователя'
+						variant='outlined'
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
+						error={!!errors.username}
+						helperText={errors.username}
+						fullWidth
+						className='text-field'
+					/>
 
-					<div>
-						<input
-							type='password'
-							placeholder='Пароль'
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							className={errors.password ? 'error' : ''}
-						/>
-						{errors.password && <span>{errors.password}</span>}
-					</div>
+					<TextField
+						label='Пароль'
+						variant='outlined'
+						type='password'
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						error={!!errors.password}
+						helperText={errors.password}
+						fullWidth
+						className='text-field'
+					/>
 
-					<button type='submit'>Войти</button>
+					<Button type='submit' variant='contained' color='primary' fullWidth>
+						Войти
+					</Button>
 				</form>
 			</div>
 		</div>

@@ -3,7 +3,6 @@
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
-	padding: 20px;
 	background-color: #f8f9fa;
 
 	.container {
@@ -25,32 +24,14 @@
 			flex-direction: column;
 			gap: 1rem;
 
-			div {
-				display: flex;
-				flex-direction: column;
-				gap: 0.5rem;
-			}
-
-			input {
-				padding: 0.75rem;
-				border: 1px solid #dee2e6;
-				border-radius: 4px;
-				font-size: 1rem;
-
-				&.error {
-					border-color: #dc3545;
+			.text-field {
+				.MuiInputBase-root {
+					font-size: 1rem;
 				}
 
-				&:focus {
-					outline: none;
-					border-color: #0066cc;
-					box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.25);
+				.MuiFormHelperText-root {
+					color: #dc3545;
 				}
-			}
-
-			span {
-				color: #dc3545;
-				font-size: 0.875rem;
 			}
 
 			button {
