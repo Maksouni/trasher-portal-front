@@ -1,0 +1,63 @@
+@use '../../variables' as vars;
+
+$font-size: 24px;
+
+.stats-block{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+
+  border:  none;
+  border-radius: 5px;
+  box-shadow: 10px 10px 15px 1px rgba(0, 0, 0, 0.193);
+  background-color: white;
+
+  font-size: $font-size;
+  padding: 10px;
+
+  box-sizing: border-box;
+
+  width: 450px;
+
+  .icon{
+    margin-top: 5px;
+    margin-left: 1rem;
+    font-size: calc($font-size * 3);
+  }
+
+  h2{
+    margin: 0;
+    margin-left: 1rem;
+    font-size: 48px;
+  }
+
+  p{
+    margin: 0;
+    margin-left: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .bar-chart, .percent{
+    color: vars.$primary-color;
+  }
+
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+.chart-block{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  border:  none;
+  border-radius: 5px;
+  box-shadow: 10px 10px 30px 1px rgba(0, 0, 0, 0.317);
+  background-color: white;
+ 
+  padding: 1rem;
+  box-sizing: border-box;
+
+}

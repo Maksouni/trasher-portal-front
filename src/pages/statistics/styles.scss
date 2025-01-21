@@ -1,0 +1,41 @@
+.statistics-page {
+  display: flex;
+  // flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 2rem;
+
+  .stats-blocks-list {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+  }
+
+  .charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .filters-container {
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    margin-bottom: auto;
+    margin-left: 2rem;
+
+    border: none;
+    border-radius: 5px;
+    box-shadow: 10px 10px 15px 1px rgba(0, 0, 0, 0.193);
+    background-color: white;
+
+    padding: 2rem;
+
+    .filters-heading {
+      margin-top: 0;
+      
+    }
+  }
+}
