@@ -8,10 +8,11 @@ $font-size: 24px;
   justify-content: center;
   align-items: start;
 
-  border:  none;
-  border-radius: 5px;
-  box-shadow: 10px 10px 15px 1px rgba(0, 0, 0, 0.193);
-  background-color: white;
+  // border:  none;
+  // border-radius: 5px;
+  // box-shadow: 10px 10px 15px 1px rgba(0, 0, 0, 0.193);
+  // background-color: white;
+  @include vars.container-border;
 
   font-size: $font-size;
   padding: 10px;
@@ -52,10 +53,11 @@ $font-size: 24px;
   justify-content: center;
   align-items: center;
 
-  border:  none;
-  border-radius: 5px;
-  box-shadow: 10px 10px 30px 1px rgba(0, 0, 0, 0.317);
-  background-color: white;
+  // border:  none;
+  // border-radius: 5px;
+  // box-shadow: 10px 10px 30px 1px rgba(0, 0, 0, 0.317);
+  // background-color: white;
+  @include vars.container-border;
  
   padding: 1rem;
   box-sizing: border-box;

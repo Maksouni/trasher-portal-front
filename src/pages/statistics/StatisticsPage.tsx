@@ -38,12 +38,19 @@ export default function StatisticsPage() {
   const filters = ["ПЭТ бутылки", "Алюминиевые банки", "Стеклянные бутылки"];
 
   const handleToggleFilter = (filter: string) => {
-    setSelectedFilters((prev) =>
-      prev.includes(filter)
+    setSelectedFilters((prev) => {
+      const updatedFilters = prev.includes(filter)
         ? prev.filter((f) => f !== filter)
-        : [...prev, filter]
-    );
-    setFilteredCharts(data.filter(x => x.title))
+        : [...prev, filter];
+
+      setFilteredCharts(
+        data.filter((item) =>
+          updatedFilters.length === 0 || updatedFilters.includes(item.title)
+        )
+      );
+
+      return updatedFilters;
+    });
   };
 
   const handleStartDateChange = (date: string) => {

@@ -15,20 +15,20 @@
   .input-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1rem; // space-y-2
+    margin-bottom: 1rem; 
 
     label {
-      margin-bottom: 0.25rem; // mb-1
-      font-size: 0.875rem; // text-sm
-      color: #6b7280; // text-gray-600
+      margin-bottom: 0.25rem; 
+      font-size: 1rem; 
+      color: #6b7280; 
     }
 
     input {
-      width: 100%; // w-full
-      padding: 0.5rem; // p-2
-      border: 1px solid #d1d5db; // border
-      border-radius: 0.25rem; // rounded
-      outline: none; // focus:outline-none
+      width: 100%; 
+      padding: 0.5rem; 
+      border: 1px solid #d1d5db; 
+      border-radius: 0.25rem; 
+      outline: none; 
       &:focus {
         outline: 2px solid vars.$primary-color;
       }
@@ -38,9 +38,9 @@
   }
 
   .date-display {
-    margin-top: 1rem; // mt-4
-    font-size: 0.875rem; // text-sm
-    color: #374151; // text-gray-700
+    margin-top: 1rem; 
+    font-size: 0.875rem; 
+    color: #374151; 
 
     p {
       margin: 0;
