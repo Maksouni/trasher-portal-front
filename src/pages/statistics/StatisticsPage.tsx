@@ -4,12 +4,47 @@ import "./styles.scss";
 import { BarChartRounded, PercentRounded } from "@mui/icons-material";
 import { useState } from "react";
 import DateFilter from "../../components/filters/DateFilter";
+import CheckFilters from "../../components/filters/CheckFilters";
+
+interface DataType{
+  id: number,
+  title: string
+}
 
 export default function StatisticsPage() {
   const totalCount = 25000;
   const accuracy = 50;
+
+  const data = [
+    {
+      id: 1,
+      title: "ПЭТ бутылки",
+    },
+    {
+      id: 2,
+      title: "Алюминиевые банки",
+    },
+    {
+      id: 3,
+      title: "Стеклянные бутылки",
+    },
+  ];
+
+  const [filteredCharts, setFilteredCharts] = useState<DataType[]>(data)
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
+  const filters = ["ПЭТ бутылки", "Алюминиевые банки", "Стеклянные бутылки"];
+
+  const handleToggleFilter = (filter: string) => {
+    setSelectedFilters((prev) =>
+      prev.includes(filter)
+        ? prev.filter((f) => f !== filter)
+        : [...prev, filter]
+    );
+    setFilteredCharts(data.filter(x => x.title))
+  };
 
   const handleStartDateChange = (date: string) => {
     setStartDate(date);
@@ -38,19 +73,24 @@ export default function StatisticsPage() {
           />
         </div>
         <div className="charts-container">
-          <ChartBlock title="ПЭТ бутылки" />
-          <ChartBlock title="Алюминиевые банки" />
-          <ChartBlock title="Стеклянные бутылки" />
+          {filteredCharts.map((x) => (
+            <ChartBlock title={x.title} />
+          ))}
         </div>
       </div>
       <div className="filters-container">
-        <h2>Фильтры</h2>
+        <h2 className="filters-heading">Фильтры</h2>
         <DateFilter
           label="Выберите промежуток времени"
           startDate={startDate}
           endDate={endDate}
           onStartDateChange={handleStartDateChange}
           onEndDateChange={handleEndDateChange}
+        />
+        <CheckFilters
+          filters={filters}
+          selectedFilters={selectedFilters}
+          onToggleFilter={handleToggleFilter}
         />
       </div>
     </div>

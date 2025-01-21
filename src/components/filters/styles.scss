@@ -47,3 +47,34 @@
     }
   }
 }
+
+
+.check-filters {
+  .check-filters-heading {
+    margin-bottom: 1rem;
+    margin-top: 1rem; 
+    font-size: 1.125rem; 
+    font-weight: 700; 
+    color: #374151; 
+  }
+
+  .filters-list {
+    list-style: none;
+    padding-left: 0;
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem; // space-y-2
+
+      .filter-checkbox {
+        margin-right: 0.5rem; // mr-2
+      }
+
+      .filter-label {
+        color: #374151; // text-gray-700
+      }
+    }
+  }
+}
+

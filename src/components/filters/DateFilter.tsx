@@ -32,7 +32,7 @@ export default function DateFilter({
       <label>{label}</label>
       <div className="input-group">
         <div>
-          <label htmlFor="start-date">Start Date</label>
+          <label htmlFor="start-date">Дата начала</label>
           <input
             type="date"
             id="start-date"
@@ -42,7 +42,7 @@ export default function DateFilter({
           />
         </div>
         <div>
-          <label htmlFor="end-date">End Date</label>
+          <label htmlFor="end-date">Дата конца</label>
           <input
             type="date"
             id="end-date"
@@ -54,8 +54,8 @@ export default function DateFilter({
         </div>
       </div>
       <div className="date-display">
-        <p>Start Date: {formatDate(startDate)}</p>
-        <p>End Date: {formatDate(endDate)}</p>
+        <p>Дата начала: {formatDate(startDate)}</p>
+        <p>Дата конца: {formatDate(endDate)}</p>
       </div>
     </div>
   );
