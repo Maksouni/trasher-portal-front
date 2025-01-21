@@ -1,16 +1,15 @@
-import './App.scss'
-import LoginPage from './pages/login/Login'
-import { AuthProvider } from './providers/auth/AuthProvider'
+import { Route, BrowserRouter as Router, Routes, Navigate } from "react-router-dom";
+import UserManagement from "./pages/user-actions/UserManagement";
+import RegisterUser from "./pages/user-actions/RegisterUser";
 
-function App() {
+const App = () => (
+  <Router>
+    <Routes>
+      <Route path="/" element={<Navigate to="/users" />} />
+      <Route path="/register" element={<RegisterUser />} />
+      <Route path="/users" element={<UserManagement />} />
+    </Routes>
+  </Router>
+);
 
-  return (
-    <div className="app">
-      <AuthProvider>
-        <Browser></Browser>
-      </AuthProvid>
-    </div>
-  )
-}
-
-export default App
+export default App;
