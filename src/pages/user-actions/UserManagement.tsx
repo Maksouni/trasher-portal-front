@@ -1,74 +1,81 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import './styles.scss'
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./styles.scss";
 
 interface User {
-	id: number
-	username: string
-	password: string
-	role: string
+  id: number;
+  username: string;
+  password: string;
+  role: string;
 }
 
 const mockUsers: User[] = [
-	{ id: 1, username: 'admin', password: 'admin', role: 'admin' },
-	{ id: 2, username: 'user1', password: 'admin', role: 'user' },
-	{ id: 3, username: 'user2', password: 'admin', role: 'user' }
-]
+  { id: 1, username: "admin", password: "admin", role: "admin" },
+  { id: 2, username: "user1", password: "admin", role: "user" },
+  { id: 3, username: "user2", password: "admin", role: "user" },
+];
 
-const roles = ['user', 'admin']
+const roles = ["user", "admin"];
 
 const UserManagement = () => {
-	const [users, setUsers] = useState<User[]>(mockUsers)
-	const navigate = useNavigate()
+  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
-	// const handleRoleChange = (userId: number, newRole: string) => {
-	// 	setUsers(
-	// 		users.map((user) =>
-	// 			user.id === userId ? { ...user, role: newRole } : user
-	// 		)
-	// 	)
-	// }
+  const handleEdit = (userId: number) => {
+    navigate(`edit/${userId}`);
+  };
 
-	const handleEdit = (userId: number) => {
-		navigate('edit')
-	}
+  return (
+    <div className="user-management-page">
+      <div className="container">
+        <div className="users-page">
+          <h1>Управление пользователями</h1>
+          <div className="search-wrapper">
+            <input
+              type="email"
+              id="email"
+              value={searchQuery}
+              placeholder="Поиск пользователей"
+							maxLength={50}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+						<button className="search-button">
+							Найти
+						</button>
+						<Link to="add">Добавить</Link>
+          </div>
+          
 
-	return (
-		<div className='user-management-page'>
-			<div className='container'>
-				<nav>
-					<Link to='/register'>Register New User</Link>
-				</nav>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Имя пользователя</th>
+                <th>Роль</th>
+                <th>Действие</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td>{user.id}</td>
+                  <td>{user.username}</td>
+                  <td>{user.role}</td>
+                  <td>
+                    <button onClick={() => handleEdit(user.id)}>
+                      Изменить
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-				<div className='users-page'>
-					<h1>User Management</h1>
-
-					<table>
-						<thead>
-							<tr>
-								<th style={{ width: '30px' }}>ID</th>
-								<th style={{ width: '100px' }}>Username</th>
-								<th style={{ width: '100px' }}>Role</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-							{users.map((user) => (
-								<tr key={user.id}>
-									<td>{user.id}</td>
-									<td>{user.username}</td>
-									<td>{user.role}</td>
-									<td>
-										<button onClick={() => handleEdit(user.id)}>Edit</button>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	)
-}
-
-export default UserManagement
+export default UserManagement;

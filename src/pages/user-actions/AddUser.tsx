@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './styles.scss'
 
-const RegisterUser = () => {
+const AddUser = () => {
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
 	const [role, setRole] = useState('')
@@ -30,7 +30,7 @@ const RegisterUser = () => {
 		<div className='register-page'>
 			<div className='container'>
 				<nav>
-					<Link to='/users'>User List</Link>
+					<Link to='/users'>Вернуться к списку пользователей</Link>
 				</nav>
 
 				<form onSubmit={handleRegister}>
@@ -78,4 +78,4 @@ const RegisterUser = () => {
 	)
 }
 
-export default RegisterUser
+export default AddUser

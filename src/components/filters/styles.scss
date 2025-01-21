@@ -6,10 +6,10 @@
 
 
   label {
-    margin-bottom: 0.5rem; // mb-2
-    font-size: 1.125rem; // text-lg
-    font-weight: 700; // font-bold
-    color: #374151; // text-gray-700
+    margin-bottom: 0.5rem; 
+    font-size: 1.3rem; 
+    font-weight: 700; 
+    color: #374151;
   }
 
   .input-group {
@@ -29,6 +29,7 @@
       border: 1px solid #d1d5db; 
       border-radius: 0.25rem; 
       outline: none; 
+      margin-block: 0.5rem;
       &:focus {
         outline: 2px solid vars.$primary-color;
       }
@@ -38,7 +39,7 @@
   }
 
   .date-display {
-    margin-top: 1rem; 
+    // margin-top: 1rem; 
     font-size: 0.875rem; 
     color: #374151; 
 
@@ -53,7 +54,7 @@
   .check-filters-heading {
     margin-bottom: 1rem;
     margin-top: 1rem; 
-    font-size: 1.125rem; 
+    font-size: 1.3rem; 
     font-weight: 700; 
     color: #374151; 
   }
@@ -61,18 +62,21 @@
   .filters-list {
     list-style: none;
     padding-left: 0;
+    font-size: 1.1rem;
 
     .filter-item {
       display: flex;
       align-items: center;
-      margin-bottom: 0.5rem; // space-y-2
+      margin-bottom: 0.5rem; 
 
       .filter-checkbox {
-        margin-right: 0.5rem; // mr-2
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: 0.5rem; 
       }
 
       .filter-label {
-        color: #374151; // text-gray-700
+        color: #374151; 
       }
     }
   }
