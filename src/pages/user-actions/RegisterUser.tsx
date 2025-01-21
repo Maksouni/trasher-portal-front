@@ -68,7 +68,8 @@ const RegisterUser = () => {
               padding: '8px',
               borderRadius: '4px',
               border: errors.username ? '1px solid red' : '1px solid #ddd',
-              width: '100%'
+              width: '100%',
+              boxSizing: 'border-box'
             }}
           />
           {errors.username && <span style={{ color: 'red', fontSize: '12px' }}>{errors.username}</span>}
@@ -84,7 +85,8 @@ const RegisterUser = () => {
               padding: '8px',
               borderRadius: '4px',
               border: errors.password ? '1px solid red' : '1px solid #ddd',
-              width: '100%'
+              width: '100%',
+              boxSizing: 'border-box'
             }}
           />
           {errors.password && <span style={{ color: 'red', fontSize: '12px' }}>{errors.password}</span>}
