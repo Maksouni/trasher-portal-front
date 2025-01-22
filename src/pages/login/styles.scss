@@ -1,54 +1,55 @@
-@use '../../variables.scss' as vars;
+@use "../../variables.scss" as vars;
 
 .login-page {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	min-height: 100vh;
-	background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
 
-	.container {
-		max-width: 400px;
-		width: 100%;
-		padding: 2rem;
-		
-		@include vars.container-border;
+  .container {
+    max-width: 400px;
+    width: 100%;
+    padding: 2rem;
 
-		h1 {
-			text-align: center;
-			margin-bottom: 2rem;
-			color: #212529;
-		}
+    @include vars.container-border;
 
-		form {
-			display: flex;
-			flex-direction: column;
-			gap: 1.5rem;
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #212529;
+    }
 
-			.text-field {
-				.MuiInputBase-root {
-					font-size: 1rem;
-				}
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
 
-				.MuiFormHelperText-root {
-					color: #dc3545;
-				}
-			}
+      .text-field {
+        .MuiInputBase-root {
+          font-size: 1rem;
+        }
 
-			button {
-				padding: 0.75rem;
-				background-color: vars.$color-blue;
-				color: white;
-				border: none;
-				border-radius: 4px;
-				font-size: 1rem;
-				cursor: pointer;
-				transition: background-color 0.2s;
+        .MuiFormHelperText-root {
+          color: #dc3545;
+        }
+      }
 
-				&:hover {
-					background-color: #0056b3;
-				}
-			}
-		}
-	}
+      button {
+        padding: 0.75rem;
+        background-color: vars.$color-blue;
+        color: white;
+
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: #0056b3;
+        }
+      }
+    }
+  }
 }
