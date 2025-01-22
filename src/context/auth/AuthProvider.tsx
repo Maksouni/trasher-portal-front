@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { User } from "../../types";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -10,33 +11,46 @@ interface AuthProviderProps {
 interface DecodedToken {
   iat: number;
   exp: number;
-  userId: number;
+  username: string;
+  role: string;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userId, setUserId] = useState(-1);
+  const [user, setUser] = useState<User>({
+    username: "",
+    role: "",
+  });
 
   useEffect(() => {
     const token = Cookies.get("jwt_token");
     if (token) {
       setIsAuthenticated(true);
       const decodedToken = jwtDecode<DecodedToken>(token);
-      setUserId(decodedToken.userId);
+      setUser({
+        username: decodedToken.username,
+        role: decodedToken.role,
+      });
     } else {
       setIsAuthenticated(false);
-      setUserId(-1);
+      setUser({
+        username: "",
+        role: "",
+      });
     }
   }, []);
 
   const login = (token: string) => {
     Cookies.set("jwt_token", token, {
-      expires: 1, // токен будет жить 7 дней
+      expires: 1, // жизнь токена
       secure: false, // true - только через HTTPS
       sameSite: "Strict", // куки отправляются только на тот же домен
     });
     const decodedToken = jwtDecode<DecodedToken>(token);
-    setUserId(decodedToken.userId);
+    setUser({
+      username: decodedToken.username,
+      role: decodedToken.role,
+    });
     setIsAuthenticated(true);
   };
 
@@ -46,7 +60,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, userId }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, user }}>
       {children}
     </AuthContext.Provider>
   );
