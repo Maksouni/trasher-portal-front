@@ -14,7 +14,6 @@ function App() {
 					<Routes>
 						<Route path='/' element={<StatisticsPage />} />
 						<Route path='login' element={<LoginPage />} />
-						{/* <Route path="/" element={<Navigate to="/users" />} /> */}
 						<Route path='/register' element={<RegisterUser />} />
 						<Route path='/users' element={<UserManagement />}>
 							<Route path='edit' element={<EditUser />} />

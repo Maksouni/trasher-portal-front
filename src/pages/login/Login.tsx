@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TextField, Button, Box, Typography } from '@mui/material'
+import { TextField, Button, Typography } from '@mui/material'
 import './styles.scss'
 
 export default function LoginPage() {
