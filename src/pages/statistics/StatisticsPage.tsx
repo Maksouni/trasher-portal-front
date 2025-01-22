@@ -15,6 +15,7 @@ export default function StatisticsPage() {
   const totalCount = 25000;
   const accuracy = 50;
 
+  
   const data = [
     {
       id: 1,

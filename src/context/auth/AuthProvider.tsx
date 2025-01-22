@@ -25,12 +25,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const token = Cookies.get("jwt_token");
     if (token) {
-      setIsAuthenticated(true);
-      const decodedToken = jwtDecode<DecodedToken>(token);
-      setUser({
-        username: decodedToken.username,
-        role: decodedToken.role,
-      });
+      try {
+        const decodedToken = jwtDecode<DecodedToken>(token);
+        setUser({
+          username: decodedToken.username,
+          role: decodedToken.role,
+        });
+        setIsAuthenticated(true);
+      } catch {
+        setIsAuthenticated(false);
+        setUser({
+          username: "",
+          role: "",
+        });
+      }
     } else {
       setIsAuthenticated(false);
       setUser({

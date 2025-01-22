@@ -5,21 +5,50 @@ import StatisticsPage from "./pages/statistics/StatisticsPage";
 import AddUser from "./pages/user-actions/AddUser";
 import UserManagement from "./pages/user-actions/UserManagement";
 import EditUser from "./pages/user-actions/EditUser";
+import RequireAuth from "./components/RequireAuth";
 
 function App() {
   return (
     <div className="app">
-      <AuthProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
           <Routes>
-            <Route path="/" element={<StatisticsPage />} />
-            <Route path="login" element={<LoginPage />} />
-            <Route path="/users" element={<UserManagement />} />
-            <Route path="/users/edit/:userId" element={<EditUser />} />
-            <Route path="/users/add" element={<AddUser />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/"
+              element={
+                <RequireAuth>
+                  <StatisticsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <RequireAuth>
+                  <UserManagement />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/users/edit/:userId"
+              element={
+                <RequireAuth>
+                  <EditUser />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/users/add"
+              element={
+                <RequireAuth>
+                  <AddUser />
+                </RequireAuth>
+              }
+            />
           </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </div>
   );
 }
