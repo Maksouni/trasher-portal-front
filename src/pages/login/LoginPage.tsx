@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { TextField, Button, Typography } from "@mui/material";
 import "./styles.scss";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +30,7 @@ export default function LoginPage() {
         password,
       });
       console.log(response.data);
+      navigate("/");
     } catch {
       console.log("no way");
     }
