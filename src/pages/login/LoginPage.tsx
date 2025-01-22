@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { TextField, Button, Typography } from "@mui/material";
 import "./styles.scss";
 import axios from "axios";
+import { useAuth } from "../../context/auth/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -29,10 +31,10 @@ export default function LoginPage() {
         username,
         password,
       });
-      console.log(response.data);
+      login(response.data.token);
       navigate("/");
-    } catch {
-      console.log("no way");
+    } catch (error) {
+      console.error(error);
     }
   };
 

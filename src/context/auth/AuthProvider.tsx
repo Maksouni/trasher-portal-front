@@ -11,8 +11,8 @@ interface AuthProviderProps {
 interface DecodedToken {
   iat: number;
   exp: number;
-  username: string;
-  role: string;
+  sub: string;
+  scope: string;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
@@ -28,8 +28,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         const decodedToken = jwtDecode<DecodedToken>(token);
         setUser({
-          username: decodedToken.username,
-          role: decodedToken.role,
+          username: decodedToken.sub,
+          role: decodedToken.scope,
         });
         setIsAuthenticated(true);
       } catch {
@@ -56,8 +56,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
     const decodedToken = jwtDecode<DecodedToken>(token);
     setUser({
-      username: decodedToken.username,
-      role: decodedToken.role,
+      username: decodedToken.sub,
+      role: decodedToken.scope,
     });
     setIsAuthenticated(true);
   };

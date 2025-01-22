@@ -10,14 +10,13 @@ function RequireAuth({ children }: RequireAuthProps) {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     navigate("/login");
-  //   }
-  // }, [isAuthenticated, navigate]);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
 
-  // return isAuthenticated ? children : null;
-  return children;
+  return isAuthenticated ? children : null;
 }
 
 export default RequireAuth;
