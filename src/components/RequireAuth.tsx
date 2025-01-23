@@ -11,6 +11,7 @@ function RequireAuth({ children }: RequireAuthProps) {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
+    console.log(isAuthenticated);
     if (!isAuthenticated) {
       navigate("/login");
     }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./styles.scss";
 
@@ -15,10 +15,11 @@ const mockUsers: User[] = [
   { id: 3, username: "user2", password: "admin", role: "user" },
 ];
 
-const roles = ["user", "admin"];
+// const roles = ["user", "admin"];
 
 const UserManagement = () => {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  // const [users, setUsers] = useState<User[]>(mockUsers);
+  const users = mockUsers;
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
@@ -37,16 +38,13 @@ const UserManagement = () => {
               id="email"
               value={searchQuery}
               placeholder="Поиск пользователей"
-							maxLength={50}
+              maxLength={50}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-						<button className="search-button">
-							Найти
-						</button>
-						<Link to="add">Добавить</Link>
+            <button className="search-button">Найти</button>
+            <Link to="add">Добавить</Link>
           </div>
-          
 
           <table>
             <thead>

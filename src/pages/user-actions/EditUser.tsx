@@ -1,8 +1,7 @@
-import './styles.scss'
-import React from 'react'
+import "./styles.scss";
 
 const EditUser = () => {
-	return <div></div>
-}
+  return <div></div>;
+};
 
-export default EditUser
+export default EditUser;
