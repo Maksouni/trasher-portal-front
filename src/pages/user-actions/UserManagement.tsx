@@ -29,6 +29,19 @@ const UserManagement = () => {
 
   return (
     <div className="user-management-page">
+      {/* удалить потмо */}
+      <nav>
+        <Link
+          style={{
+            position: "fixed",
+            top: 2,
+            left: 8,
+          }}
+          to="/"
+        >
+          На главную
+        </Link>
+      </nav>
       <div className="container">
         <div className="users-page">
           <h1>Управление пользователями</h1>

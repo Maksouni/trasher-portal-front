@@ -1,4 +1,4 @@
-@use '../../variables.scss' as vars;
+@use "../../variables.scss" as vars;
 
 .statistics-page {
   display: flex;
@@ -39,7 +39,6 @@
     .filters-heading {
       margin-top: 0;
       color: vars.$primary-color;
-      
     }
   }
 }

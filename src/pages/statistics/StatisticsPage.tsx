@@ -5,17 +5,18 @@ import { BarChartRounded, PercentRounded } from "@mui/icons-material";
 import { useState } from "react";
 import DateFilter from "../../components/filters/DateFilter";
 import CheckFilters from "../../components/filters/CheckFilters";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/auth/useAuth";
 
-interface DataType{
-  id: number,
-  title: string
+interface DataType {
+  id: number;
+  title: string;
 }
 
 export default function StatisticsPage() {
   const totalCount = 25000;
   const accuracy = 50;
 
-  
   const data = [
     {
       id: 1,
@@ -31,10 +32,11 @@ export default function StatisticsPage() {
     },
   ];
 
-  const [filteredCharts, setFilteredCharts] = useState<DataType[]>(data)
+  const [filteredCharts, setFilteredCharts] = useState<DataType[]>(data);
   const [startDate, setStartDate] = useState<string | null>(null);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const { logout } = useAuth();
 
   const filters = ["ПЭТ бутылки", "Алюминиевые банки", "Стеклянные бутылки"];
 
@@ -45,8 +47,9 @@ export default function StatisticsPage() {
         : [...prev, filter];
 
       setFilteredCharts(
-        data.filter((item) =>
-          updatedFilters.length === 0 || updatedFilters.includes(item.title)
+        data.filter(
+          (item) =>
+            updatedFilters.length === 0 || updatedFilters.includes(item.title)
         )
       );
 
@@ -67,6 +70,32 @@ export default function StatisticsPage() {
 
   return (
     <div className="statistics-page">
+      {/* удалить потом */}
+      <nav>
+        <Link
+          style={{
+            position: "fixed",
+            top: 2,
+            left: 8,
+          }}
+          to="/users"
+        >
+          Управление пользователями
+        </Link>
+        <button
+          style={{
+            position: "fixed",
+            top: 2,
+            right: 8,
+            color: "red",
+            background: "none",
+            padding: 0,
+          }}
+          onClick={() => logout()}
+        >
+          Выйти из аккаунта
+        </button>
+      </nav>
       <div className="stats-container">
         <div className="stats-blocks-list">
           <StatsBlock
