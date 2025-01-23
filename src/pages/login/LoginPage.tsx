@@ -72,7 +72,9 @@ export default function LoginPage() {
             label="Имя пользователя"
             variant="outlined"
             value={username}
-            onChange={(e) => handleInputChange(e, "username")}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleInputChange(e, "username")
+            }
             error={!!errors.username}
             helperText={errors.username}
             fullWidth
@@ -84,7 +86,9 @@ export default function LoginPage() {
             variant="outlined"
             type="password"
             value={password}
-            onChange={(e) => handleInputChange(e, "password")}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleInputChange(e, "password")
+            }
             error={!!errors.password}
             helperText={errors.password}
             fullWidth
