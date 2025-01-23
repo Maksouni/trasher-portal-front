@@ -6,18 +6,19 @@ interface RequireAuthProps {
   children: JSX.Element;
 }
 
-function RequireAuth({ children }: RequireAuthProps) {
+export default function RequireAuth({ children }: RequireAuthProps) {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    console.log(isAuthenticated);
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       navigate("/login");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Индикатор загрузки (опционально)
+  }
 
   return isAuthenticated ? children : null;
 }
-
-export default RequireAuth;

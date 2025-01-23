@@ -16,8 +16,12 @@ import { useAuth } from "./context/auth/useAuth";
 import { ReactNode } from "react";
 
 function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Индикатор загрузки (опционально)
+  }
 
   if (isAuthenticated) {
     const redirectTo = location.state?.from?.pathname || "/";

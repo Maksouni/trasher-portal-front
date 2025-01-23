@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     username: "",
     role: "",
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const token = Cookies.get("jwt_token");
@@ -46,6 +47,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         role: "",
       });
     }
+    setIsLoading(false);
   }, []);
 
   const login = (token: string) => {
@@ -68,7 +70,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, user }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, isLoading, login, logout, user }}
+    >
       {children}
     </AuthContext.Provider>
   );
