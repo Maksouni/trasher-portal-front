@@ -74,7 +74,7 @@ export default function StatisticsPage() {
       <nav>
         <Link
           style={{
-            position: "fixed",
+            position: "absolute",
             top: 2,
             left: 8,
           }}
@@ -84,7 +84,7 @@ export default function StatisticsPage() {
         </Link>
         <button
           style={{
-            position: "fixed",
+            position: "absolute",
             top: 2,
             right: 8,
             color: "red",
