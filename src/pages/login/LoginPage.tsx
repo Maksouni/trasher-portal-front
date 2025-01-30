@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { TextField, Button, Typography, Alert } from "@mui/material";
-import "./styles.scss";
 import axios from "axios";
 import { useAuth } from "../../context/auth/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +35,20 @@ export default function LoginPage() {
       navigate("/");
     } catch (error) {
       console.error(error);
-      setLoginError("Неверное имя пользователя или пароль");
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          setLoginError("Неверное имя пользователя или пароль");
+        } else if (error.request) {
+          // Запрос был сделан, но ответ не получен (например, проблемы с сетью)
+          setLoginError("Ошибка подключения к серверу. Попробуйте позже");
+        } else {
+          // Ошибка при настройке запроса
+          setLoginError("Произошла ошибка при отправке запроса");
+        }
+      } else {
+        // Не axios ошибка
+        setLoginError("Произошла непредвиденная ошибка");
+      }
     }
   };
 

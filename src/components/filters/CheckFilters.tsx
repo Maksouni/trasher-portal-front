@@ -1,5 +1,3 @@
-import "./styles.scss";
-
 interface CheckFiltersProps {
   filters: string[];
   selectedFilters: string[];

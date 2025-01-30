@@ -1,5 +1,3 @@
-import "./styles.scss";
-
 const EditUser = () => {
   return <div></div>;
 };

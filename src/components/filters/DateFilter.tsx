@@ -1,5 +1,3 @@
-import './styles.scss';
-
 interface DateFilterProps {
   label: string;
   startDate: string | null;
