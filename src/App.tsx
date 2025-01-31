@@ -14,6 +14,20 @@ import EditUser from "./pages/user-actions/EditUser";
 import RequireAuth from "./components/RequireAuth";
 import { useAuth } from "./context/auth/useAuth";
 import { ReactNode } from "react";
+import {
+  Box,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Button,
+  Drawer,
+} from "@mui/material";
+import InboxIcon from "@mui/icons-material/Inbox";
+import MailIcon from "@mui/icons-material/Mail";
+import React from "react";
 
 function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -32,10 +46,54 @@ function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
 }
 
 function App() {
+  const [open, setOpen] = React.useState(false);
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpen(newOpen);
+  };
+
+  const DrawerList = (
+    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
+      <List>
+        {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+          <ListItem key={text} disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+              </ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <List>
+        {["All mail", "Trash", "Spam"].map((text, index) => (
+          <ListItem key={text} disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+              </ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
   return (
     <div className="app">
       <BrowserRouter>
         <AuthProvider>
+          {window.location.pathname != "/login" && (
+            <>
+              <Button onClick={toggleDrawer(true)}>Open drawer</Button>
+              <Drawer open={open} onClose={toggleDrawer(false)}>
+                {DrawerList}
+              </Drawer>
+            </>
+          )}
+
           <Routes>
             <Route
               path="/login"
