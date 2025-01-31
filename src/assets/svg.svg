@@ -1,0 +1,40 @@
+<svg width="375" height="800" viewBox="0 0 375 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Фон -->
+  <rect width="375" height="800" fill="#F5F5F5"/>
+  
+  <!-- Кнопка сайдбара -->
+  <rect x="20" y="20" width="40" height="40" rx="5" fill="#DDD"/>
+  <text x="30" y="45" font-size="16" fill="#333">☰</text>
+
+  <!-- Фильтр по датам -->
+  <rect x="80" y="20" width="200" height="40" rx="5" fill="#EEE"/>
+  <text x="100" y="45" font-size="14" fill="#333">Дата: 01.01.24 - 31.01.24</text>
+
+  <!-- Фильтр по категориям (чекбоксы) -->
+  <rect x="20" y="70" width="335" height="40" rx="5" fill="#EEE"/>
+  <text x="30" y="95" font-size="14" fill="#333">Категории: [☑ A] [☐ B] [☑ C]</text>
+
+  <!-- Блок: Общие обнаружения -->
+  <rect x="20" y="130" width="335" height="80" rx="10" fill="#FFF" stroke="#DDD"/>
+  <text x="30" y="160" font-size="16" fill="#333">Обнаружения</text>
+  <text x="30" y="180" font-size="20" font-weight="bold" fill="#000">1,234</text>
+
+  <!-- Блок: Общая точность -->
+  <rect x="20" y="220" width="335" height="80" rx="10" fill="#FFF" stroke="#DDD"/>
+  <text x="30" y="250" font-size="16" fill="#333">Точность</text>
+  <text x="30" y="270" font-size="20" font-weight="bold" fill="#000">96%</text>
+
+  <!-- График: Обнаружения по категориям -->
+  <rect x="20" y="320" width="335" height="200" rx="10" fill="#FFF" stroke="#DDD"/>
+  <text x="30" y="350" font-size="16" fill="#333">График: Обнаружения</text>
+  <line x1="30" y1="490" x2="330" y2="490" stroke="#DDD"/>
+  <line x1="30" y1="390" x2="330" y2="450" stroke="#007AFF" stroke-width="2"/>
+  <circle cx="330" cy="450" r="4" fill="#007AFF"/>
+
+  <!-- График: Точность по датам -->
+  <rect x="20" y="540" width="335" height="200" rx="10" fill="#FFF" stroke="#DDD"/>
+  <text x="30" y="570" font-size="16" fill="#333">График: Точность</text>
+  <line x1="30" y1="710" x2="330" y2="710" stroke="#DDD"/>
+  <line x1="30" y1="650" x2="330" y2="600" stroke="#FF9500" stroke-width="2"/>
+  <circle cx="330" cy="600" r="4" fill="#FF9500"/>
+</svg>
