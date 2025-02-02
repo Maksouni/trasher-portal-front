@@ -67,8 +67,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="container">
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="flex flex-col gap-4 items-center p-6 pb-2 bg-white rounded-lg shadow-xl max-w-md max-md:m-3 w-full">
         <Typography variant="h4" component="h1" gutterBottom>
           Вход
         </Typography>
@@ -79,7 +79,7 @@ export default function LoginPage() {
           </Alert>
         )}
 
-        <form onSubmit={handleLogin}>
+        <form className="flex flex-col gap-6 w-full m-4" onSubmit={handleLogin}>
           <TextField
             label="Имя пользователя"
             variant="outlined"
@@ -107,7 +107,13 @@ export default function LoginPage() {
             className="text-field"
           />
 
-          <Button type="submit" variant="contained" color="primary" fullWidth>
+          <Button
+            sx={{ height: "3rem" }}
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+          >
             Войти
           </Button>
         </form>

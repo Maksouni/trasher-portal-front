@@ -41,7 +41,7 @@ function App() {
       <div className="app">
         <BrowserRouter>
           <AuthProvider>
-            {window.location.pathname != "/login" && <Header />}
+            <Header />
 
             <Routes>
               <Route

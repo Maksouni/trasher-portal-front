@@ -16,9 +16,15 @@ import MailIcon from "@mui/icons-material/Mail";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import React from "react";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
+import { useLocation } from "react-router-dom";
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
+  const location = useLocation();
+
+  if (location.pathname === "/login") {
+    return null;
+  }
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
