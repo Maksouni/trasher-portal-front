@@ -15,6 +15,7 @@ import InboxIcon from "@mui/icons-material/Inbox";
 import MailIcon from "@mui/icons-material/Mail";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import React from "react";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
@@ -23,16 +24,21 @@ export default function Header() {
     setOpen(newOpen);
   };
 
+  const DrawerItems = [
+    {
+      title: "Графики",
+      icon: <ShowChartIcon />,
+    },
+  ];
+
   const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>
-        {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-          <ListItem key={text} disablePadding>
+        {DrawerItems.map((item, index) => (
+          <ListItem key={index} disablePadding>
             <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.title} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -53,13 +59,11 @@ export default function Header() {
     </Box>
   );
   return (
-    <div className="m-2" style={{ display: "flex", alignItems: "center" }}>
+    <div className="m-2 flex items-center">
       <IconButton
         sx={{
           height: "40px",
           width: "40px",
-          backgroundColor: "primary.main",
-          color: "#fff",
           borderRadius: "4px",
         }}
         onClick={toggleDrawer(true)}
@@ -69,12 +73,11 @@ export default function Header() {
       <Button
         variant="contained"
         startIcon={<FilterListIcon />}
+        color="primary"
         sx={{
           flexGrow: 1,
           height: "40px",
           marginLeft: "8px",
-          backgroundColor: "#3f51b5",
-          color: "#fff",
         }}
       >
         Фильтры

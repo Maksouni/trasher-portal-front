@@ -24,8 +24,5 @@ export function getTheme(mode: "light" | "dark") {
         main: mode === "dark" ? "#03dac6" : "#dc004e", // Вторичный цвет для кнопок
       },
     },
-    typography: {
-      fontFamily: '"Liberation Mono", "Roboto", "Arial", sans-serif',
-    },
   });
 }
