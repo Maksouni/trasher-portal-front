@@ -70,8 +70,8 @@ export default function ChartBlock({ title }: ChartBlockProps) {
   };
 
   const downloadFile = async () => {
-    const date1 = new Date(2025, 0, 1).toISOString().split("T")[0];
-    const date2 = new Date(2025, 0, 15).toISOString().split("T")[0];
+    const date1 = new Date(Date.UTC(2025, 0, 1, 7)).toISOString();
+    const date2 = new Date(Date.UTC(2025, 0, 15, 7)).toISOString();
 
     try {
       const response = await axios.get(
