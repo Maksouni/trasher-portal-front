@@ -75,7 +75,7 @@ export default function ChartBlock({ title }: ChartBlockProps) {
 
     try {
       const response = await axios.get(
-        `${apiUrl}/generate-report?date1=${date1}&date2=${date2}`,
+        `${apiUrl}reports?category=Plastic&from=${date1}&to=${date2}`,
         {
           responseType: "blob",
         }
