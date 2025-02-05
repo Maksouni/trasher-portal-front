@@ -37,8 +37,8 @@ export default function StatisticsPage() {
   ];
 
   const [filteredCharts, setFilteredCharts] = useState<DataType[]>(data);
-  const [startDate, setStartDate] = useState<string | null>(null);
-  const [endDate, setEndDate] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState<string>(new Date().toISOString());
+  const [endDate, setEndDate] = useState<string>(new Date().toISOString());
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const { logout } = useAuth();
 
@@ -62,14 +62,14 @@ export default function StatisticsPage() {
   };
 
   const handleStartDateChange = (date: string) => {
-    setStartDate(date);
-    if (endDate && date > endDate) {
-      setEndDate(date);
+    setStartDate(new Date(date).toISOString());
+    if (endDate && new Date(date) > new Date(endDate)) {
+      setEndDate(new Date(date).toISOString());
     }
   };
 
   const handleEndDateChange = (date: string) => {
-    setEndDate(date);
+    setEndDate(new Date(date).toISOString());
   };
 
   const downloadFile = async () => {
