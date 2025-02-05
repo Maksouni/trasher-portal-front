@@ -2,18 +2,19 @@ import StatsBlock from "../../components/statistics/StatsBlock";
 import ChartBlock from "../../components/statistics/ChartBlock";
 import "./styles.scss";
 import { BarChartRounded, Download, PercentRounded } from "@mui/icons-material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DateFilter from "../../components/filters/DateFilter";
 import CheckFilters from "../../components/filters/CheckFilters";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/auth/useAuth";
 import { Alert, Button, Snackbar } from "@mui/material";
 import axios from "../../api/axios";
+import qs from "qs";
 import { apiUrl } from "../../dotenv";
 
-interface DataType {
+export interface ChartType {
   id: number;
-  title: string;
+  name: string;
 }
 
 export default function StatisticsPage() {
@@ -21,44 +22,42 @@ export default function StatisticsPage() {
   const accuracy = 50;
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const data = [
-    {
-      id: 1,
-      title: "ПЭТ бутылки",
-    },
-    {
-      id: 2,
-      title: "Алюминиевые банки",
-    },
-    {
-      id: 3,
-      title: "Стеклянные бутылки",
-    },
-  ];
-
-  const [filteredCharts, setFilteredCharts] = useState<DataType[]>(data);
-  const [startDate, setStartDate] = useState<string>(new Date().toISOString());
-  const [endDate, setEndDate] = useState<string>(new Date().toISOString());
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [charts, setCharts] = useState<ChartType[]>([]);
+  const [filteredCharts, setFilteredCharts] = useState<ChartType[]>(charts);
+  const [startDate, setStartDate] = useState<string>(
+    new Date(new Date().setDate(new Date().getDate() - 7))
+      .toISOString()
+      .split("T")[0]
+  );
+  const [endDate, setEndDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+  const [selectedFilters, setSelectedFilters] = useState<ChartType[]>([]);
   const { logout } = useAuth();
 
-  const filters = [
-    "ПЭТ бутылки",
-    "Алюминиевые банки",
-    "Стеклянные бутылки",
-    "ПЭТ пакет",
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await axios.get(`${apiUrl}categories`);
+      setCharts(response.data);
+    };
+    fetchData();
+  }, []);
 
-  const handleToggleFilter = (filter: string) => {
+  useEffect(() => {
+    setFilteredCharts(charts);
+  }, [charts]);
+
+  const handleToggleFilter = (filter: ChartType) => {
     setSelectedFilters((prev) => {
-      const updatedFilters = prev.includes(filter)
-        ? prev.filter((f) => f !== filter)
+      const updatedFilters = prev.some((f) => f.id === filter.id)
+        ? prev.filter((f) => f.id !== filter.id)
         : [...prev, filter];
 
       setFilteredCharts(
-        data.filter(
-          (item) =>
-            updatedFilters.length === 0 || updatedFilters.includes(item.title)
+        charts.filter(
+          (chart) =>
+            updatedFilters.length === 0 ||
+            updatedFilters.some((f) => f.name === chart.name)
         )
       );
 
@@ -67,9 +66,9 @@ export default function StatisticsPage() {
   };
 
   const handleStartDateChange = (date: string) => {
-    setStartDate(new Date(date).toISOString());
+    setStartDate(date);
     if (endDate && new Date(date) > new Date(endDate)) {
-      setEndDate(new Date(date).toISOString());
+      setEndDate(date);
     }
   };
 
@@ -82,12 +81,16 @@ export default function StatisticsPage() {
     const date2 = endDate;
 
     try {
-      const response = await axios.get(
-        `${apiUrl}reports?category=Plastic&from=${date1}&to=${date2}`,
-        {
-          responseType: "blob",
-        }
-      );
+      const response = await axios.get(`${apiUrl}reports`, {
+        params: {
+          category: filteredCharts.map((filter) => filter.id),
+          from: date1,
+          to: date2,
+        },
+        paramsSerializer: (params) =>
+          qs.stringify(params, { arrayFormat: "repeat" }),
+        responseType: "blob",
+      });
 
       const blob = new Blob([response.data], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME-тип Excel
@@ -151,9 +154,13 @@ export default function StatisticsPage() {
           />
         </div>
         <div className="charts-container">
-          {filteredCharts.map((x) => (
-            <ChartBlock title={x.title} />
-          ))}
+          <ul style={{ listStyle: "none", padding: 0, marginTop: "0" }}>
+            {filteredCharts.map((x) => (
+              <li key={x.id} style={{ marginBottom: "2rem" }}>
+                <ChartBlock title={x.name} />
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
       <div className="filters-container">
@@ -166,7 +173,7 @@ export default function StatisticsPage() {
           onEndDateChange={handleEndDateChange}
         />
         <CheckFilters
-          filters={filters}
+          filters={charts}
           selectedFilters={selectedFilters}
           onToggleFilter={handleToggleFilter}
         />

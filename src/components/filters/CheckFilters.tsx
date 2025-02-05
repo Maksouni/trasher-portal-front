@@ -1,9 +1,10 @@
 import "./styles.scss";
+import { ChartType } from "../../pages/statistics/StatisticsPage";
 
 interface CheckFiltersProps {
-  filters: string[];
-  selectedFilters: string[];
-  onToggleFilter: (filter: string) => void;
+  filters: ChartType[];
+  selectedFilters: ChartType[];
+  onToggleFilter: (filter: ChartType) => void;
 }
 
 export default function CheckFilters({
@@ -15,17 +16,17 @@ export default function CheckFilters({
     <div className="check-filters">
       <h2 className="check-filters-heading">Категории</h2>
       <ul className="filters-list">
-        {filters.map((filter, index) => (
-          <li key={index} className="filter-item">
+        {filters.map((filter) => (
+          <li key={filter.id} className="filter-item">
             <input
               type="checkbox"
-              id={`filter-${index}`}
+              id={`filter-${filter.id}`}
               checked={selectedFilters.includes(filter)}
               onChange={() => onToggleFilter(filter)}
               className="filter-checkbox"
             />
-            <label htmlFor={`filter-${index}`} className="filter-label">
-              {filter}
+            <label htmlFor={`filter-${filter.id}`} className="filter-label">
+              {filter.name}
             </label>
           </li>
         ))}
