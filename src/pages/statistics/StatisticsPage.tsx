@@ -1,12 +1,15 @@
 import StatsBlock from "../../components/statistics/StatsBlock";
 import ChartBlock from "../../components/statistics/ChartBlock";
 import "./styles.scss";
-import { BarChartRounded, PercentRounded } from "@mui/icons-material";
+import { BarChartRounded, Download, PercentRounded } from "@mui/icons-material";
 import { useState } from "react";
 import DateFilter from "../../components/filters/DateFilter";
 import CheckFilters from "../../components/filters/CheckFilters";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/auth/useAuth";
+import { Alert, Button, Snackbar } from "@mui/material";
+import axios from "../../api/axios";
+import { apiUrl } from "../../dotenv";
 
 interface DataType {
   id: number;
@@ -16,6 +19,7 @@ interface DataType {
 export default function StatisticsPage() {
   const totalCount = 25000;
   const accuracy = 50;
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const data = [
     {
@@ -66,6 +70,38 @@ export default function StatisticsPage() {
 
   const handleEndDateChange = (date: string) => {
     setEndDate(date);
+  };
+
+  const downloadFile = async () => {
+    const date1 = startDate;
+    const date2 = endDate;
+
+    try {
+      const response = await axios.get(
+        `${apiUrl}reports?category=Plastic&from=${date1}&to=${date2}`,
+        {
+          responseType: "blob",
+        }
+      );
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME-тип Excel
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "report.xlsx"; // Имя файла
+      document.body.appendChild(link);
+      link.click();
+
+      // Очистка
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Ошибка скачивания:", error);
+      setErrorMessage("Не удалось скачать отчёт. Попробуйте позже.");
+    }
   };
 
   return (
@@ -129,7 +165,31 @@ export default function StatisticsPage() {
           selectedFilters={selectedFilters}
           onToggleFilter={handleToggleFilter}
         />
+        <Button
+          type="button"
+          variant="contained"
+          color="success"
+          startIcon={<Download />}
+          sx={{ marginRight: "auto", marginTop: "1rem" }}
+          onClick={downloadFile}
+        >
+          Скачать отчёт
+        </Button>
       </div>
+      <Snackbar
+        open={!!errorMessage}
+        autoHideDuration={4000}
+        onClose={() => setErrorMessage(null)}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setErrorMessage(null)}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

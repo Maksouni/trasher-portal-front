@@ -1,7 +1,3 @@
-import { useState } from "react";
-import { Download } from "@mui/icons-material";
-import { Button, Snackbar, Alert } from "@mui/material";
-import axios from "../../api/axios";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,7 +9,6 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { apiUrl } from "../../dotenv";
 
 ChartJS.register(
   CategoryScale,
@@ -30,8 +25,6 @@ interface ChartBlockProps {
 }
 
 export default function ChartBlock({ title }: ChartBlockProps) {
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const options = {
     responsive: true,
     plugins: {
@@ -69,68 +62,10 @@ export default function ChartBlock({ title }: ChartBlockProps) {
     ],
   };
 
-  const downloadFile = async () => {
-    const date1 = new Date(Date.UTC(2025, 0, 1, 7)).toISOString();
-    const date2 = new Date(Date.UTC(2025, 0, 15, 7)).toISOString();
-
-    try {
-      const response = await axios.get(
-        `${apiUrl}reports?category=Plastic&from=${date1}&to=${date2}`,
-        {
-          responseType: "blob",
-        }
-      );
-
-      const blob = new Blob([response.data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME-тип Excel
-      });
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "report.xlsx"; // Имя файла
-      document.body.appendChild(link);
-      link.click();
-
-      // Очистка
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Ошибка скачивания:", error);
-      setErrorMessage("Не удалось скачать отчёт. Попробуйте позже.");
-    }
-  };
-
   return (
     <div className="chart-block">
       <h2>{title}</h2>
       <Line options={options} data={data} />
-      <Button
-        type="button"
-        variant="contained"
-        color="success"
-        startIcon={<Download />}
-        sx={{ marginLeft: "auto", marginTop: "1rem" }}
-        onClick={downloadFile}
-      >
-        Скачать отчёт
-      </Button>
-
-      {/* Уведомление об ошибке */}
-      <Snackbar
-        open={!!errorMessage}
-        autoHideDuration={4000}
-        onClose={() => setErrorMessage(null)}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setErrorMessage(null)}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
     </div>
   );
 }
