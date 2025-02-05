@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = (token: string) => {
     Cookies.set("jwt_token", token, {
-      expires: 1, // жизнь токена
+      expires: 5, // жизнь токена
       secure: false, // true - только через HTTPS
       sameSite: "Strict", // куки отправляются только на тот же домен
     });

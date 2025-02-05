@@ -11,12 +11,13 @@ import {
   Button,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import InboxIcon from "@mui/icons-material/Inbox";
-import MailIcon from "@mui/icons-material/Mail";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import React from "react";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import { useLocation } from "react-router-dom";
+import { themeColors } from "../theme";
 
 export default function Header() {
   const [open, setOpen] = React.useState(false);
@@ -30,17 +31,29 @@ export default function Header() {
     setOpen(newOpen);
   };
 
-  const DrawerItems = [
+  const DrawerItems1 = [
     {
       title: "Графики",
       icon: <ShowChartIcon />,
+    },
+  ];
+  const DrawerItems2 = [
+    {
+      title: "Управление пользователями",
+      icon: <ManageAccountsIcon sx={{ color: themeColors.primary }} />,
+      color: themeColors.primary,
+    },
+    {
+      title: "Выйти из аккаунта",
+      icon: <ExitToAppIcon sx={{ color: themeColors.secondary }} />,
+      color: themeColors.secondary,
     },
   ];
 
   const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>
-        {DrawerItems.map((item, index) => (
+        {DrawerItems1.map((item, index) => (
           <ListItem key={index} disablePadding>
             <ListItemButton>
               <ListItemIcon>{item.icon}</ListItemIcon>
@@ -51,13 +64,11 @@ export default function Header() {
       </List>
       <Divider />
       <List>
-        {["All mail", "Trash", "Spam"].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
+        {DrawerItems2.map((item, index) => (
+          <ListItem key={index} disablePadding>
+            <ListItemButton sx={{ color: item.color }}>
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.title} />
             </ListItemButton>
           </ListItem>
         ))}
