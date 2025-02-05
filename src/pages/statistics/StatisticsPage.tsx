@@ -42,7 +42,12 @@ export default function StatisticsPage() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const { logout } = useAuth();
 
-  const filters = ["ПЭТ бутылки", "Алюминиевые банки", "Стеклянные бутылки"];
+  const filters = [
+    "ПЭТ бутылки",
+    "Алюминиевые банки",
+    "Стеклянные бутылки",
+    "ПЭТ пакет",
+  ];
 
   const handleToggleFilter = (filter: string) => {
     setSelectedFilters((prev) => {
