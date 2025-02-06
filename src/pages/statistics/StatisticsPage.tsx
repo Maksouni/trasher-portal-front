@@ -83,7 +83,7 @@ export default function StatisticsPage() {
     try {
       const response = await axios.get(`${apiUrl}reports`, {
         params: {
-          category: filteredCharts.map((filter) => filter.id),
+          cat: filteredCharts.map((filter) => filter.id),
           from: date1,
           to: date2,
         },
