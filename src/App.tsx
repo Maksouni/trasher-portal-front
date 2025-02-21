@@ -15,7 +15,7 @@ import AddUser from "./pages/user-actions/AddUser";
 import EditUser from "./pages/user-actions/EditUser";
 import UserManagement from "./pages/user-actions/UserManagement";
 import Header from "./components/Header";
-import { ThemeProvider } from "@mui/material";
+import { Backdrop, CircularProgress, ThemeProvider } from "@mui/material";
 import { getTheme } from "./theme";
 import StreamPage from "./pages/stream/StreamPage";
 
@@ -24,7 +24,16 @@ function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   if (isLoading) {
-    return <div>Loading...</div>; // Индикатор загрузки
+    return (
+      <div>
+        <Backdrop
+          sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+          open={true}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      </div>
+    );
   }
 
   if (isAuthenticated) {
