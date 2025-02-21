@@ -17,6 +17,7 @@ import UserManagement from "./pages/user-actions/UserManagement";
 import Header from "./components/Header";
 import { ThemeProvider } from "@mui/material";
 import { getTheme } from "./theme";
+import StreamPage from "./pages/stream/StreamPage";
 
 function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -57,6 +58,14 @@ function App() {
                 element={
                   <RequireAuth>
                     <StatisticsPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/stream"
+                element={
+                  <RequireAuth>
+                    <StreamPage />
                   </RequireAuth>
                 }
               />
