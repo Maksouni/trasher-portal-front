@@ -1,7 +1,7 @@
 export const themeColors = {
   primary: "#3f51b5",
-  secondary: "#f50057",
-  tertiary: "#03dac6"
+  secondary: "#dc004e",
+  tertiary: "#03dac6",
 };
 
 import { createTheme } from "@mui/material/styles";
@@ -23,6 +23,9 @@ export function getTheme(mode: "light" | "dark") {
       },
       secondary: {
         main: mode === "dark" ? "#03dac6" : "#dc004e", // Вторичный цвет для кнопок
+      },
+      success: {
+        main: mode === "dark" ? "#4caf50" : "#388e3c", // Цвет для успешных действий
       },
     },
   });
