@@ -1,7 +1,10 @@
+import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
+import { ChartType } from "../../pages/statistics/StatisticsPage";
+
 interface CheckFiltersProps {
-  filters: string[];
-  selectedFilters: string[];
-  onToggleFilter: (filter: string) => void;
+  filters: ChartType[];
+  selectedFilters: ChartType[];
+  onToggleFilter: (filter: ChartType) => void;
 }
 
 export default function CheckFilters({
@@ -10,24 +13,20 @@ export default function CheckFilters({
   onToggleFilter,
 }: CheckFiltersProps) {
   return (
-    <div className="check-filters">
-      <h2 className="check-filters-heading">Категории</h2>
-      <ul className="filters-list">
-        {filters.map((filter, index) => (
-          <li key={index} className="filter-item">
-            <input
-              type="checkbox"
-              id={`filter-${index}`}
+    <FormGroup>
+      {filters.map((filter) => (
+        <FormControlLabel
+          key={filter.id}
+          control={
+            <Checkbox
+              id={`filter-${filter.id}`}
               checked={selectedFilters.includes(filter)}
               onChange={() => onToggleFilter(filter)}
-              className="filter-checkbox"
             />
-            <label htmlFor={`filter-${index}`} className="filter-label">
-              {filter}
-            </label>
-          </li>
-        ))}
-      </ul>
-    </div>
+          }
+          label={filter.name}
+        />
+      ))}
+    </FormGroup>
   );
 }
