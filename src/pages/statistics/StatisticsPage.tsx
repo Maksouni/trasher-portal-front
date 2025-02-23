@@ -10,12 +10,15 @@ import {
   Typography,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
+import BarChartRounded from "@mui/icons-material/BarChartRounded";
+import PercentRounded from "@mui/icons-material/PercentRounded";
 import DateFilter from "../../components/filters/DateFilter";
 import { useEffect, useState } from "react";
 import axios from "../../api/axios";
 import { apiUrl } from "../../dotenv";
 import CheckFilters from "../../components/filters/CheckFilters";
 import qs from "qs";
+import StatsBlock from "../../components/statistics/StatsBlock";
 
 export interface ChartType {
   id: number;
@@ -23,6 +26,8 @@ export interface ChartType {
 }
 
 export default function StatisticsPage() {
+  const totalCount = 25000;
+  const accuracy = 50;
   const [charts, setCharts] = useState<ChartType[]>([]);
   const [filteredCharts, setFilteredCharts] = useState<ChartType[]>(charts);
 
@@ -174,6 +179,22 @@ export default function StatisticsPage() {
         Скачать отчёт
       </Button>
 
+      {/* stats */}
+      <div className="flex flex-col gap-2 mt-2">
+        {/* general blocks */}
+        <StatsBlock
+          icon={<BarChartRounded className="text-primary" />}
+          value={totalCount.toLocaleString("ru-RU")}
+          title="Общее количество обнаружений"
+        />
+        <StatsBlock
+          icon={<PercentRounded className="" />}
+          value={`${accuracy}`}
+          title="Общая точность"
+        />
+      </div>
+
+      {/* Snackbar */}
       <Snackbar
         open={!!errorMessage}
         autoHideDuration={4000}
