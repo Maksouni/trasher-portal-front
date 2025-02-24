@@ -8,10 +8,15 @@ interface StatsBlockProps {
 
 export default function StatsBlock({ icon, title, value }: StatsBlockProps) {
   return (
-    <div className="flex flex-col items-start bg-white shadow-md rounded-md p-2 gap-1">
-      {icon}
-      <h2>{value}</h2>
-      <p>{title}</p>
+    <div
+      className="flex items-center p-4 shadow-lg rounded-2xl
+     bg-white max-w-md w-full"
+    >
+      <div className="mr-4 text-blue-500">{icon}</div>
+      <div className="flex flex-col">
+        <span className="text-xl font-bold text-gray-800">{value}</span>
+        <span className="text-md text-gray-500">{title}</span>
+      </div>
     </div>
   );
 }
