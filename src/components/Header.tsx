@@ -10,6 +10,7 @@ import {
   ListItemText,
   Typography,
   SvgIcon,
+  useMediaQuery,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import VideocamIcon from "@mui/icons-material/Videocam";
@@ -26,6 +27,7 @@ export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const isLargeScreen = useMediaQuery("(min-width:1024px)");
 
   if (location.pathname === "/login") {
     return null;
@@ -62,16 +64,20 @@ export default function Header() {
     {
       title: "Статистика",
       icon: <ShowChartIcon />,
+      color: "black",
       onClick: () => {
         navigate("/");
       },
+      address: "/",
     },
     {
       title: "Поток",
       icon: <VideocamIcon />,
+      color: "black",
       onClick: () => {
         navigate("/stream");
       },
+      address: "/stream",
     },
   ];
   const DrawerItems2 = [
@@ -82,6 +88,7 @@ export default function Header() {
       onClick: () => {
         navigate("/users");
       },
+      address: "/users",
     },
     {
       title: "Выйти из аккаунта",
@@ -90,6 +97,7 @@ export default function Header() {
       onClick: () => {
         logout();
       },
+      address: "/logout",
     },
   ];
 
@@ -118,26 +126,62 @@ export default function Header() {
       </List>
     </Box>
   );
+
   return (
     <header className="w-full flex items-center justify-center">
       <div className="m-2 w-full max-w-[1024px] 2xl:max-w-[] flex items-center bg-white shadow-md rounded-md p-2 pb-1 pt-1">
-        <IconButton
-          sx={{
-            height: "40px",
-            width: "40px",
-            borderRadius: "4px",
-          }}
-          onClick={toggleDrawer(true)}
-        >
-          <MenuIcon />
-        </IconButton>
+        {!isLargeScreen && (
+          <>
+            <IconButton
+              sx={{
+                height: "40px",
+                width: "40px",
+                borderRadius: "4px",
+              }}
+              onClick={toggleDrawer(true)}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" sx={{ flexGrow: 1, marginLeft: 2 }}>
+              {addresses.find(
+                (address) => address.address === location.pathname
+              )?.title || "Ошибка"}
+            </Typography>
+          </>
+        )}
 
-        <Typography variant="h6" sx={{ flexGrow: 1, marginLeft: 2 }}>
-          {addresses.find((address) => address.address === location.pathname)
-            ?.title || "Ошибка"}
-        </Typography>
+        {isLargeScreen && (
+          <div className="flex space-x-4 w-full ml-2">
+            {DrawerItems1.concat(DrawerItems2).map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center cursor-pointer transition-all duration-200 ease-in-out hover:translate-y-[-2px]"
+                onClick={item.onClick}
+                style={
+                  index === DrawerItems1.concat(DrawerItems2).length - 1
+                    ? { marginLeft: "auto", marginRight: 16, color: item.color }
+                    : { color: item.color }
+                }
+              >
+                {item.icon}
+                <Typography
+                  variant="body1"
+                  sx={{
+                    marginLeft: 1,
+                    fontSize:
+                      location.pathname === item.address ? "1.15rem" : "1rem",
+                    fontWeight:
+                      location.pathname === item.address ? "bold" : "normal",
+                  }}
+                >
+                  {item.title}
+                </Typography>
+              </div>
+            ))}
+          </div>
+        )}
 
-        <SvgIcon sx={{ height: "42px", width: "42px" }}>
+        <SvgIcon sx={{ height: "42px", width: "42px", marginLeft: "auto" }}>
           <svg
             width="128"
             height="128"
