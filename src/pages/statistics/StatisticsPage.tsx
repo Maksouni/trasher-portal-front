@@ -121,91 +121,99 @@ export default function StatisticsPage() {
     }
   };
   return (
-    <div className="flex flex-col m-2 gap-1">
-      <div className="shadow-lg">
-        <Accordion
-          sx={{ borderRadius: 2, overflow: "hidden" }}
-          defaultExpanded={window.innerWidth >= 768}
-        >
-          <AccordionSummary
-            sx={{
-              backgroundColor: "primary.main",
-              color: "white",
-              borderRadius: "2px 2px 0 0",
-            }}
+    <div className="flex justify-between  max-w-[1024px] flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
+      <div className="flex flex-col gap-3 lg:sticky lg:top-0">
+        <div className="shadow-lg">
+          <Accordion
+            sx={{ borderRadius: 2, overflow: "hidden" }}
+            defaultExpanded={window.innerWidth >= 768}
           >
-            <div className="flex m-auto">
-              <FilterAltIcon sx={{ marginRight: 1 }} />
-              <Typography variant="button" component="span">
-                Фильтры
-              </Typography>
-            </div>
-          </AccordionSummary>
+            <AccordionSummary
+              sx={{
+                backgroundColor: "primary.main",
+                color: "white",
+                borderRadius: "2px 2px 0 0",
+              }}
+            >
+              <div className="flex m-auto">
+                <FilterAltIcon sx={{ marginRight: 1 }} />
+                <Typography variant="button" component="span">
+                  Фильтры
+                </Typography>
+              </div>
+            </AccordionSummary>
 
-          <AccordionDetails
+            <AccordionDetails
+              sx={{
+                borderRadius: "0 0 2px 2px",
+              }}
+            >
+              <div className="flex flex-col gap-1 mt-1">
+                <Typography variant="h6">Промежуток времени</Typography>
+                <DateFilter
+                  startDate={startDate}
+                  endDate={endDate}
+                  onStartDateChange={handleStartDateChange}
+                  onEndDateChange={handleEndDateChange}
+                />
+
+                <Divider sx={{ marginTop: 2, marginBottom: 1 }} />
+
+                <Typography variant="h6">Категории</Typography>
+                <CheckFilters
+                  filters={charts}
+                  selectedFilters={selectedFilters}
+                  onToggleFilter={handleToggleFilter}
+                />
+              </div>
+            </AccordionDetails>
+
+            <AccordionActions>
+              {/* <Button variant="contained">По умолчанию</Button> */}
+            </AccordionActions>
+          </Accordion>
+        </div>
+        <div className="shadow-lg">
+          <Button
+            variant="contained"
             sx={{
-              borderRadius: "0 0 2px 2px",
+              backgroundColor: "success.main",
+              width: "100%",
             }}
+            onClick={() => downloadFile()}
           >
-            <div className="flex flex-col gap-1 mt-1">
-              <Typography variant="h6">Промежуток времени</Typography>
-              <DateFilter
-                startDate={startDate}
-                endDate={endDate}
-                onStartDateChange={handleStartDateChange}
-                onEndDateChange={handleEndDateChange}
-              />
-
-              <Divider sx={{ marginTop: 2, marginBottom: 1 }} />
-
-              <Typography variant="h6">Категории</Typography>
-              <CheckFilters
-                filters={charts}
-                selectedFilters={selectedFilters}
-                onToggleFilter={handleToggleFilter}
-              />
-            </div>
-          </AccordionDetails>
-
-          <AccordionActions>
-            {/* <Button variant="contained">По умолчанию</Button> */}
-          </AccordionActions>
-        </Accordion>
-      </div>
-      <div className="shadow-lg">
-        <Button
-          variant="contained"
-          sx={{ backgroundColor: "success.main", marginTop: 1, width: "100%" }}
-          onClick={() => downloadFile()}
-        >
-          Скачать отчёт
-        </Button>
+            Скачать отчёт
+          </Button>
+        </div>
       </div>
 
       {/* stats */}
-      <div className="flex flex-col gap-3 mt-2 mb-2">
-        {/* general blocks */}
-        <StatsBlock
-          icon={<BarChartRounded />}
-          value={totalCount.toLocaleString("ru-RU")}
-          title="Общее количество обнаружений"
-        />
-        <StatsBlock
-          icon={<StreamIcon />}
-          value={`${accuracy} %`}
-          title="Общая точность"
-        />
-      </div>
 
-      {/* charts */}
-      <div className="charts-container">
-        <ul style={{ listStyle: "none", padding: 0, marginTop: "0" }}>
-          {filteredCharts.map((x) => (
-            <li key={x.id} style={{ marginBottom: "2rem" }}>
-              <ChartBlock title={x.name} />
-            </li>
-          ))}
-        </ul>
+      <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">
+        <div className="flex flex-col items-center justify-center sm:flex-row gap-3">
+          {/* general blocks */}
+          <StatsBlock
+            icon={<BarChartRounded />}
+            value={totalCount.toLocaleString("ru-RU")}
+            title="Количество обнаружений"
+          />
+          <StatsBlock
+            icon={<StreamIcon />}
+            value={`${accuracy} %`}
+            title="Общая точность"
+          />
+        </div>
+
+        {/* charts */}
+        <div className="charts-container">
+          <ul className="list-none flex flex-col gap-3 lg:gap-4">
+            {filteredCharts.map((x) => (
+              <li key={x.id}>
+                <ChartBlock title={x.name} />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/* Snackbar */}

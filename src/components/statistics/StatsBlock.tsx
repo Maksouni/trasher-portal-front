@@ -10,7 +10,7 @@ export default function StatsBlock({ icon, title, value }: StatsBlockProps) {
   return (
     <div
       className="flex items-center p-4 shadow-lg rounded-2xl
-     bg-white max-w-md w-full"
+     bg-white max-w-xl w-full"
     >
       <div className="mr-4 text-blue-500">{icon}</div>
       <div className="flex flex-col">
