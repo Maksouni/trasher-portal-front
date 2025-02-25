@@ -36,11 +36,14 @@ const AddUser = () => {
   };
 
   return (
-    <div className="max-w-[1024px] m-2 lg:mx-auto bg-white shadow-lg rounded-2xl p-8">
-      <Typography variant="h4" component="h1" className="mb-4">
+    <Container
+      maxWidth="sm"
+      className="mt-8 bg-white shadow-lg rounded-2xl p-8"
+    >
+      <Typography variant="h4" component="h1">
         Добавить пользователя
       </Typography>
-      <nav className="mb-4">
+      <nav className="mb-6 mt-4">
         <Link to="/users" className="text-blue-500 hover:underline">
           Вернуться к списку пользователей
         </Link>
@@ -85,11 +88,11 @@ const AddUser = () => {
         </Button>
       </form>
       {message && (
-        <Typography variant="body1" color="success" className="mt-4">
+        <Typography variant="body1" color="success" sx={{ marginTop: 2 }}>
           {message}
         </Typography>
       )}
-    </div>
+    </Container>
   );
 };
 

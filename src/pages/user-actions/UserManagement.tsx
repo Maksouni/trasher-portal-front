@@ -100,7 +100,7 @@ export default function UserManagement() {
   return (
     <div className="flex flex-col gap-2 m-2 lg:mx-auto max-w-[1024px]">
       {/* search */}
-      <div className="flex gap-4 max-w-[1024px] bg-white rounded-2xl shadow-lg overflow-hidden p-4">
+      <div className="flex gap-4 bg-white rounded-2xl shadow-lg overflow-hidden p-4">
         <FormControl variant="outlined" fullWidth size="small">
           <InputLabel>Поиск</InputLabel>
           <OutlinedInput
@@ -120,7 +120,7 @@ export default function UserManagement() {
         </Button>
       </div>
 
-      <div className="max-w-[1024px] bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         <DataGrid
           rows={filteredUsers}
           columns={columns}
