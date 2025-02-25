@@ -129,7 +129,7 @@ export default function Header() {
 
   return (
     <header className="w-full flex items-center justify-center">
-      <div className="m-2 w-full max-w-[1024px] 2xl:max-w-[] flex items-center bg-white shadow-md rounded-md p-2 pb-1 pt-1">
+      <div className="m-2 mt-3 w-full max-w-[1024px] 2xl:max-w-[] flex items-center bg-white shadow-md rounded-md p-2 pb-1 pt-1">
         {!isLargeScreen && (
           <>
             <IconButton
