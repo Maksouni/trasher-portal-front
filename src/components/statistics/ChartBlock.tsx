@@ -44,7 +44,7 @@ export default function ChartBlock({ title }: ChartBlockProps) {
   const formattedXLabels = xLabels.map((date) => new Date(date).getTime());
 
   return (
-    <div className="flex items-center w-full bg-white rounded-2xl shadow-md ">
+    <div className="flex items-center w-full bg-white rounded-2xl shadow-lg ">
       <LineChart
         width={chartWidth}
         height={chartHeight}
