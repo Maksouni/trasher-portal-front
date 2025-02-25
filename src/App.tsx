@@ -18,6 +18,7 @@ import Header from "./components/Header";
 import { Backdrop, CircularProgress, ThemeProvider } from "@mui/material";
 import { getTheme } from "./theme";
 import StreamPage from "./pages/stream/StreamPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -102,6 +103,7 @@ function App() {
                   </RequireAuth>
                 }
               />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </AuthProvider>
         </BrowserRouter>
