@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "./styles.scss";
+import {
+  Button,
+  Container,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 const AddUser = () => {
   const [username, setUsername] = useState("");
@@ -13,9 +22,9 @@ const AddUser = () => {
     e.preventDefault();
     const newErrors: { [key: string]: string } = {};
 
-    if (!username) newErrors.username = "Username is required";
-    if (!password) newErrors.password = "Password is required";
-    if (!role) newErrors.role = "Role is required";
+    if (!username) newErrors.username = "Имя пользователя обязательно!";
+    if (!password) newErrors.password = "Пароль обязателен!";
+    if (!role) newErrors.role = "Выберите роль!";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -27,57 +36,63 @@ const AddUser = () => {
   };
 
   return (
-    <div className="register-page">
-      <div className="container">
-        <nav>
-          <Link to="/users">Вернуться к списку пользователей</Link>
-        </nav>
-
-        <form onSubmit={handleRegister}>
-          <h1>Добавить пользователя</h1>
-          <div>
-            <label>Имя пользователя</label>
-            <input
-              type="text"
-              placeholder="Имя пользователя"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className={errors.username ? "error" : ""}
-            />
-            {errors.username && <span>{errors.username}</span>}
-          </div>
-
-          <div>
-            <label>Пароль</label>
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={errors.password ? "error" : ""}
-            />
-            {errors.password && <span>{errors.password}</span>}
-          </div>
-
-          <div>
-            <label>Роль</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className={errors.role ? "error" : ""}
-            >
-              <option value="">Выберите роль</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-            {errors.role && <span>{errors.role}</span>}
-          </div>
-
-          <button type="submit">Добавить</button>
-        </form>
-        {message && <p>{message}</p>}
-      </div>
-    </div>
+    <Container
+      maxWidth="sm"
+      className="mt-8 bg-white shadow-lg rounded-2xl p-8"
+    >
+      <Typography variant="h4" component="h1">
+        Добавить пользователя
+      </Typography>
+      <nav className="mb-6 mt-4">
+        <Link to="/users" className="text-blue-500 hover:underline">
+          Вернуться к списку пользователей
+        </Link>
+      </nav>
+      <form onSubmit={handleRegister} className="flex flex-col gap-4">
+        <FormControl fullWidth>
+          <TextField
+            label="Имя пользователя"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            error={!!errors.username}
+            helperText={errors.username}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <TextField
+            label="Пароль"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={!!errors.password}
+            helperText={errors.password}
+          />
+        </FormControl>
+        <FormControl fullWidth error={!!errors.role}>
+          <InputLabel>Роль</InputLabel>
+          <Select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            label="Роль"
+          >
+            <MenuItem value="">
+              <em>Выберите роль</em>
+            </MenuItem>
+            <MenuItem value="user">User</MenuItem>
+            <MenuItem value="admin">Admin</MenuItem>
+          </Select>
+          {errors.role && <Typography color="error">{errors.role}</Typography>}
+        </FormControl>
+        <Button variant="contained" color="primary" type="submit">
+          Добавить
+        </Button>
+      </form>
+      {message && (
+        <Typography variant="body1" color="success" sx={{ marginTop: 2 }}>
+          {message}
+        </Typography>
+      )}
+    </Container>
   );
 };
 

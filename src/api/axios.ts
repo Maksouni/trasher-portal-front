@@ -11,14 +11,22 @@ const instance = axios.create({
 instance.interceptors.request.use(
   (config) => {
     const token = Cookies.get("jwt_token");
-
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
-
     return config;
   },
+  (error) => Promise.reject(error)
+);
+
+// Обрабатываем ошибки ответов
+instance.interceptors.response.use(
+  (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      Cookies.remove("jwt_token"); // Удаляем токен
+      window.location.href = "/login"; // Редирект на страницу логина
+    }
     return Promise.reject(error);
   }
 );

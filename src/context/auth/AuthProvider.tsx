@@ -28,12 +28,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (token) {
       try {
         const decodedToken = jwtDecode<DecodedToken>(token);
-        setUser({
-          username: decodedToken.sub,
-          role: decodedToken.scope,
-        });
-        setIsAuthenticated(true);
+        const isTokenExpired = decodedToken.exp * 1000 < Date.now();
+
+        if (isTokenExpired) {
+          // Если токен просрочен
+          Cookies.remove("jwt_token");
+          setIsAuthenticated(false);
+          setUser({
+            username: "",
+            role: "",
+          });
+        } else {
+          // Токен валиден
+          setUser({
+            username: decodedToken.sub,
+            role: decodedToken.scope,
+          });
+          setIsAuthenticated(true);
+        }
       } catch {
+        // Если токен невалидный (ошибка декодирования)
+        Cookies.remove("jwt_token");
         setIsAuthenticated(false);
         setUser({
           username: "",
@@ -41,6 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
       }
     } else {
+      // Нет токена в куки
       setIsAuthenticated(false);
       setUser({
         username: "",
@@ -52,7 +68,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = (token: string) => {
     Cookies.set("jwt_token", token, {
-      expires: 1, // жизнь токена
+      expires: 5, // жизнь токена
       secure: false, // true - только через HTTPS
       sameSite: "Strict", // куки отправляются только на тот же домен
     });
@@ -67,6 +83,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = () => {
     Cookies.remove("jwt_token");
     setIsAuthenticated(false);
+    setUser({
+      username: "",
+      role: "",
+    });
   };
 
   return (

@@ -1,4 +1,4 @@
-import "./styles.scss";
+import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 import { ChartType } from "../../pages/statistics/StatisticsPage";
 
 interface CheckFiltersProps {
@@ -13,24 +13,20 @@ export default function CheckFilters({
   onToggleFilter,
 }: CheckFiltersProps) {
   return (
-    <div className="check-filters">
-      <h2 className="check-filters-heading">Категории</h2>
-      <ul className="filters-list">
-        {filters.map((filter) => (
-          <li key={filter.id} className="filter-item">
-            <input
-              type="checkbox"
+    <FormGroup>
+      {filters.map((filter) => (
+        <FormControlLabel
+          key={filter.id}
+          control={
+            <Checkbox
               id={`filter-${filter.id}`}
               checked={selectedFilters.includes(filter)}
               onChange={() => onToggleFilter(filter)}
-              className="filter-checkbox"
             />
-            <label htmlFor={`filter-${filter.id}`} className="filter-label">
-              {filter.name}
-            </label>
-          </li>
-        ))}
-      </ul>
-    </div>
+          }
+          label={filter.name}
+        />
+      ))}
+    </FormGroup>
   );
 }

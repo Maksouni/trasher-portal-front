@@ -1,71 +1,79 @@
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { LineChart } from "@mui/x-charts";
+import { format } from "date-fns";
+import { useState, useEffect } from "react";
 
 interface ChartBlockProps {
   title: string;
 }
 
 export default function ChartBlock({ title }: ChartBlockProps) {
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-      },
-    },
-  };
+  const [chartWidth, setChartWidth] = useState(
+    window.innerWidth < 768 ? 340 : 600
+  );
+  const [chartHeight, setChartHeight] = useState(
+    window.innerWidth < 768 ? 300 : 400
+  );
 
-  const labels = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setChartWidth(340);
+        setChartHeight(300);
+      } else {
+        setChartWidth(600);
+        setChartHeight(400);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const uData = [42, 35, 133, 232, 12, 60, 92];
+  const pData = [24, 13, 98, 39, 48, 38, 43]; // Пример данных для точности (в процентах)
+  const xLabels = [
+    "2025-02-17",
+    "2025-02-18",
+    "2025-02-19",
+    "2025-02-20",
+    "2025-02-21",
+    "2025-02-22",
+    "2025-02-23",
   ];
 
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: "Обнаружения",
-        data: [65, 59, 80, 81, 56, 55, 40],
-        borderColor: "rgb(75, 192, 192)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-      },
-      {
-        label: "Точность",
-        data: [45, 39, 60, 91, 76, 85, 60],
-        borderColor: "rgb(255, 99, 132)",
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
-      },
-    ],
-  };
+  const formattedXLabels = xLabels.map((date) => new Date(date).getTime());
 
   return (
-    <div className="chart-block">
-      <h2>{title}</h2>
-      <Line options={options} data={data} />
+    <div className="flex items-center w-full bg-white rounded-2xl shadow-lg ">
+      <LineChart
+        width={chartWidth}
+        height={chartHeight}
+        series={[
+          {
+            data: pData,
+            label: "Точность",
+            yAxisId: "rightAxisId",
+          },
+          {
+            data: uData,
+            label: title,
+            yAxisId: "leftAxisId",
+          },
+        ]}
+        xAxis={[
+          {
+            scaleType: "time",
+            data: formattedXLabels,
+            valueFormatter: (timestamp) =>
+              format(new Date(timestamp), "dd.MM.yyyy"),
+          },
+        ]}
+        yAxis={[
+          { id: "leftAxisId" },
+          { id: "rightAxisId", min: 0, max: 100, label: "Проценты" },
+        ]}
+        rightAxis="rightAxisId"
+      />
     </div>
   );
 }

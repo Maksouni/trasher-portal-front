@@ -1,16 +1,25 @@
+import {
+  Accordion,
+  AccordionActions,
+  AccordionDetails,
+  AccordionSummary,
+  Alert,
+  Button,
+  Divider,
+  Snackbar,
+  Typography,
+} from "@mui/material";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import BarChartRounded from "@mui/icons-material/BarChartRounded";
+import StreamIcon from "@mui/icons-material/Stream";
+import DateFilter from "../../components/filters/DateFilter";
+import { useEffect, useState } from "react";
+import axios from "../../api/axios";
+import { apiUrl } from "../../dotenv";
+import CheckFilters from "../../components/filters/CheckFilters";
+import qs from "qs";
 import StatsBlock from "../../components/statistics/StatsBlock";
 import ChartBlock from "../../components/statistics/ChartBlock";
-import "./styles.scss";
-import { BarChartRounded, Download, PercentRounded } from "@mui/icons-material";
-import { useEffect, useState } from "react";
-import DateFilter from "../../components/filters/DateFilter";
-import CheckFilters from "../../components/filters/CheckFilters";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../context/auth/useAuth";
-import { Alert, Button, Snackbar } from "@mui/material";
-import axios from "../../api/axios";
-import qs from "qs";
-import { apiUrl } from "../../dotenv";
 
 export interface ChartType {
   id: number;
@@ -20,10 +29,11 @@ export interface ChartType {
 export default function StatisticsPage() {
   const totalCount = 25000;
   const accuracy = 50;
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const [charts, setCharts] = useState<ChartType[]>([]);
   const [filteredCharts, setFilteredCharts] = useState<ChartType[]>(charts);
+
+  const [selectedFilters, setSelectedFilters] = useState<ChartType[]>([]);
+
   const [startDate, setStartDate] = useState<string>(
     new Date(new Date().setDate(new Date().getDate() - 7))
       .toISOString()
@@ -32,8 +42,7 @@ export default function StatisticsPage() {
   const [endDate, setEndDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
-  const [selectedFilters, setSelectedFilters] = useState<ChartType[]>([]);
-  const { logout } = useAuth();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -83,7 +92,7 @@ export default function StatisticsPage() {
     try {
       const response = await axios.get(`${apiUrl}reports`, {
         params: {
-          category: filteredCharts.map((filter) => filter.id),
+          cat: filteredCharts.map((filter) => filter.id),
           from: date1,
           to: date2,
         },
@@ -111,83 +120,103 @@ export default function StatisticsPage() {
       setErrorMessage("Не удалось скачать отчёт. Попробуйте позже.");
     }
   };
-
   return (
-    <div className="statistics-page">
-      {/* удалить потом */}
-      <nav>
-        <Link
-          style={{
-            position: "absolute",
-            top: 2,
-            left: 8,
-          }}
-          to="/users"
-        >
-          Управление пользователями
-        </Link>
-        <button
-          style={{
-            position: "absolute",
-            top: 2,
-            right: 8,
-            color: "red",
-            background: "none",
-            padding: 0,
-          }}
-          onClick={() => logout()}
-        >
-          Выйти из аккаунта
-        </button>
-      </nav>
-      <div className="stats-container">
-        <div className="stats-blocks-list">
+    <div className="flex justify-between  max-w-[1024px] flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
+      <div className="flex flex-col gap-3 lg:sticky lg:top-0">
+        <div className="shadow-lg">
+          <Accordion
+            sx={{ borderRadius: 2, overflow: "hidden" }}
+            defaultExpanded={window.innerWidth >= 768}
+          >
+            <AccordionSummary
+              sx={{
+                backgroundColor: "primary.main",
+                color: "white",
+                borderRadius: "2px 2px 0 0",
+              }}
+            >
+              <div className="flex m-auto">
+                <FilterAltIcon sx={{ marginRight: 1 }} />
+                <Typography variant="button" component="span">
+                  Фильтры
+                </Typography>
+              </div>
+            </AccordionSummary>
+
+            <AccordionDetails
+              sx={{
+                borderRadius: "0 0 2px 2px",
+              }}
+            >
+              <div className="flex flex-col gap-1 mt-1">
+                <Typography variant="h6">Промежуток времени</Typography>
+                <DateFilter
+                  startDate={startDate}
+                  endDate={endDate}
+                  onStartDateChange={handleStartDateChange}
+                  onEndDateChange={handleEndDateChange}
+                />
+
+                <Divider sx={{ marginTop: 2, marginBottom: 1 }} />
+
+                <Typography variant="h6">Категории</Typography>
+                <CheckFilters
+                  filters={charts}
+                  selectedFilters={selectedFilters}
+                  onToggleFilter={handleToggleFilter}
+                />
+              </div>
+            </AccordionDetails>
+
+            <AccordionActions>
+              {/* <Button variant="contained">По умолчанию</Button> */}
+            </AccordionActions>
+          </Accordion>
+        </div>
+        <div className="shadow-lg">
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "success.main",
+              width: "100%",
+            }}
+            onClick={() => downloadFile()}
+          >
+            Скачать отчёт
+          </Button>
+        </div>
+      </div>
+
+      {/* stats */}
+
+      <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">
+        <div className="flex flex-col items-center justify-center sm:flex-row gap-3">
+          {/* general blocks */}
           <StatsBlock
-            icon={<BarChartRounded className="icon bar-chart" />}
+            icon={<BarChartRounded />}
             value={totalCount.toLocaleString("ru-RU")}
-            title="Общее количество обнаружений"
+            title="Количество обнаружений"
           />
           <StatsBlock
-            icon={<PercentRounded className="icon percent" />}
-            value={`${accuracy}%`}
+            icon={<StreamIcon />}
+            value={`${accuracy} %`}
             title="Общая точность"
           />
         </div>
+
+        {/* charts */}
         <div className="charts-container">
-          <ul style={{ listStyle: "none", padding: 0, marginTop: "0" }}>
+          <ul className="list-none flex flex-col gap-3 lg:gap-4">
             {filteredCharts.map((x) => (
-              <li key={x.id} style={{ marginBottom: "2rem" }}>
+              <li key={x.id}>
                 <ChartBlock title={x.name} />
               </li>
             ))}
           </ul>
         </div>
       </div>
-      <div className="filters-container">
-        <h2 className="filters-heading">Фильтры</h2>
-        <DateFilter
-          label="Выберите промежуток времени"
-          startDate={startDate}
-          endDate={endDate}
-          onStartDateChange={handleStartDateChange}
-          onEndDateChange={handleEndDateChange}
-        />
-        <CheckFilters
-          filters={charts}
-          selectedFilters={selectedFilters}
-          onToggleFilter={handleToggleFilter}
-        />
-        <Button
-          type="button"
-          variant="contained"
-          color="success"
-          startIcon={<Download />}
-          sx={{ marginRight: "auto", marginTop: "1rem" }}
-          onClick={downloadFile}
-        >
-          Скачать отчёт
-        </Button>
-      </div>
+
+      {/* Snackbar */}
       <Snackbar
         open={!!errorMessage}
         autoHideDuration={4000}

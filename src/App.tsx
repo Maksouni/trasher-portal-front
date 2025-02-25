@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import {
   BrowserRouter,
   Navigate,
@@ -5,22 +6,35 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
-import LoginPage from "./pages/login/LoginPage";
+import RequireAuth from "./components/RequireAuth";
 import { AuthProvider } from "./context/auth/AuthProvider";
+import { useAuth } from "./context/auth/useAuth";
+import LoginPage from "./pages/login/LoginPage";
 import StatisticsPage from "./pages/statistics/StatisticsPage";
 import AddUser from "./pages/user-actions/AddUser";
-import UserManagement from "./pages/user-actions/UserManagement";
 import EditUser from "./pages/user-actions/EditUser";
-import RequireAuth from "./components/RequireAuth";
-import { useAuth } from "./context/auth/useAuth";
-import { ReactNode } from "react";
+import UserManagement from "./pages/user-actions/UserManagement";
+import Header from "./components/Header";
+import { Backdrop, CircularProgress, ThemeProvider } from "@mui/material";
+import { getTheme } from "./theme";
+import StreamPage from "./pages/stream/StreamPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
-    return <div>Loading...</div>; // Индикатор загрузки (опционально)
+    return (
+      <div>
+        <Backdrop
+          sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+          open={true}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      </div>
+    );
   }
 
   if (isAuthenticated) {
@@ -33,54 +47,68 @@ function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
 
 function App() {
   return (
-    <div className="app">
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route
-              path="/login"
-              element={
-                <RedirectIfAuthenticated>
-                  <LoginPage />
-                </RedirectIfAuthenticated>
-              }
-            />
-            <Route
-              path="/"
-              element={
-                <RequireAuth>
-                  <StatisticsPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/users"
-              element={
-                <RequireAuth>
-                  <UserManagement />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/users/edit/:userId"
-              element={
-                <RequireAuth>
-                  <EditUser />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/users/add"
-              element={
-                <RequireAuth>
-                  <AddUser />
-                </RequireAuth>
-              }
-            />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </div>
+    //TODO: потом сделать тёмную тему
+    <ThemeProvider theme={getTheme("light")}>
+      <div className="app">
+        <BrowserRouter>
+          <AuthProvider>
+            <Header />
+
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  <RedirectIfAuthenticated>
+                    <LoginPage />
+                  </RedirectIfAuthenticated>
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  <RequireAuth>
+                    <StatisticsPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/stream"
+                element={
+                  <RequireAuth>
+                    <StreamPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/users"
+                element={
+                  <RequireAuth>
+                    <UserManagement />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/users/edit/:userId"
+                element={
+                  <RequireAuth>
+                    <EditUser />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/users/add"
+                element={
+                  <RequireAuth>
+                    <AddUser />
+                  </RequireAuth>
+                }
+              />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </div>
+    </ThemeProvider>
   );
 }
 

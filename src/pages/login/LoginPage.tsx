@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { TextField, Button, Typography, Alert } from "@mui/material";
-import "./styles.scss";
 import axios from "axios";
 import { useAuth } from "../../context/auth/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +35,20 @@ export default function LoginPage() {
       navigate("/");
     } catch (error) {
       console.error(error);
-      setLoginError("Неверное имя пользователя или пароль");
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          setLoginError("Неверное имя пользователя или пароль");
+        } else if (error.request) {
+          // Запрос был сделан, но ответ не получен (например, проблемы с сетью)
+          setLoginError("Ошибка подключения к серверу. Попробуйте позже");
+        } else {
+          // Ошибка при настройке запроса
+          setLoginError("Произошла ошибка при отправке запроса");
+        }
+      } else {
+        // Не axios ошибка
+        setLoginError("Произошла непредвиденная ошибка");
+      }
     }
   };
 
@@ -55,8 +67,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page">
-      <div className="container">
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="flex flex-col gap-4 items-center p-6 pb-2 bg-white rounded-lg shadow-xl max-w-md max-md:m-3 w-full">
         <Typography variant="h4" component="h1" gutterBottom>
           Вход
         </Typography>
@@ -67,7 +79,7 @@ export default function LoginPage() {
           </Alert>
         )}
 
-        <form onSubmit={handleLogin}>
+        <form className="flex flex-col gap-6 w-full m-4" onSubmit={handleLogin}>
           <TextField
             label="Имя пользователя"
             variant="outlined"
@@ -95,7 +107,13 @@ export default function LoginPage() {
             className="text-field"
           />
 
-          <Button type="submit" variant="contained" color="primary" fullWidth>
+          <Button
+            sx={{ height: "3rem" }}
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+          >
             Войти
           </Button>
         </form>
