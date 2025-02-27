@@ -56,7 +56,7 @@ export default function StreamPage() {
 
   return (
     <div className="m-2 lg:mx-auto max-w-[1024px] bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
-      <div className="w-full h-fit min-h-[300px] flex items-center justify-center">
+      <div className="w-full h-fit flex items-center justify-center">
         <video controls autoPlay muted className="w-full h-full">
           <source src="video/trash.mp4" type="video/mp4" />
         </video>
