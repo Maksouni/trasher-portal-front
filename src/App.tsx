@@ -19,6 +19,7 @@ import { Backdrop, CircularProgress, ThemeProvider } from "@mui/material";
 import { getTheme } from "./theme";
 import StreamPage from "./pages/stream/StreamPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import { AlertProvider } from "./context/alert/AlertProvider";
 
 function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -52,59 +53,61 @@ function App() {
       <div className="app">
         <BrowserRouter>
           <AuthProvider>
-            <Header />
+            <AlertProvider>
+              <Header />
 
-            <Routes>
-              <Route
-                path="/login"
-                element={
-                  <RedirectIfAuthenticated>
-                    <LoginPage />
-                  </RedirectIfAuthenticated>
-                }
-              />
-              <Route
-                path="/"
-                element={
-                  <RequireAuth>
-                    <StatisticsPage />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/stream"
-                element={
-                  <RequireAuth>
-                    <StreamPage />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/users"
-                element={
-                  <RequireAuth>
-                    <UserManagement />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/users/edit/:userId"
-                element={
-                  <RequireAuth>
-                    <EditUser />
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/users/add"
-                element={
-                  <RequireAuth>
-                    <AddUser />
-                  </RequireAuth>
-                }
-              />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+              <Routes>
+                <Route
+                  path="/login"
+                  element={
+                    <RedirectIfAuthenticated>
+                      <LoginPage />
+                    </RedirectIfAuthenticated>
+                  }
+                />
+                <Route
+                  path="/"
+                  element={
+                    <RequireAuth>
+                      <StatisticsPage />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/stream"
+                  element={
+                    <RequireAuth>
+                      <StreamPage />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/users"
+                  element={
+                    <RequireAuth>
+                      <UserManagement />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/users/edit/:userId"
+                  element={
+                    <RequireAuth>
+                      <EditUser />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/users/add"
+                  element={
+                    <RequireAuth>
+                      <AddUser />
+                    </RequireAuth>
+                  }
+                />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </AlertProvider>
           </AuthProvider>
         </BrowserRouter>
       </div>

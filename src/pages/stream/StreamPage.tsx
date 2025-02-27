@@ -3,6 +3,9 @@
 // import Cookies from "js-cookie";
 // import { apiUrl } from "../../dotenv";
 
+import { Button } from "@mui/material";
+import { useAlert } from "../../context/alert/useAlert";
+
 export default function StreamPage() {
   // const videoRef = useRef<HTMLVideoElement>(null);
   // const authToken = Cookies.get("jwt_token");
@@ -53,6 +56,11 @@ export default function StreamPage() {
   //     });
   //   }
   // }, [authToken]);
+  const { showAlert } = useAlert();
+
+  const handleClick = () => {
+    showAlert("Это сообщение об ошибке", "error", 5000);
+  };
 
   return (
     <div className="m-2 lg:mx-auto max-w-[1024px] bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
@@ -60,6 +68,7 @@ export default function StreamPage() {
         <video controls autoPlay muted className="w-full h-full">
           <source src="video/trash.mp4" type="video/mp4" />
         </video>
+        <Button onClick={handleClick}>Show alert</Button>
       </div>
     </div>
   );
