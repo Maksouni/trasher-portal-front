@@ -90,7 +90,7 @@ export default function StatisticsPage() {
     const date2 = endDate;
 
     try {
-      const response = await axios.get(`${apiUrl}1reports`, {
+      const response = await axios.get(`${apiUrl}reports`, {
         params: {
           cat: filteredCharts.map((filter) => filter.id),
           from: date1,
