@@ -40,7 +40,7 @@ export default function LoginPage() {
           setLoginError("Неверное имя пользователя или пароль");
         } else if (error.request) {
           // Запрос был сделан, но ответ не получен (например, проблемы с сетью)
-          setLoginError("Ошибка подключения к серверу. Попробуйте позже");
+          setLoginError(error.request.response);
         } else {
           // Ошибка при настройке запроса
           setLoginError("Произошла ошибка при отправке запроса");
