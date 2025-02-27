@@ -3,10 +3,8 @@ import {
   AccordionActions,
   AccordionDetails,
   AccordionSummary,
-  Alert,
   Button,
   Divider,
-  Snackbar,
   Typography,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
@@ -20,6 +18,7 @@ import CheckFilters from "../../components/filters/CheckFilters";
 import qs from "qs";
 import StatsBlock from "../../components/statistics/StatsBlock";
 import ChartBlock from "../../components/statistics/ChartBlock";
+import { useAlert } from "../../context/alert/useAlert";
 
 export interface ChartType {
   id: number;
@@ -42,7 +41,8 @@ export default function StatisticsPage() {
   const [endDate, setEndDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,7 +90,7 @@ export default function StatisticsPage() {
     const date2 = endDate;
 
     try {
-      const response = await axios.get(`${apiUrl}reports`, {
+      const response = await axios.get(`${apiUrl}1reports`, {
         params: {
           cat: filteredCharts.map((filter) => filter.id),
           from: date1,
@@ -117,11 +117,12 @@ export default function StatisticsPage() {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Ошибка скачивания:", error);
-      setErrorMessage("Не удалось скачать отчёт. Попробуйте позже.");
+      showAlert("Не удалось скачать отчёт. Попробуйте позже.", "error", 4000);
     }
   };
+
   return (
-    <div className="flex justify-between  max-w-[1024px] flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
+    <div className="flex justify-between max-w-[1024px] flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
       <div className="flex flex-col gap-3 lg:sticky lg:top-0">
         <div className="shadow-lg">
           <Accordion
@@ -215,22 +216,6 @@ export default function StatisticsPage() {
           </ul>
         </div>
       </div>
-
-      {/* Snackbar */}
-      <Snackbar
-        open={!!errorMessage}
-        autoHideDuration={4000}
-        onClose={() => setErrorMessage(null)}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setErrorMessage(null)}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {errorMessage}
-        </Alert>
-      </Snackbar>
     </div>
   );
 }
