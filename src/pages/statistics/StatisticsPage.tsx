@@ -6,6 +6,7 @@ import {
   Button,
   Divider,
   Typography,
+  Skeleton,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import BarChartRounded from "@mui/icons-material/BarChartRounded";
@@ -29,7 +30,8 @@ export default function StatisticsPage() {
   const totalCount = 25000;
   const accuracy = 50;
   const [charts, setCharts] = useState<ChartType[]>([]);
-  const [filteredCharts, setFilteredCharts] = useState<ChartType[]>(charts);
+  const [filteredCharts, setFilteredCharts] = useState<ChartType[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [selectedFilters, setSelectedFilters] = useState<ChartType[]>([]);
 
@@ -46,15 +48,32 @@ export default function StatisticsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get(`${apiUrl}categories`);
-      setCharts(response.data);
+      try {
+        const response = await axios.get(`${apiUrl}categories`);
+        if (
+          response.data &&
+          Array.isArray(response.data) &&
+          response.data.length > 0
+        ) {
+          setCharts(response.data);
+          setFilteredCharts(response.data);
+        } else {
+          showAlert("Категории не найдены. Попробуйте позже.", "error", 4000);
+        }
+      } catch (error) {
+        console.error("Ошибка загрузки данных:", error);
+        showAlert(
+          "Не удалось загрузить данные. Попробуйте позже.",
+          "error",
+          4000
+        );
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    setFilteredCharts(charts);
-  }, [charts]);
 
   const handleToggleFilter = (filter: ChartType) => {
     setSelectedFilters((prev) => {
@@ -161,11 +180,17 @@ export default function StatisticsPage() {
                 <Divider sx={{ marginTop: 2, marginBottom: 1 }} />
 
                 <Typography variant="h6">Категории</Typography>
-                <CheckFilters
-                  filters={charts}
-                  selectedFilters={selectedFilters}
-                  onToggleFilter={handleToggleFilter}
-                />
+                {loading ? (
+                  <Skeleton variant="rectangular" width="100%" height={118} />
+                ) : charts.length > 0 ? (
+                  <CheckFilters
+                    filters={charts}
+                    selectedFilters={selectedFilters}
+                    onToggleFilter={handleToggleFilter}
+                  />
+                ) : (
+                  <Typography color="error">Категории не найдены</Typography>
+                )}
               </div>
             </AccordionDetails>
 
@@ -193,26 +218,41 @@ export default function StatisticsPage() {
       <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">
         <div className="flex flex-col items-center justify-center sm:flex-row gap-3">
           {/* general blocks */}
-          <StatsBlock
-            icon={<BarChartRounded />}
-            value={totalCount.toLocaleString("ru-RU")}
-            title="Количество обнаружений"
-          />
-          <StatsBlock
-            icon={<StreamIcon />}
-            value={`${accuracy} %`}
-            title="Общая точность"
-          />
+          {/* {loading ? (
+            <>
+              <Skeleton variant="rectangular" width={210} height={118} />
+              <Skeleton variant="rectangular" width={210} height={118} />
+            </>
+          ) : ( */}
+          <>
+            <StatsBlock
+              icon={<BarChartRounded />}
+              value={totalCount.toLocaleString("ru-RU")}
+              title="Количество обнаружений"
+            />
+            <StatsBlock
+              icon={<StreamIcon />}
+              value={`${accuracy} %`}
+              title="Общая точность"
+            />
+          </>
+          {/* )} */}
         </div>
 
         {/* charts */}
         <div className="charts-container">
           <ul className="list-none flex flex-col gap-3 lg:gap-4">
-            {filteredCharts.map((x) => (
-              <li key={x.id}>
-                <ChartBlock title={x.name} />
-              </li>
-            ))}
+            {loading ? (
+              <Skeleton variant="rounded" width="100%" height={400} />
+            ) : filteredCharts.length > 0 ? (
+              filteredCharts.map((x) => (
+                <li key={x.id}>
+                  <ChartBlock title={x.name} />
+                </li>
+              ))
+            ) : (
+              <Typography color="error">Нет данных для отображения</Typography>
+            )}
           </ul>
         </div>
       </div>
