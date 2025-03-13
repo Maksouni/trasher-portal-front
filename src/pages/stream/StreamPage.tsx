@@ -3,7 +3,9 @@
 // import Cookies from "js-cookie";
 // import { apiUrl } from "../../dotenv";
 
+import { Button } from "@mui/material";
 import StreamLogs from "../../components/StreamLogs";
+import { useRef, useState } from "react";
 
 export default function StreamPage() {
   // const videoRef = useRef<HTMLVideoElement>(null);
@@ -56,41 +58,60 @@ export default function StreamPage() {
   //   }
   // }, [authToken]);
 
+  const videoRefs = [
+    useRef<HTMLVideoElement>(null),
+    useRef<HTMLVideoElement>(null),
+    useRef<HTMLVideoElement>(null),
+  ];
+  const [isPaused, setIsPaused] = useState(false);
+
+  const togglePlayPause = () => {
+    videoRefs.forEach((videoRef) => {
+      if (videoRef.current) {
+        if (videoRef.current.paused) {
+          videoRef.current.play();
+        } else {
+          videoRef.current.pause();
+        }
+      }
+    });
+    setIsPaused((prev) => !prev);
+  };
+
   return (
-    <div className="flex m-2 mb-4 flex-col gap-4 items-center">
-      <div className="flex flex-col max-w-[1024px] w-full gap-2">
-        <h2 className="text-2xl font-semibold ml-2">Камера №1</h2>
-        <div className=" w-full bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
-          <div className="w-full h-fit flex items-center justify-center">
-            <video controls autoPlay muted className="w-full h-full">
-              <source src="video/left.mp4" type="video/mp4" />
-            </video>
-          </div>
-        </div>
+    <div className="flex m-2 mb-4 flex-col items-center">
+      {/* Кнопка паузы */}
+      <div className="max-w-[1024px] w-full flex justify-center">
+        <Button variant="contained" color="primary" onClick={togglePlayPause}>
+          {isPaused ? "▶ Возобновить" : "⏸ Пауза"}
+        </Button>
       </div>
 
-      <div className="flex flex-col max-w-[1024px] w-full gap-2">
-        <h2 className="text-2xl font-semibold ml-2">Камера №2</h2>
-        <div className=" w-full bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
-          <div className="w-full h-fit flex items-center justify-center">
-            <video controls autoPlay muted className="w-full h-full">
-              <source src="video/center.mp4" type="video/mp4" />
-            </video>
-          </div>
-        </div>
-      </div>
+      {/* Камеры */}
+      <ul className="gap-4">
+        {["left.mp4", "center.mp4", "right.mp4"].map((src, index) => (
+          <li
+            key={index}
+            className="flex flex-col max-w-[1024px] w-full gap-2 mb-4"
+          >
+            <h2 className="text-2xl font-semibold ml-2">Камера №{index + 1}</h2>
+            <div className="w-full bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
+              <div className="w-full h-fit flex items-center justify-center">
+                <video
+                  ref={videoRefs[index]}
+                  autoPlay
+                  muted
+                  className="w-full h-full"
+                >
+                  <source src={`video/${src}`} type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
 
-      <div className="flex flex-col max-w-[1024px] w-full gap-2">
-        <h2 className="text-2xl font-semibold ml-2">Камера №3</h2>
-        <div className=" w-full bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
-          <div className="w-full h-fit flex items-center justify-center">
-            <video controls autoPlay muted className="w-full h-full">
-              <source src="video/right.mp4" type="video/mp4" />
-            </video>
-          </div>
-        </div>
-      </div>
-
+      {/* Журнал обнаружений */}
       <div className="max-w-[1024px] w-full">
         <h2 className="text-2xl font-semibold m-2">Журнал обнаружений</h2>
         <StreamLogs />
