@@ -3,10 +3,7 @@
 // import Cookies from "js-cookie";
 // import { apiUrl } from "../../dotenv";
 
-import { Button } from "@mui/material";
 import StreamLogs from "../../components/StreamLogs";
-import { useRef, useState } from "react";
-
 export default function StreamPage() {
   // const videoRef = useRef<HTMLVideoElement>(null);
   // const authToken = Cookies.get("jwt_token");
@@ -58,34 +55,34 @@ export default function StreamPage() {
   //   }
   // }, [authToken]);
 
-  const videoRefs = [
-    useRef<HTMLVideoElement>(null),
-    useRef<HTMLVideoElement>(null),
-    useRef<HTMLVideoElement>(null),
-  ];
-  const [isPaused, setIsPaused] = useState(false);
+  // const videoRefs = [
+  //   useRef<HTMLVideoElement>(null),
+  //   useRef<HTMLVideoElement>(null),
+  //   useRef<HTMLVideoElement>(null),
+  // ];
+  // const [isPaused, setIsPaused] = useState(false);
 
-  const togglePlayPause = () => {
-    videoRefs.forEach((videoRef) => {
-      if (videoRef.current) {
-        if (videoRef.current.paused) {
-          videoRef.current.play();
-        } else {
-          videoRef.current.pause();
-        }
-      }
-    });
-    setIsPaused((prev) => !prev);
-  };
+  // const togglePlayPause = () => {
+  //   videoRefs.forEach((videoRef) => {
+  //     if (videoRef.current) {
+  //       if (videoRef.current.paused) {
+  //         videoRef.current.play();
+  //       } else {
+  //         videoRef.current.pause();
+  //       }
+  //     }
+  //   });
+  //   setIsPaused((prev) => !prev);
+  // };
 
   return (
     <div className="flex m-2 mb-4 flex-col items-center">
       {/* Кнопка паузы */}
-      <div className="max-w-[1024px] w-full flex justify-center">
+      {/* <div className="max-w-[1024px] w-full flex justify-center">
         <Button variant="contained" color="primary" onClick={togglePlayPause}>
           {isPaused ? "▶ Возобновить" : "⏸ Пауза"}
         </Button>
-      </div>
+      </div> */}
 
       {/* Камеры */}
       <ul className="gap-4">
@@ -98,7 +95,7 @@ export default function StreamPage() {
             <div className="w-full bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
               <div className="w-full h-fit flex items-center justify-center">
                 <video
-                  ref={videoRefs[index]}
+                  // ref={videoRefs[index]}
                   autoPlay
                   muted
                   className="w-full h-full"
