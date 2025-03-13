@@ -3,6 +3,8 @@
 // import Cookies from "js-cookie";
 // import { apiUrl } from "../../dotenv";
 
+import StreamLogs from "../../components/StreamLogs";
+
 export default function StreamPage() {
   // const videoRef = useRef<HTMLVideoElement>(null);
   // const authToken = Cookies.get("jwt_token");
@@ -55,7 +57,7 @@ export default function StreamPage() {
   // }, [authToken]);
 
   return (
-    <div className="flex m-2 flex-col gap-4 items-center">
+    <div className="flex m-2 mb-4 flex-col gap-4 items-center">
       <div className="flex flex-col max-w-[1024px] w-full gap-2">
         <h2 className="text-2xl font-semibold ml-2">Камера №1</h2>
         <div className=" w-full bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
@@ -87,6 +89,11 @@ export default function StreamPage() {
             </video>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-[1024px] w-full">
+        <h2 className="text-2xl font-semibold m-2">Журнал обнаружений</h2>
+        <StreamLogs />
       </div>
     </div>
   );
