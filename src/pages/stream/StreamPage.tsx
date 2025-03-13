@@ -60,7 +60,7 @@ export default function StreamPage() {
         <h2 className="text-2xl font-semibold ml-2">Камера №1</h2>
         <div className=" w-full bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
           <div className="w-full h-fit flex items-center justify-center">
-            <video controls muted className="w-full h-full">
+            <video controls autoPlay muted className="w-full h-full">
               <source src="video/left.mp4" type="video/mp4" />
             </video>
           </div>
@@ -71,7 +71,7 @@ export default function StreamPage() {
         <h2 className="text-2xl font-semibold ml-2">Камера №2</h2>
         <div className=" w-full bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
           <div className="w-full h-fit flex items-center justify-center">
-            <video controls muted className="w-full h-full">
+            <video controls autoPlay muted className="w-full h-full">
               <source src="video/center.mp4" type="video/mp4" />
             </video>
           </div>
@@ -82,7 +82,7 @@ export default function StreamPage() {
         <h2 className="text-2xl font-semibold ml-2">Камера №3</h2>
         <div className=" w-full bg-gray-600 rounded-2xl shadow-lg overflow-hidden">
           <div className="w-full h-fit flex items-center justify-center">
-            <video controls muted className="w-full h-full">
+            <video controls autoPlay muted className="w-full h-full">
               <source src="video/right.mp4" type="video/mp4" />
             </video>
           </div>
