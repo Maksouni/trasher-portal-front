@@ -7,8 +7,12 @@ import {
   Divider,
   Typography,
   Skeleton,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import SettingsIcon from "@mui/icons-material/Settings";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
+import PieChartIcon from "@mui/icons-material/PieChart";
 import BarChartRounded from "@mui/icons-material/BarChartRounded";
 import StreamIcon from "@mui/icons-material/Stream";
 import DateFilter from "../../components/filters/DateFilter";
@@ -32,6 +36,8 @@ export default function StatisticsPage() {
   const [charts, setCharts] = useState<ChartType[]>([]);
   const [filteredCharts, setFilteredCharts] = useState<ChartType[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [chartOption, setChartOption] = useState<string>("linear");
 
   const [selectedFilters, setSelectedFilters] = useState<ChartType[]>([]);
 
@@ -74,6 +80,15 @@ export default function StatisticsPage() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleChartOption = (
+    _event: React.MouseEvent<HTMLElement>,
+    newChartOption: string | null
+  ) => {
+    if (newChartOption !== null) {
+      setChartOption(newChartOption);
+    }
+  };
 
   const handleToggleFilter = (filter: ChartType) => {
     setSelectedFilters((prev) => {
@@ -156,9 +171,9 @@ export default function StatisticsPage() {
               }}
             >
               <div className="flex m-auto">
-                <FilterAltIcon sx={{ marginRight: 1 }} />
+                <SettingsIcon sx={{ marginRight: 1 }} />
                 <Typography variant="button" component="span">
-                  Фильтры
+                  ОПЦИИ
                 </Typography>
               </div>
             </AccordionSummary>
@@ -169,6 +184,27 @@ export default function StatisticsPage() {
               }}
             >
               <div className="flex flex-col gap-1 mt-1">
+                <Typography variant="h6">
+                  Варианты отображения графиков
+                </Typography>
+                <ToggleButtonGroup
+                  color="primary"
+                  value={chartOption}
+                  exclusive
+                  onChange={handleChartOption}
+                  aria-label="chart options"
+                >
+                  <ToggleButton value="linear" aria-label="chart option">
+                    <ShowChartIcon sx={{ mb: 0.3 }} /> Линейные
+                  </ToggleButton>
+                  <ToggleButton value="pie" aria-label="chart option">
+                    <PieChartIcon sx={{ mb: 0.5, mr: 0.5 }} /> Круговая
+                    диаграмма
+                  </ToggleButton>
+                </ToggleButtonGroup>
+
+                <Divider sx={{ marginTop: 2, marginBottom: 1 }} />
+
                 <Typography variant="h6">Промежуток времени</Typography>
                 <DateFilter
                   startDate={startDate}
