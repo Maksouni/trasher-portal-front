@@ -9,6 +9,7 @@ import {
   Skeleton,
   ToggleButtonGroup,
   ToggleButton,
+  Stack,
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
@@ -24,6 +25,8 @@ import qs from "qs";
 import StatsBlock from "../../components/statistics/StatsBlock";
 import ChartBlock from "../../components/statistics/ChartBlock";
 import { useAlert } from "../../context/alert/useAlert";
+
+import PieChartBlock from "../../components/statistics/PieChartBlock";
 
 export interface ChartType {
   id: number;
@@ -217,7 +220,12 @@ export default function StatisticsPage() {
 
                 <Typography variant="h6">Категории</Typography>
                 {loading ? (
-                  <Skeleton variant="rectangular" width="100%" height={118} />
+                  <Stack spacing={1}>
+                    <Skeleton variant="rounded" width="100%" height={36} />
+                    <Skeleton variant="rounded" width="100%" height={36} />
+                    <Skeleton variant="rounded" width="100%" height={36} />
+                    <Skeleton variant="rounded" width="100%" height={36} />
+                  </Stack>
                 ) : charts.length > 0 ? (
                   <CheckFilters
                     filters={charts}
@@ -254,43 +262,84 @@ export default function StatisticsPage() {
       <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">
         <div className="flex flex-col items-center justify-center sm:flex-row gap-3">
           {/* general blocks */}
-          {/* {loading ? (
+          {loading ? (
             <>
-              <Skeleton variant="rectangular" width={210} height={118} />
-              <Skeleton variant="rectangular" width={210} height={118} />
+              <Skeleton
+                variant="rounded"
+                sx={{ borderRadius: 4 }}
+                width={303}
+                height={84}
+              />
+              <Skeleton
+                variant="rounded"
+                sx={{ borderRadius: 4 }}
+                width={303}
+                height={84}
+              />
             </>
-          ) : ( */}
-          <>
-            <StatsBlock
-              icon={<BarChartRounded />}
-              value={totalCount.toLocaleString("ru-RU")}
-              title="Количество обнаружений"
-            />
-            <StatsBlock
-              icon={<StreamIcon />}
-              value={`${accuracy} %`}
-              title="Общая точность"
-            />
-          </>
-          {/* )} */}
+          ) : (
+            <>
+              <StatsBlock
+                icon={<BarChartRounded />}
+                value={totalCount.toLocaleString("ru-RU")}
+                title="Количество обнаружений"
+              />
+              <StatsBlock
+                icon={<StreamIcon />}
+                value={`${accuracy} %`}
+                title="Общая точность"
+              />
+            </>
+          )}
         </div>
 
         {/* charts */}
-        <div className="charts-container">
-          <ul className="list-none flex flex-col gap-3 lg:gap-4">
-            {loading ? (
-              <Skeleton variant="rounded" width="100%" height={400} />
-            ) : filteredCharts.length > 0 ? (
-              filteredCharts.map((x) => (
-                <li key={x.id}>
-                  <ChartBlock title={x.name} />
-                </li>
-              ))
-            ) : (
-              <Typography color="error">Нет данных для отображения</Typography>
-            )}
-          </ul>
-        </div>
+        {chartOption === "linear" && (
+          <div className="charts-container">
+            <ul className="list-none flex flex-col gap-3 lg:gap-4">
+              {loading ? (
+                <Stack spacing={2}>
+                  <Skeleton
+                    variant="rounded"
+                    sx={{ borderRadius: 4 }}
+                    width="100%"
+                    height={400}
+                  />
+                  <Skeleton
+                    variant="rounded"
+                    sx={{ borderRadius: 4 }}
+                    width="100%"
+                    height={400}
+                  />
+                  <Skeleton
+                    variant="rounded"
+                    sx={{ borderRadius: 4 }}
+                    width="100%"
+                    height={400}
+                  />
+                  <Skeleton
+                    variant="rounded"
+                    sx={{ borderRadius: 4 }}
+                    width="100%"
+                    height={400}
+                  />
+                </Stack>
+              ) : filteredCharts.length > 0 ? (
+                filteredCharts.map((x) => (
+                  <li key={x.id}>
+                    <ChartBlock title={x.name} />
+                  </li>
+                ))
+              ) : (
+                <Typography color="error">
+                  Нет данных для отображения
+                </Typography>
+              )}
+            </ul>
+          </div>
+        )}
+
+        {chartOption === "pie" && <PieChartBlock data={filteredCharts} />}
       </div>
     </div>
   );
