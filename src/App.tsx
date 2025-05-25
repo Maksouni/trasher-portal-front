@@ -77,9 +77,9 @@ function App() {
                 <Route
                   path="/stream"
                   element={
-                    // <RequireAuth>
-                    <StreamPage />
-                    // </RequireAuth>
+                    <RequireAuth>
+                      <StreamPage />
+                    </RequireAuth>
                   }
                 />
                 <Route
