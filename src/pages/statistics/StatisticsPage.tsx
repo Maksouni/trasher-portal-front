@@ -58,7 +58,7 @@ export default function StatisticsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${apiUrl}categories`);
+        const response = await axios.get(`${apiUrl}/categories`);
         if (
           response.data &&
           Array.isArray(response.data) &&
@@ -127,7 +127,7 @@ export default function StatisticsPage() {
     const date2 = endDate;
 
     try {
-      const response = await axios.get(`${apiUrl}reports`, {
+      const response = await axios.get(`${apiUrl}/reports`, {
         params: {
           cat: filteredCharts.map((filter) => filter.id),
           from: date1,

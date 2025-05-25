@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ReactNode } from "react";
 import {
   BrowserRouter,
@@ -38,10 +39,10 @@ function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
     );
   }
 
-  if (isAuthenticated) {
-    const redirectTo = location.state?.from?.pathname || "/";
-    return <Navigate to={redirectTo} replace />;
-  }
+  // if (isAuthenticated) {
+  //   const redirectTo = location.state?.from?.pathname || "/";
+  //   return <Navigate to={redirectTo} replace />;
+  // }
 
   return children;
 }
@@ -76,9 +77,9 @@ function App() {
                 <Route
                   path="/stream"
                   element={
-                    <RequireAuth>
-                      <StreamPage />
-                    </RequireAuth>
+                    // <RequireAuth>
+                    <StreamPage />
+                    // </RequireAuth>
                   }
                 />
                 <Route

@@ -27,7 +27,7 @@ export default function LoginPage() {
 
     const url = import.meta.env.VITE_API_URL;
     try {
-      const response = await axios.post(`${url}auth/login`, {
+      const response = await axios.post(`${url}/auth/login`, {
         username,
         password,
       });
