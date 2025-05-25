@@ -1,5 +1,4 @@
-
-FROM node:23-alpine-slim AS builder
+FROM node:23-alpine AS builder
 
 WORKDIR /app
 COPY . .
