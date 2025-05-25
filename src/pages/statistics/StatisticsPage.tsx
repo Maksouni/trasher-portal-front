@@ -7,8 +7,13 @@ import {
   Divider,
   Typography,
   Skeleton,
+  ToggleButtonGroup,
+  ToggleButton,
+  Stack,
 } from "@mui/material";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import SettingsIcon from "@mui/icons-material/Settings";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
+import PieChartIcon from "@mui/icons-material/PieChart";
 import BarChartRounded from "@mui/icons-material/BarChartRounded";
 import StreamIcon from "@mui/icons-material/Stream";
 import DateFilter from "../../components/filters/DateFilter";
@@ -21,6 +26,8 @@ import StatsBlock from "../../components/statistics/StatsBlock";
 import ChartBlock from "../../components/statistics/ChartBlock";
 import { useAlert } from "../../context/alert/useAlert";
 
+import PieChartBlock from "../../components/statistics/PieChartBlock";
+
 export interface ChartType {
   id: number;
   name: string;
@@ -32,6 +39,8 @@ export default function StatisticsPage() {
   const [charts, setCharts] = useState<ChartType[]>([]);
   const [filteredCharts, setFilteredCharts] = useState<ChartType[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [chartOption, setChartOption] = useState<string>("linear");
 
   const [selectedFilters, setSelectedFilters] = useState<ChartType[]>([]);
 
@@ -49,7 +58,7 @@ export default function StatisticsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${apiUrl}categories`);
+        const response = await axios.get(`${apiUrl}/categories`);
         if (
           response.data &&
           Array.isArray(response.data) &&
@@ -74,6 +83,15 @@ export default function StatisticsPage() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleChartOption = (
+    _event: React.MouseEvent<HTMLElement>,
+    newChartOption: string | null
+  ) => {
+    if (newChartOption !== null) {
+      setChartOption(newChartOption);
+    }
+  };
 
   const handleToggleFilter = (filter: ChartType) => {
     setSelectedFilters((prev) => {
@@ -109,7 +127,7 @@ export default function StatisticsPage() {
     const date2 = endDate;
 
     try {
-      const response = await axios.get(`${apiUrl}reports`, {
+      const response = await axios.get(`${apiUrl}/reports`, {
         params: {
           cat: filteredCharts.map((filter) => filter.id),
           from: date1,
@@ -156,9 +174,9 @@ export default function StatisticsPage() {
               }}
             >
               <div className="flex m-auto">
-                <FilterAltIcon sx={{ marginRight: 1 }} />
+                <SettingsIcon sx={{ marginRight: 1 }} />
                 <Typography variant="button" component="span">
-                  Фильтры
+                  ОПЦИИ
                 </Typography>
               </div>
             </AccordionSummary>
@@ -169,6 +187,27 @@ export default function StatisticsPage() {
               }}
             >
               <div className="flex flex-col gap-1 mt-1">
+                <Typography variant="h6">
+                  Варианты отображения графиков
+                </Typography>
+                <ToggleButtonGroup
+                  color="primary"
+                  value={chartOption}
+                  exclusive
+                  onChange={handleChartOption}
+                  aria-label="chart options"
+                >
+                  <ToggleButton value="linear" aria-label="chart option">
+                    <ShowChartIcon sx={{ mb: 0.3 }} /> Линейные
+                  </ToggleButton>
+                  <ToggleButton value="pie" aria-label="chart option">
+                    <PieChartIcon sx={{ mb: 0.5, mr: 0.5 }} /> Круговая
+                    диаграмма
+                  </ToggleButton>
+                </ToggleButtonGroup>
+
+                <Divider sx={{ marginTop: 2, marginBottom: 1 }} />
+
                 <Typography variant="h6">Промежуток времени</Typography>
                 <DateFilter
                   startDate={startDate}
@@ -181,7 +220,12 @@ export default function StatisticsPage() {
 
                 <Typography variant="h6">Категории</Typography>
                 {loading ? (
-                  <Skeleton variant="rectangular" width="100%" height={118} />
+                  <Stack spacing={1}>
+                    <Skeleton variant="rounded" width="100%" height={36} />
+                    <Skeleton variant="rounded" width="100%" height={36} />
+                    <Skeleton variant="rounded" width="100%" height={36} />
+                    <Skeleton variant="rounded" width="100%" height={36} />
+                  </Stack>
                 ) : charts.length > 0 ? (
                   <CheckFilters
                     filters={charts}
@@ -218,43 +262,84 @@ export default function StatisticsPage() {
       <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">
         <div className="flex flex-col items-center justify-center sm:flex-row gap-3">
           {/* general blocks */}
-          {/* {loading ? (
+          {loading ? (
             <>
-              <Skeleton variant="rectangular" width={210} height={118} />
-              <Skeleton variant="rectangular" width={210} height={118} />
+              <Skeleton
+                variant="rounded"
+                sx={{ borderRadius: 4 }}
+                width={303}
+                height={84}
+              />
+              <Skeleton
+                variant="rounded"
+                sx={{ borderRadius: 4 }}
+                width={303}
+                height={84}
+              />
             </>
-          ) : ( */}
-          <>
-            <StatsBlock
-              icon={<BarChartRounded />}
-              value={totalCount.toLocaleString("ru-RU")}
-              title="Количество обнаружений"
-            />
-            <StatsBlock
-              icon={<StreamIcon />}
-              value={`${accuracy} %`}
-              title="Общая точность"
-            />
-          </>
-          {/* )} */}
+          ) : (
+            <>
+              <StatsBlock
+                icon={<BarChartRounded />}
+                value={totalCount.toLocaleString("ru-RU")}
+                title="Количество обнаружений"
+              />
+              <StatsBlock
+                icon={<StreamIcon />}
+                value={`${accuracy} %`}
+                title="Общая точность"
+              />
+            </>
+          )}
         </div>
 
         {/* charts */}
-        <div className="charts-container">
-          <ul className="list-none flex flex-col gap-3 lg:gap-4">
-            {loading ? (
-              <Skeleton variant="rounded" width="100%" height={400} />
-            ) : filteredCharts.length > 0 ? (
-              filteredCharts.map((x) => (
-                <li key={x.id}>
-                  <ChartBlock title={x.name} />
-                </li>
-              ))
-            ) : (
-              <Typography color="error">Нет данных для отображения</Typography>
-            )}
-          </ul>
-        </div>
+        {chartOption === "linear" && (
+          <div className="charts-container">
+            <ul className="list-none flex flex-col gap-3 lg:gap-4">
+              {loading ? (
+                <Stack spacing={2}>
+                  <Skeleton
+                    variant="rounded"
+                    sx={{ borderRadius: 4 }}
+                    width="100%"
+                    height={400}
+                  />
+                  <Skeleton
+                    variant="rounded"
+                    sx={{ borderRadius: 4 }}
+                    width="100%"
+                    height={400}
+                  />
+                  <Skeleton
+                    variant="rounded"
+                    sx={{ borderRadius: 4 }}
+                    width="100%"
+                    height={400}
+                  />
+                  <Skeleton
+                    variant="rounded"
+                    sx={{ borderRadius: 4 }}
+                    width="100%"
+                    height={400}
+                  />
+                </Stack>
+              ) : filteredCharts.length > 0 ? (
+                filteredCharts.map((x) => (
+                  <li key={x.id}>
+                    <ChartBlock title={x.name} />
+                  </li>
+                ))
+              ) : (
+                <Typography color="error">
+                  Нет данных для отображения
+                </Typography>
+              )}
+            </ul>
+          </div>
+        )}
+
+        {chartOption === "pie" && <PieChartBlock data={filteredCharts} />}
       </div>
     </div>
   );
