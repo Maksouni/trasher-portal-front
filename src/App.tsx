@@ -1,12 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ReactNode } from "react";
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import RequireAuth from "./components/RequireAuth";
 import { AuthProvider } from "./context/auth/AuthProvider";
 import { useAuth } from "./context/auth/useAuth";
@@ -23,8 +16,8 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { AlertProvider } from "./context/alert/AlertProvider";
 
 function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
+  const { isLoading } = useAuth();
+  // const location = useLocation();
 
   if (isLoading) {
     return (
