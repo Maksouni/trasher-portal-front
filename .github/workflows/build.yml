@@ -10,7 +10,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-        
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
@@ -21,14 +20,11 @@ jobs:
       - name: Save Docker image to archive
         run: docker save trasher-front | gzip > trasher-front.tar.gz
 
-      - name: Copy image to server via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "trasher-front.tar.gz"
-          target: "${{ secrets.TARGET_DIR }}"
+      - name: Copy image to server via local scp
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
+          chmod 600 id_rsa
+          scp -i id_rsa -o StrictHostKeyChecking=no -P 1022 trasher-front.tar.gz ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.TARGET_DIR }}
 
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -36,6 +32,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 1022
           script: |
             cd ${{ secrets.TARGET_DIR }}
             docker load < trasher-front.tar.gz
