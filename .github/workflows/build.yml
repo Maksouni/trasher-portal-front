@@ -1,5 +1,4 @@
-name: Build and Deploy Dockerized Vite App
-
+name: Build and Deploy Dockerized Trasher Front
 on:
   push:
     branches: [main]
