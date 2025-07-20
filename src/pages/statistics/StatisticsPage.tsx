@@ -58,7 +58,7 @@ export default function StatisticsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/categories`);
+        const response = await axios.get("/api/categories");
         if (
           response.data &&
           Array.isArray(response.data) &&

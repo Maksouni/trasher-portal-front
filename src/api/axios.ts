@@ -1,10 +1,9 @@
-// src/api/axios.js
 import axios from "axios";
 import Cookies from "js-cookie";
-import { apiUrl } from "../dotenv";
+// import { apiUrl } from "../dotenv";
 
 const instance = axios.create({
-  baseURL: apiUrl,
+  baseURL: "",
 });
 
 // Добавляем токен в заголовки для каждого запроса
