@@ -17,6 +17,7 @@ import PieChartIcon from "@mui/icons-material/PieChart";
 import DateFilter from "../../components/filters/DateFilter";
 import CheckFilters from "../../components/filters/CheckFilters";
 import { ChartType } from "../../types/chart.types";
+import { useScrollDirection } from "../../hooks/useScrollDirection";
 
 interface SidebarFiltersProps {
   chartOption: string;
@@ -51,9 +52,19 @@ export default function SidebarFilters({
   ) => {
     if (newOption) onChartOptionChange(newOption);
   };
+  const scrollDirection = useScrollDirection();
+  const headerHeight = 78;
+  const dynamicTop = scrollDirection === "down" ? 16 : headerHeight;
 
   return (
-    <div className="flex flex-col gap-3 lg:sticky lg:top-4 self-start">
+    <div
+      className="flex flex-col gap-4 lg:sticky self-start"
+      style={{
+        top: dynamicTop,
+        transition: "top 0.3s ease",
+      }}
+    >
+      {" "}
       <div className="shadow-lg">
         <Accordion
           sx={{ borderRadius: 2, overflow: "hidden" }}
@@ -128,7 +139,6 @@ export default function SidebarFilters({
           <AccordionActions />
         </Accordion>
       </div>
-
       <div className="shadow-lg">
         <Button
           variant="contained"
