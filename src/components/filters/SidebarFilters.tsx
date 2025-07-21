@@ -53,7 +53,7 @@ export default function SidebarFilters({
   };
 
   return (
-    <div className="flex flex-col gap-3 lg:sticky lg:top-0">
+    <div className="flex flex-col gap-3 lg:sticky lg:top-4 self-start">
       <div className="shadow-lg">
         <Accordion
           sx={{ borderRadius: 2, overflow: "hidden" }}

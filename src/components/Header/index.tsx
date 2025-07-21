@@ -12,6 +12,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { themeColors } from "../../theme";
 import { useState } from "react";
 import type { DrawerItem } from "../../types/drawerItem.types";
+import { useScrollDirection } from "../../hooks/useScrollDirection";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -19,6 +20,7 @@ export default function Header() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const isLargeScreen = useMediaQuery("(min-width:1024px)");
+  const scrollDirection = useScrollDirection();
 
   if (location.pathname === "/login") return null;
 
@@ -48,7 +50,7 @@ export default function Header() {
       address: "/users",
     },
     {
-      title: "Выйти из аккаунта",
+      title: "Выйти",
       icon: <ExitToAppIcon sx={{ color: themeColors.secondary }} />,
       color: themeColors.secondary,
       onClick: logout,
@@ -59,7 +61,12 @@ export default function Header() {
   const addresses = [...DrawerItems1, ...DrawerItems2];
 
   return (
-    <header className="w-full flex items-center justify-center">
+    <header
+      className={`w-full flex items-center justify-center transition-transform duration-300 z-50 ${
+        scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"
+      } fixed top-0 left-0 bg-transparent`}
+    >
+      {" "}
       <div className="m-2 mt-3 w-full max-w-[1024px] flex items-center bg-white shadow-md rounded-md p-2 pb-1 pt-1">
         {!isLargeScreen && (
           <>

@@ -1,5 +1,5 @@
 import { PieChart } from "@mui/x-charts";
-import { ChartType } from "../../pages/statistics/StatisticsPage";
+import { ChartType } from "../../types/chart.types";
 import { useMediaQuery, useTheme } from "@mui/material";
 
 interface PieChartProps {

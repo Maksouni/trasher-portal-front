@@ -6,6 +6,15 @@ interface ChartBlockProps {
   title: string;
 }
 
+const FRACTION_COLORS: Record<string, string> = {
+  "ПЭТ (прозрачн.)": "#007BFF", // Синий
+  "ПЭТ (цвет.)": "#007BFF",
+  "ПЭТ пакет": "#007BFF",
+  Стекло: "#20C997", // Бирюзовый
+  Картон: "#FFD600", // Желтый
+  Жесть: "#6C757D", // Серый
+};
+
 export default function ChartBlock({ title }: ChartBlockProps) {
   const [chartWidth, setChartWidth] = useState(
     window.innerWidth < 768 ? 340 : 600
@@ -30,7 +39,8 @@ export default function ChartBlock({ title }: ChartBlockProps) {
   }, []);
 
   const uData = [42, 35, 133, 232, 12, 60, 92];
-  const pData = [24, 13, 98, 39, 48, 38, 43]; // Пример данных для точности (в процентах)
+  const pData = [24, 13, 98, 39, 48, 38, 43];
+
   const xLabels = [
     "2025-02-17",
     "2025-02-18",
@@ -42,9 +52,10 @@ export default function ChartBlock({ title }: ChartBlockProps) {
   ];
 
   const formattedXLabels = xLabels.map((date) => new Date(date).getTime());
+  const mainColor = FRACTION_COLORS[title] || "#8E24AA";
 
   return (
-    <div className="flex items-center w-full bg-white rounded-2xl shadow-lg ">
+    <div className="flex items-center w-full bg-white rounded-2xl shadow-lg">
       <LineChart
         width={chartWidth}
         height={chartHeight}
@@ -53,11 +64,15 @@ export default function ChartBlock({ title }: ChartBlockProps) {
             data: pData,
             label: "Точность",
             yAxisId: "rightAxisId",
+            color: "#FF6F00",
+            showMark: true,
           },
           {
             data: uData,
             label: title,
             yAxisId: "leftAxisId",
+            color: mainColor,
+            showMark: true,
           },
         ]}
         xAxis={[
@@ -73,6 +88,8 @@ export default function ChartBlock({ title }: ChartBlockProps) {
           { id: "rightAxisId", min: 0, max: 100, label: "Проценты" },
         ]}
         rightAxis="rightAxisId"
+        // Убираем переопределяющий sx
+        // Чтобы линии не исчезали из-за неправильного stroke
       />
     </div>
   );

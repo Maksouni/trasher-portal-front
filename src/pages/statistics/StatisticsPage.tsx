@@ -91,7 +91,7 @@ export default function StatisticsPage() {
   };
 
   return (
-    <div className="flex max-w-[1024px] flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
+    <div className="flex max-w-[1024px] min-h-screen flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
       <SidebarFilters
         chartOption={chartOption}
         onChartOptionChange={setChartOption}
@@ -105,6 +105,7 @@ export default function StatisticsPage() {
         onEndDateChange={setEndDate}
         onDownload={downloadFile}
       />
+
       <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">
         <StatsSummary loading={loading} />
         <ChartView

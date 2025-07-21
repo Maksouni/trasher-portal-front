@@ -16,7 +16,7 @@ export default function ChartView({ option, loading, charts }: ChartViewProps) {
 
   return (
     <div className="charts-container">
-      <ul className="list-none flex flex-col gap-3 lg:gap-4">
+      <ul className="list-none flex flex-col gap-5 lg:gap-4">
         {loading ? (
           <Stack spacing={2}>
             {Array.from({ length: 4 }).map((_, i) => (

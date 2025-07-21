@@ -1,5 +1,5 @@
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
-import { ChartType } from "../../pages/statistics/StatisticsPage";
+import { ChartType } from "../../types/chart.types";
 
 interface CheckFiltersProps {
   filters: ChartType[];
