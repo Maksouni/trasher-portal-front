@@ -2,7 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { User } from "../../types";
+import { User } from "../../types/user.types";
 
 interface AuthProviderProps {
   children: ReactNode;

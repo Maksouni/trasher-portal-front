@@ -15,7 +15,6 @@ export default function StreamPlayer({ src, width = 720 }: StreamPlayerProps) {
 
     if (Hls.isSupported()) {
       const hls = new Hls({
-        // можно экспериментировать с этими опциями, если нужно:
         // enableWebVTT: false,
         // lowLatencyMode: true,
       });
