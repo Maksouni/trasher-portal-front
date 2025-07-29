@@ -4,7 +4,7 @@ import RequireAuth from "./components/RequireAuth";
 import { AuthProvider } from "./context/auth/AuthProvider";
 import { useAuth } from "./context/auth/useAuth";
 import LoginPage from "./pages/login/LoginPage";
-import StatisticsPage from "./pages/statistics/StatisticsPage";
+import ChartsPage from "./pages/statistics/charts";
 import AddUser from "./pages/user-actions/AddUser";
 import EditUser from "./pages/user-actions/EditUser";
 import UserManagement from "./pages/user-actions/UserManagement";
@@ -14,6 +14,7 @@ import { getTheme } from "./theme";
 import StreamPage from "./pages/stream/StreamPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { AlertProvider } from "./context/alert/AlertProvider";
+import StatisticsTablePage from "./pages/statistics/table";
 
 function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
   const { isLoading } = useAuth();
@@ -63,7 +64,15 @@ function App() {
                   path="/"
                   element={
                     <RequireAuth>
-                      <StatisticsPage />
+                      <ChartsPage />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/statistics/table"
+                  element={
+                    <RequireAuth>
+                      <StatisticsTablePage />
                     </RequireAuth>
                   }
                 />

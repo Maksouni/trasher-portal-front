@@ -78,6 +78,7 @@ export default function Header() {
             </IconButton>
             <Typography variant="h6" sx={{ flexGrow: 1, ml: 2 }}>
               {addresses.find((a) => a.address === location.pathname)?.title ||
+                (location.pathname === "/statistics/table" && "Статистика") ||
                 "Ошибка"}
             </Typography>
           </>

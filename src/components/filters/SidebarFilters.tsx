@@ -19,6 +19,7 @@ import DateFilter from "../../components/filters/DateFilter";
 import CheckFilters from "../../components/filters/CheckFilters";
 import { ChartType } from "../../types/chart.types";
 import { useScrollDirection } from "../../hooks/useScrollDirection";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarFiltersProps {
   chartOption: string;
@@ -47,6 +48,8 @@ export default function SidebarFilters({
   onEndDateChange,
   onDownload,
 }: SidebarFiltersProps) {
+  const navigate = useNavigate();
+
   const handleChartOption = (
     _: React.MouseEvent<HTMLElement>,
     newOption: string | null
@@ -57,6 +60,10 @@ export default function SidebarFilters({
   const headerHeight = 78;
   const dynamicTop = scrollDirection === "down" ? 16 : headerHeight;
 
+  const handleGoToTable = () => {
+    navigate("/statistics/table");
+  };
+
   return (
     <div
       className="flex flex-col gap-4 lg:sticky self-start w-full lg:w-fit"
@@ -65,6 +72,14 @@ export default function SidebarFilters({
         transition: "top 0.3s ease",
       }}
     >
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleGoToTable}
+        sx={{ alignSelf: "flex-start", width: "100%" }}
+      >
+        Перейти к таблице
+      </Button>
       <div className="shadow-lg">
         <Accordion
           sx={{ borderRadius: 2, overflow: "hidden" }}

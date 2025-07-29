@@ -8,7 +8,7 @@ import ChartView from "../../components/statistics/ChartView";
 import StatsSummary from "../../components/statistics/StatsSummary";
 import { ChartType } from "../../types/chart.types";
 
-export default function StatisticsPage() {
+export default function ChartsPage() {
   const [charts, setCharts] = useState<ChartType[]>([]);
   const [filteredCharts, setFilteredCharts] = useState<ChartType[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<ChartType[]>([]);
