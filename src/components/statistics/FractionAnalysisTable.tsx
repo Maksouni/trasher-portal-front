@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useMemo, useState } from "react";
 import {
   DataGrid,
@@ -17,6 +18,25 @@ import {
 } from "@mui/material";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 import { ChartType } from "../../types/chart.types";
+import { CustomExportButton } from "./ExportTableButton";
+
+function toSafeClassName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, "-") // пробелы в дефис
+    .replace(/[().]/g, "") // убираем скобки и точки
+    .normalize("NFD") // убрать акценты
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function normalize(name: string): string {
+  // Просто убираем неразрывные пробелы и меняем множественные пробелы на один,
+  // но не трогаем точки, скобки и регистр
+  return name
+    .replace(/\u00A0/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 const periods = ["День", "Неделя", "Месяц"];
 
@@ -38,14 +58,6 @@ const columns: GridColDef[] = [
     cellClassName: "last-column-cell",
   },
 ];
-
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer>
-      <GridToolbarExport csvOptions={{ fileName: "fragments_report" }} />
-    </GridToolbarContainer>
-  );
-}
 
 interface Props {
   data: ChartType[];
@@ -84,6 +96,20 @@ export default function FractionAnalysisTable({ data }: Props) {
   const handleFractionChange = (e: SelectChangeEvent) => {
     setFractionFilter(e.target.value);
   };
+
+  function CustomToolbar({
+    rows,
+    columns,
+  }: {
+    rows: typeof filteredData;
+    columns: GridColDef[];
+  }) {
+    return (
+      <GridToolbarContainer>
+        <CustomExportButton rows={rows} columns={columns} />
+      </GridToolbarContainer>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 m-2 lg:mx-auto max-w-[1024px]">
@@ -131,9 +157,13 @@ export default function FractionAnalysisTable({ data }: Props) {
           columns={columns}
           disableRowSelectionOnClick
           hideFooter
-          slots={{ toolbar: CustomToolbar }}
+          slots={{
+            toolbar: (_toolbarProps) => (
+              <CustomToolbar rows={filteredData} columns={columns} />
+            ),
+          }}
           getRowClassName={(params) =>
-            `row-${params.row.name.replace(/\s/g, "-")}`
+            `row-${toSafeClassName(normalize(params.row.name))}`
           }
           sx={{
             border: "none",
@@ -148,13 +178,19 @@ export default function FractionAnalysisTable({ data }: Props) {
               paddingRight: "16px",
             },
             ...Object.fromEntries(
-              filteredData.map((row) => [
-                `.row-${row.name.replace(/\s/g, "-")}`,
-                {
-                  backgroundColor: `${FRACTION_COLORS[row.name] || "#eee"}22`,
-                  borderBottom: "1px solid #e0e0e0",
-                },
-              ])
+              filteredData.map((row) => {
+                const normalizedName = normalize(row.name);
+                const safeName = toSafeClassName(normalizedName);
+                const className = `.MuiDataGrid-row.row-${safeName}`;
+                const color = FRACTION_COLORS[normalizedName] || "#eee";
+                return [
+                  className,
+                  {
+                    backgroundColor: `${color}33`,
+                    borderBottom: "1px solid #e0e0e0",
+                  },
+                ];
+              })
             ),
           }}
         />
