@@ -1,19 +1,11 @@
 import { LineChart } from "@mui/x-charts";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
+import { FRACTION_COLORS } from "../../utils/fractionColors";
 
 interface ChartBlockProps {
   title: string;
 }
-
-const FRACTION_COLORS: Record<string, string> = {
-  "ПЭТ (прозрачн.)": "#007BFF", // Синий
-  "ПЭТ (цвет.)": "#007BFF",
-  "ПЭТ пакет": "#007BFF",
-  Стекло: "#20C997", // Бирюзовый
-  Картон: "#FFD600", // Желтый
-  Жесть: "#6C757D", // Серый
-};
 
 export default function ChartBlock({ title }: ChartBlockProps) {
   const [chartWidth, setChartWidth] = useState(

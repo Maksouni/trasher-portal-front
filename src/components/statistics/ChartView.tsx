@@ -2,6 +2,7 @@ import { Stack, Skeleton, Typography } from "@mui/material";
 import ChartBlock from "../../components/statistics/ChartBlock";
 import PieChartBlock from "../../components/statistics/PieChartBlock";
 import { ChartType } from "../../types/chart.types";
+import BarChartBlock from "./BarChartBlock";
 
 interface ChartViewProps {
   option: string;
@@ -12,6 +13,12 @@ interface ChartViewProps {
 export default function ChartView({ option, loading, charts }: ChartViewProps) {
   if (option === "pie") {
     return <PieChartBlock data={charts} />;
+  }
+
+  if (option === "bar") {
+    return (
+      <BarChartBlock data={charts.map((i) => ({ ...i, value: i.id * 14 }))} />
+    );
   }
 
   return (

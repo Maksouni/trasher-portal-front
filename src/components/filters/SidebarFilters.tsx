@@ -14,6 +14,7 @@ import {
 import SettingsIcon from "@mui/icons-material/Settings";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
+import BarChartIcon from "@mui/icons-material/BarChart";
 import DateFilter from "../../components/filters/DateFilter";
 import CheckFilters from "../../components/filters/CheckFilters";
 import { ChartType } from "../../types/chart.types";
@@ -58,13 +59,12 @@ export default function SidebarFilters({
 
   return (
     <div
-      className="flex flex-col gap-4 lg:sticky self-start"
+      className="flex flex-col gap-4 lg:sticky self-start w-full lg:w-fit"
       style={{
         top: dynamicTop,
         transition: "top 0.3s ease",
       }}
     >
-      {" "}
       <div className="shadow-lg">
         <Accordion
           sx={{ borderRadius: 2, overflow: "hidden" }}
@@ -84,19 +84,24 @@ export default function SidebarFilters({
           </AccordionSummary>
 
           <AccordionDetails>
-            <div className="flex flex-col gap-2 mt-1">
+            <div className="flex flex-col gap-2 mt-1 font-">
               <Typography variant="h6">Варианты графиков</Typography>
               <ToggleButtonGroup
+                orientation="vertical"
+                fullWidth
                 color="primary"
                 value={chartOption}
                 exclusive
                 onChange={handleChartOption}
               >
-                <ToggleButton value="linear">
-                  <ShowChartIcon sx={{ mb: 0.3 }} /> Линейные
+                <ToggleButton value="linear" sx={{ fontWeight: "bold" }}>
+                  <ShowChartIcon sx={{ mb: 0.3, mr: 1 }} /> Линейный график
                 </ToggleButton>
-                <ToggleButton value="pie">
-                  <PieChartIcon sx={{ mb: 0.5, mr: 0.5 }} /> Круговая диаграмма
+                <ToggleButton value="pie" sx={{ fontWeight: "bold" }}>
+                  <PieChartIcon sx={{ mb: 0.5, mr: 1 }} /> Круговая диаграмма
+                </ToggleButton>
+                <ToggleButton value="bar" sx={{ fontWeight: "bold" }}>
+                  <BarChartIcon sx={{ mb: 0.5, mr: 1 }} /> Столбчатая диаграмма
                 </ToggleButton>
               </ToggleButtonGroup>
 

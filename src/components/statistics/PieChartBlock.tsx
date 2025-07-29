@@ -1,6 +1,7 @@
 import { PieChart } from "@mui/x-charts";
 import { ChartType } from "../../types/chart.types";
 import { useMediaQuery, useTheme } from "@mui/material";
+import { FRACTION_COLORS } from "../../utils/fractionColors";
 
 interface PieChartProps {
   data: ChartType[];
@@ -31,6 +32,7 @@ export default function PieChartBlock({ data }: PieChartProps) {
                 id: chart.id,
                 value: hardcodedValues[index % hardcodedValues.length],
                 label: chart.name,
+                color: FRACTION_COLORS[chart.name] || "#CCCCCC",
               })),
               highlightScope: { fade: "global", highlight: "item" },
               faded: {
