@@ -1,6 +1,5 @@
 import {
   Accordion,
-  AccordionActions,
   AccordionDetails,
   AccordionSummary,
   Button,
@@ -15,11 +14,11 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import DateFilter from "../../components/filters/DateFilter";
 import CheckFilters from "../../components/filters/CheckFilters";
 import { ChartType } from "../../types/chart.types";
 import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { useNavigate } from "react-router-dom";
+import PeriodRangeSlider from "./PeriodRangeSlider";
 
 interface SidebarFiltersProps {
   chartOption: string;
@@ -28,11 +27,19 @@ interface SidebarFiltersProps {
   selectedFilters: ChartType[];
   onToggleFilter: (filter: ChartType) => void;
   loading: boolean;
-  startDate: string;
-  endDate: string;
-  onStartDateChange: (date: string) => void;
-  onEndDateChange: (date: string) => void;
   onDownload: () => void;
+
+  period: "day" | "month";
+  onPeriodChange: (value: "day" | "month") => void;
+
+  year: number;
+  onYearChange: (year: number) => void;
+
+  month: number;
+  onMonthChange: (month: number) => void;
+
+  range: [number, number];
+  onRangeChange: (range: [number, number]) => void;
 }
 
 export default function SidebarFilters({
@@ -42,13 +49,20 @@ export default function SidebarFilters({
   selectedFilters,
   onToggleFilter,
   loading,
-  startDate,
-  endDate,
-  onStartDateChange,
-  onEndDateChange,
   onDownload,
+  period,
+  onPeriodChange,
+  year,
+  onYearChange,
+  month,
+  onMonthChange,
+  range,
+  onRangeChange,
 }: SidebarFiltersProps) {
   const navigate = useNavigate();
+  const scrollDirection = useScrollDirection();
+  const headerHeight = 78;
+  const dynamicTop = scrollDirection === "down" ? 16 : headerHeight;
 
   const handleChartOption = (
     _: React.MouseEvent<HTMLElement>,
@@ -56,12 +70,14 @@ export default function SidebarFilters({
   ) => {
     if (newOption) onChartOptionChange(newOption);
   };
-  const scrollDirection = useScrollDirection();
-  const headerHeight = 78;
-  const dynamicTop = scrollDirection === "down" ? 16 : headerHeight;
 
-  const handleGoToTable = () => {
-    navigate("/statistics/table");
+  const handlePeriodChange = (
+    _: React.MouseEvent<HTMLElement>,
+    newValue: string | null
+  ) => {
+    if (newValue === "day" || newValue === "month") {
+      onPeriodChange(newValue);
+    }
   };
 
   return (
@@ -75,11 +91,12 @@ export default function SidebarFilters({
       <Button
         variant="contained"
         color="primary"
-        onClick={handleGoToTable}
+        onClick={() => navigate("/statistics/table")}
         sx={{ alignSelf: "flex-start", width: "100%" }}
       >
         Перейти к таблице
       </Button>
+
       <div className="shadow-lg">
         <Accordion
           sx={{ borderRadius: 2, overflow: "hidden" }}
@@ -99,7 +116,7 @@ export default function SidebarFilters({
           </AccordionSummary>
 
           <AccordionDetails>
-            <div className="flex flex-col gap-2 mt-1 font-">
+            <div className="flex flex-col gap-2 mt-1">
               <Typography variant="h6">Варианты графиков</Typography>
               <ToggleButtonGroup
                 orientation="vertical"
@@ -122,12 +139,31 @@ export default function SidebarFilters({
 
               <Divider sx={{ my: 2 }} />
 
+              <Typography variant="h6">Период</Typography>
+              <ToggleButtonGroup
+                value={period}
+                onChange={handlePeriodChange}
+                exclusive
+                fullWidth
+              >
+                <ToggleButton value="day">День</ToggleButton>
+                <ToggleButton value="month">Месяц</ToggleButton>
+              </ToggleButtonGroup>
+
+              <Divider sx={{ my: 2 }} />
+
               <Typography variant="h6">Промежуток времени</Typography>
-              <DateFilter
-                startDate={startDate}
-                endDate={endDate}
-                onStartDateChange={onStartDateChange}
-                onEndDateChange={onEndDateChange}
+              <PeriodRangeSlider
+                period={period}
+                year={year}
+                month={period === "day" ? month : undefined}
+                range={range}
+                onYearChange={onYearChange}
+                onMonthChange={onMonthChange}
+                onRangeChange={onRangeChange}
+                minDistance={
+                  chartOption === "linear" && period === "day" ? 6 : undefined
+                }
               />
 
               <Divider sx={{ my: 2 }} />
@@ -155,10 +191,9 @@ export default function SidebarFilters({
               )}
             </div>
           </AccordionDetails>
-
-          <AccordionActions />
         </Accordion>
       </div>
+
       <div className="shadow-lg">
         <Button
           variant="contained"
