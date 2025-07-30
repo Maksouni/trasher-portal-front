@@ -1,4 +1,3 @@
-import { ChartType } from "../../types/chart.types";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 import {
   BarChart,
@@ -11,7 +10,10 @@ import {
 } from "recharts";
 
 interface BarChartBlockProps {
-  data: ChartType[];
+  data: {
+    name: string;
+    value: number;
+  }[];
 }
 
 const CustomTooltip = ({

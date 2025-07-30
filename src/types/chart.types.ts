@@ -3,3 +3,10 @@ export interface ChartType {
   name: string;
   value: number;
 }
+
+export interface DailyReport {
+  date: string;
+  categoryName: string;
+  count: number;
+  avgConfidence: number;
+}

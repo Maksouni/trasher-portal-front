@@ -1,26 +1,56 @@
 import { Stack, Skeleton, Typography } from "@mui/material";
-import ChartBlock from "../../components/statistics/ChartBlock";
-import PieChartBlock from "../../components/statistics/PieChartBlock";
-import { ChartType } from "../../types/chart.types";
+import { DailyReport } from "../../types/chart.types";
 import BarChartBlock from "./BarChartBlock";
+import ChartBlock from "./ChartBlock";
+import PieChartBlock from "./PieChartBlock";
 
 interface ChartViewProps {
   option: string;
   loading: boolean;
-  charts: ChartType[];
+  summaryData: {
+    categoryName: string;
+    totalCount: number;
+    avgConfidence: number;
+  }[];
+  dailyData: DailyReport[];
 }
 
-export default function ChartView({ option, loading, charts }: ChartViewProps) {
+export default function ChartView({
+  option,
+  loading,
+  summaryData,
+  dailyData,
+}: ChartViewProps) {
   if (option === "pie") {
-    return <PieChartBlock data={charts} />;
+    return (
+      <PieChartBlock
+        data={summaryData.map((i) => ({
+          id: i.categoryName, // если есть id, или просто name
+          name: i.categoryName,
+          value: i.totalCount,
+        }))}
+      />
+    );
   }
 
   if (option === "bar") {
     return (
-      <BarChartBlock data={charts.map((i) => ({ ...i, value: i.id * 14 }))} />
+      <BarChartBlock
+        data={summaryData.map((item) => ({
+          name: item.categoryName,
+          value: item.totalCount,
+          confidence: item.avgConfidence,
+        }))}
+      />
     );
   }
+  const grouped = dailyData.reduce((acc, item) => {
+    if (!acc[item.categoryName]) acc[item.categoryName] = [];
+    acc[item.categoryName].push(item);
+    return acc;
+  }, {} as Record<string, DailyReport[]>);
 
+  // option === "linear"
   return (
     <div className="charts-container">
       <ul className="list-none flex flex-col gap-5 lg:gap-4">
@@ -36,10 +66,10 @@ export default function ChartView({ option, loading, charts }: ChartViewProps) {
               />
             ))}
           </Stack>
-        ) : charts.length > 0 ? (
-          charts.map((chart) => (
-            <li key={chart.id}>
-              <ChartBlock title={chart.name} />
+        ) : Object.entries(grouped).length > 0 ? (
+          Object.entries(grouped).map(([categoryName, items]) => (
+            <li key={categoryName}>
+              <ChartBlock title={categoryName} data={items} />
             </li>
           ))
         ) : (

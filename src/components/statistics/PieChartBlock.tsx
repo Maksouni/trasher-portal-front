@@ -1,14 +1,16 @@
 import { PieChart } from "@mui/x-charts";
-import { ChartType } from "../../types/chart.types";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 
 interface PieChartProps {
-  data: ChartType[];
+  data: {
+    id: number | string;
+    name: string;
+    value: number;
+  }[];
 }
 
 export default function PieChartBlock({ data }: PieChartProps) {
-  const hardcodedValues = [105, 157, 212, 76];
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -28,9 +30,9 @@ export default function PieChartBlock({ data }: PieChartProps) {
         <PieChart
           series={[
             {
-              data: data.map((chart, index) => ({
+              data: data.map((chart) => ({
                 id: chart.id,
-                value: hardcodedValues[index % hardcodedValues.length],
+                value: chart.value,
                 label: chart.name,
                 color: FRACTION_COLORS[chart.name] || "#CCCCCC",
               })),

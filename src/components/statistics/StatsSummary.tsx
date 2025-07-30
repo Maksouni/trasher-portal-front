@@ -5,11 +5,21 @@ import StreamIcon from "@mui/icons-material/Stream";
 
 interface StatsSummaryProps {
   loading: boolean;
+  data: {
+    categoryName: string;
+    totalCount: number;
+    avgConfidence: number;
+  }[];
 }
 
-export default function StatsSummary({ loading }: StatsSummaryProps) {
-  const totalCount = 25000;
-  const accuracy = 50;
+export default function StatsSummary({ loading, data }: StatsSummaryProps) {
+  // Например, суммируем количество и среднюю точность по всем категориям
+  const totalCount = data.reduce((acc, cur) => acc + cur.totalCount, 0);
+  const accuracy =
+    data.length > 0
+      ? (data.reduce((acc, cur) => acc + cur.avgConfidence, 0) / data.length) *
+        100
+      : 0;
 
   return (
     <div className="flex flex-col items-center justify-center sm:flex-row gap-3">
@@ -37,7 +47,7 @@ export default function StatsSummary({ loading }: StatsSummaryProps) {
           />
           <StatsBlock
             icon={<StreamIcon />}
-            value={`${accuracy} %`}
+            value={`${accuracy.toFixed(2)} %`}
             title="Общая точность"
           />
         </>
