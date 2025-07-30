@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "../../api/axios";
 import { apiUrl } from "../../dotenv";
 import qs from "qs";
@@ -8,52 +8,21 @@ import ChartView from "../../components/statistics/ChartView";
 import StatsSummary from "../../components/statistics/StatsSummary";
 import { ChartType } from "../../types/chart.types";
 
-function formatDate(y: number, m: number, d: number): string {
-  return new Date(y, m, d).toISOString().split("T")[0];
-}
-
-function getStartEndDates(
-  period: "day" | "month",
-  year: number,
-  month: number,
-  range: [number, number]
-): [string, string] {
-  if (period === "day") {
-    return [
-      formatDate(year, month, range[0] - 1),
-      formatDate(year, month, range[1] - 1),
-    ];
-  } else {
-    return [formatDate(year, range[0] - 1, 1), formatDate(year, range[1], 0)];
-  }
-}
-
 export default function ChartsPage() {
   const [charts, setCharts] = useState<ChartType[]>([]);
   const [filteredCharts, setFilteredCharts] = useState<ChartType[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<ChartType[]>([]);
   const [loading, setLoading] = useState(true);
   const [chartOption, setChartOption] = useState("linear");
-  const [period, setPeriod] = useState<"day" | "month">("day");
 
-  const [year, setYear] = useState(new Date().getFullYear());
-  const [month, setMonth] = useState(new Date().getMonth());
-  const [range, setRange] = useState<[number, number]>([1, 7]);
-
-  const { showAlert } = useAlert();
-
-  const [startDate, endDate] = useMemo(
-    () => getStartEndDates(period, year, month, range),
-    [period, year, month, range]
+  const [startDate, setStartDate] = useState(
+    new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0]
+  );
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().split("T")[0]
   );
 
-  useEffect(() => {
-    if (period === "day") {
-      setRange([1, 7]);
-    } else if (period === "month") {
-      setRange([1, 1]);
-    }
-  }, [period]);
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -130,15 +99,11 @@ export default function ChartsPage() {
         selectedFilters={selectedFilters}
         onToggleFilter={handleToggleFilter}
         loading={loading}
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={setStartDate}
+        onEndDateChange={setEndDate}
         onDownload={downloadFile}
-        period={period}
-        onPeriodChange={setPeriod}
-        year={year}
-        onYearChange={setYear}
-        month={month}
-        onMonthChange={setMonth}
-        range={range}
-        onRangeChange={setRange}
       />
 
       <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">
