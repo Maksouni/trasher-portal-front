@@ -7,6 +7,7 @@ import SidebarFilters from "../../components/filters/SidebarFilters";
 import ChartView from "../../components/statistics/ChartView";
 import StatsSummary from "../../components/statistics/StatsSummary";
 import { ChartType } from "../../types/chart.types";
+import dayjs from "dayjs";
 
 export default function ChartsPage() {
   const [charts, setCharts] = useState<ChartType[]>([]);
@@ -15,12 +16,12 @@ export default function ChartsPage() {
   const [loading, setLoading] = useState(true);
   const [chartOption, setChartOption] = useState("linear");
 
+  const [period, setPeriod] = useState<"day" | "month">("day");
+
   const [startDate, setStartDate] = useState(
-    new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0]
+    dayjs().subtract(7, "day").format("YYYY-MM-DD")
   );
-  const [endDate, setEndDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [endDate, setEndDate] = useState(dayjs().format("YYYY-MM-DD"));
 
   const { showAlert } = useAlert();
 
@@ -104,6 +105,8 @@ export default function ChartsPage() {
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
         onDownload={downloadFile}
+        period={period}
+        onPeriodChange={setPeriod}
       />
 
       <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">

@@ -15,11 +15,11 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import DateFilter from "../../components/filters/DateFilter";
 import CheckFilters from "../../components/filters/CheckFilters";
 import { ChartType } from "../../types/chart.types";
 import { useScrollDirection } from "../../hooks/useScrollDirection";
 import { useNavigate } from "react-router-dom";
+import FlexibleDatePicker from "./FlexibleDatePicker";
 
 interface SidebarFiltersProps {
   chartOption: string;
@@ -33,6 +33,8 @@ interface SidebarFiltersProps {
   onStartDateChange: (date: string) => void;
   onEndDateChange: (date: string) => void;
   onDownload: () => void;
+  period: "day" | "month";
+  onPeriodChange: (period: "day" | "month") => void;
 }
 
 export default function SidebarFilters({
@@ -47,6 +49,8 @@ export default function SidebarFilters({
   onStartDateChange,
   onEndDateChange,
   onDownload,
+  period,
+  onPeriodChange,
 }: SidebarFiltersProps) {
   const navigate = useNavigate();
 
@@ -54,8 +58,15 @@ export default function SidebarFilters({
     _: React.MouseEvent<HTMLElement>,
     newOption: string | null
   ) => {
-    if (newOption) onChartOptionChange(newOption);
+    if (!newOption) return;
+    onChartOptionChange(newOption);
+
+    // Автоустановка "day" если график линейный
+    if (newOption === "linear" && period !== "day") {
+      onPeriodChange("day");
+    }
   };
+
   const scrollDirection = useScrollDirection();
   const headerHeight = 78;
   const dynamicTop = scrollDirection === "down" ? 16 : headerHeight;
@@ -66,7 +77,7 @@ export default function SidebarFilters({
 
   return (
     <div
-      className="flex flex-col gap-4 lg:sticky self-start w-full lg:w-fit"
+      className="flex flex-col gap-4 lg:sticky self-start w-full lg:max-w-[300px]"
       style={{
         top: dynamicTop,
         transition: "top 0.3s ease",
@@ -123,11 +134,13 @@ export default function SidebarFilters({
               <Divider sx={{ my: 2 }} />
 
               <Typography variant="h6">Промежуток времени</Typography>
-              <DateFilter
+              <FlexibleDatePicker
+                period={period}
                 startDate={startDate}
                 endDate={endDate}
                 onStartDateChange={onStartDateChange}
                 onEndDateChange={onEndDateChange}
+                onPeriodChange={onPeriodChange}
               />
 
               <Divider sx={{ my: 2 }} />
