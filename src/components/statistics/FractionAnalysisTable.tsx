@@ -3,8 +3,6 @@ import { useMemo, useState } from "react";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
 import {
   MenuItem,
-  ToggleButton,
-  ToggleButtonGroup,
   FormControl,
   InputLabel,
   Select,
@@ -12,28 +10,28 @@ import {
   Typography,
 } from "@mui/material";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
-import { ChartType } from "../../types/chart.types";
 import { CustomExportButton } from "./ExportTableButton";
+import FlexibleDatePicker from "../filters/FlexibleDatePicker";
 
-function toSafeClassName(name: string): string {
+function normalize(name?: string): string {
   return name
-    .toLowerCase()
-    .replace(/\s+/g, "-") // пробелы в дефис
-    .replace(/[().]/g, "") // убираем скобки и точки
-    .normalize("NFD") // убрать акценты
-    .replace(/[\u0300-\u036f]/g, "");
+    ? name
+        .replace(/\u00A0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+    : "";
 }
 
-function normalize(name: string): string {
-  // Просто убираем неразрывные пробелы и меняем множественные пробелы на один,
-  // но не трогаем точки, скобки и регистр
+function toSafeClassName(name?: string): string {
   return name
-    .replace(/\u00A0/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+    ? name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[().]/g, "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+    : "";
 }
-
-const periods = ["День", "Неделя", "Месяц"];
 
 const columns: GridColDef[] = [
   {
@@ -43,8 +41,24 @@ const columns: GridColDef[] = [
     sortable: true,
     cellClassName: "first-column-cell",
   },
-  { field: "tons", headerName: "Объём (т)", type: "number", flex: 1 },
-  { field: "percent", headerName: "Доля (%)", type: "number", flex: 1 },
+  {
+    field: "totalCount",
+    headerName: "Количество (шт)",
+    type: "number",
+    flex: 1,
+  },
+  {
+    field: "tons",
+    headerName: "Объём (т)",
+    type: "number",
+    flex: 1,
+  },
+  {
+    field: "percent",
+    headerName: "Доля (%)",
+    type: "number",
+    flex: 1,
+  },
   {
     field: "accuracy",
     headerName: "Точность сортировки (%)",
@@ -54,39 +68,60 @@ const columns: GridColDef[] = [
   },
 ];
 
-interface Props {
-  data: ChartType[];
+interface FractionData {
+  id: number;
+  name: string;
+  totalCount: number;
+  tons: number;
+  accuracy: number;
+  percent?: number;
 }
 
-export default function FractionAnalysisTable({ data }: Props) {
-  const [period, setPeriod] = useState("День");
+interface Props {
+  data: FractionData[];
+  period: "day" | "month";
+  startDate: string;
+  endDate: string;
+  onPeriodChange: (period: "day" | "month") => void;
+  onStartDateChange: (date: string) => void;
+  onEndDateChange: (date: string) => void;
+}
+
+export default function FractionAnalysisTable({
+  data,
+  period,
+  endDate,
+  onEndDateChange,
+  onPeriodChange,
+  onStartDateChange,
+  startDate,
+}: Props) {
   const [fractionFilter, setFractionFilter] = useState("Все");
 
-  const tableData = useMemo(
-    () =>
-      data.map((item) => ({
-        id: item.id,
-        name: item.name,
-        tons: 50,
-        percent: 20,
-        accuracy: 80,
-      })),
-    [data]
-  );
+  const tableData = useMemo(() => data, [data]);
 
   const filteredData =
     fractionFilter === "Все"
       ? tableData
       : tableData.filter((item) => item.name === fractionFilter);
 
-  const handlePeriodChange = (
-    _: React.MouseEvent<HTMLElement>,
-    newPeriod: string
-  ) => {
-    if (newPeriod !== null) {
-      setPeriod(newPeriod);
-    }
-  };
+  // сумма всех count для filteredData
+  const totalCount = useMemo(() => {
+    return filteredData.reduce((sum, item) => sum + (item.totalCount ?? 0), 0);
+  }, [filteredData]);
+
+  // Формируем данные для таблицы с вычислением процента по количеству
+  const rowsWithPercent = useMemo(() => {
+    if (totalCount === 0)
+      return filteredData.map((item) => ({ ...item, percent: 0 }));
+
+    const t = filteredData.map((item) => ({
+      ...item,
+      percent: ((item.totalCount / totalCount) * 100).toFixed(2),
+    }));
+
+    return t;
+  }, [filteredData, totalCount]);
 
   const handleFractionChange = (e: SelectChangeEvent) => {
     setFractionFilter(e.target.value);
@@ -96,7 +131,7 @@ export default function FractionAnalysisTable({ data }: Props) {
     rows,
     columns,
   }: {
-    rows: typeof filteredData;
+    rows: typeof rowsWithPercent;
     columns: GridColDef[];
   }) {
     return (
@@ -107,28 +142,77 @@ export default function FractionAnalysisTable({ data }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4 m-2 lg:mx-auto max-w-[1024px]">
-      {/* Панель фильтров */}
-      <div className="flex flex-wrap gap-4 items-center bg-white rounded-2xl shadow-md px-4 py-3">
-        <Typography sx={{ flexGrow: 1 }} variant="h6" fontWeight={600}>
+    <div className="flex flex-col gap-4 m-2 lg:mx-auto max-w-[1024px] lg:flex-row">
+      {/* Левая колонка — таблица */}
+      {/* Левая колонка — таблица */}
+      <div className="flex-1 min-w-0 order-2 lg:order-1 bg-white rounded-2xl shadow-md overflow-hidden">
+        {/* Обертка с горизонтальным скроллом */}
+        <div className="overflow-x-auto lg:mx-0">
+          {/* Внутренний контейнер с фиксированной минимальной шириной */}
+          <div className="min-w-[600px]">
+            <DataGrid
+              rows={rowsWithPercent}
+              columns={columns}
+              disableRowSelectionOnClick
+              hideFooter
+              getRowId={(row) => row.id}
+              slots={{
+                toolbar: (_toolbarProps) => (
+                  <CustomToolbar rows={rowsWithPercent} columns={columns} />
+                ),
+              }}
+              getRowClassName={(params) =>
+                `row-${toSafeClassName(normalize(params.row.name))}`
+              }
+              sx={{
+                border: "none",
+                "& .MuiDataGrid-columnHeaders": {
+                  backgroundColor: "#f5f5f5",
+                  fontWeight: "bold",
+                },
+                "& .first-column-cell": {
+                  paddingLeft: "16px",
+                },
+                "& .last-column-cell": {
+                  paddingRight: "16px",
+                },
+                ...Object.fromEntries(
+                  rowsWithPercent.map((row) => {
+                    const normalizedName = normalize(row.name);
+                    const safeName = toSafeClassName(normalizedName);
+                    const className = `.MuiDataGrid-row.row-${safeName}`;
+                    const color = FRACTION_COLORS[normalizedName] || "#eee";
+                    return [
+                      className,
+                      {
+                        backgroundColor: `${color}33`,
+                        borderBottom: "1px solid #e0e0e0",
+                      },
+                    ];
+                  })
+                ),
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Правая колонка — фильтры */}
+      <aside className="w-full lg:w-[320px] lg:order-2 order-1  flex-shrink-0 bg-white rounded-2xl shadow-md px-4 py-4 flex flex-col gap-4">
+        <Typography variant="h6" fontWeight={600}>
           Анализ фракций
         </Typography>
 
-        <ToggleButtonGroup
-          size="small"
-          color="primary"
-          value={period}
-          exclusive
-          onChange={handlePeriodChange}
-        >
-          {periods.map((p) => (
-            <ToggleButton key={p} value={p}>
-              {p}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+        <FlexibleDatePicker
+          period={period}
+          startDate={startDate}
+          endDate={endDate}
+          onPeriodChange={onPeriodChange}
+          onStartDateChange={onStartDateChange}
+          onEndDateChange={onEndDateChange}
+        />
 
-        <FormControl size="small" sx={{ minWidth: 200 }}>
+        <FormControl size="small" fullWidth>
           <InputLabel>Фракция</InputLabel>
           <Select
             value={fractionFilter}
@@ -143,53 +227,7 @@ export default function FractionAnalysisTable({ data }: Props) {
             ))}
           </Select>
         </FormControl>
-      </div>
-
-      {/* Таблица */}
-      <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-        <DataGrid
-          rows={filteredData}
-          columns={columns}
-          disableRowSelectionOnClick
-          hideFooter
-          slots={{
-            toolbar: (_toolbarProps) => (
-              <CustomToolbar rows={filteredData} columns={columns} />
-            ),
-          }}
-          getRowClassName={(params) =>
-            `row-${toSafeClassName(normalize(params.row.name))}`
-          }
-          sx={{
-            border: "none",
-            "& .MuiDataGrid-columnHeaders": {
-              backgroundColor: "#f5f5f5",
-              fontWeight: "bold",
-            },
-            "& .first-column-cell": {
-              paddingLeft: "16px",
-            },
-            "& .last-column-cell": {
-              paddingRight: "16px",
-            },
-            ...Object.fromEntries(
-              filteredData.map((row) => {
-                const normalizedName = normalize(row.name);
-                const safeName = toSafeClassName(normalizedName);
-                const className = `.MuiDataGrid-row.row-${safeName}`;
-                const color = FRACTION_COLORS[normalizedName] || "#eee";
-                return [
-                  className,
-                  {
-                    backgroundColor: `${color}33`,
-                    borderBottom: "1px solid #e0e0e0",
-                  },
-                ];
-              })
-            ),
-          }}
-        />
-      </div>
+      </aside>
     </div>
   );
 }

@@ -1,12 +1,24 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import axios from "../../api/axios";
+import qs from "qs";
 import { useAlert } from "../../context/alert/useAlert";
 import FractionAnalysisTable from "../../components/statistics/FractionAnalysisTable";
 import { ChartType } from "../../types/chart.types";
+import dayjs from "dayjs";
 
 export default function StatisticsTablePage() {
   const [categories, setCategories] = useState<ChartType[]>([]);
+  const [summaryData, setSummaryData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [period, setPeriod] = useState<"day" | "month">("day");
+  const [startDate, setStartDate] = useState(
+    dayjs().subtract(7, "day").format("YYYY-MM-DD")
+  );
+  const [endDate, setEndDate] = useState(dayjs().format("YYYY-MM-DD"));
+
   const { showAlert } = useAlert();
 
   useEffect(() => {
@@ -21,20 +33,63 @@ export default function StatisticsTablePage() {
       } catch (error) {
         console.error("Ошибка получения категорий:", error);
         showAlert("Ошибка загрузки категорий", "error", 4000);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const categoryIds = categories.map((c) => c.id);
+        const res = await axios.get("/reports/summary", {
+          params: {
+            from: startDate,
+            to: endDate,
+            cat: categoryIds,
+          },
+          paramsSerializer: (params) =>
+            qs.stringify(params, { arrayFormat: "repeat" }),
+        });
+
+        if (Array.isArray(res.data)) {
+          setSummaryData(
+            res.data.map((item, i) => ({
+              id: i + 1,
+              name: item.categoryName,
+              totalCount: item.totalCount,
+              tons: 0,
+              accuracy: Math.round(item.avgConfidence * 100),
+            }))
+          );
+        } else {
+          showAlert("Некорректный ответ от сервера", "error", 4000);
+        }
+      } catch (error) {
+        console.error("Ошибка получения данных summary:", error);
+        showAlert("Ошибка загрузки данных", "error", 4000);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (categories.length > 0) {
+      fetchSummary();
+    }
+  }, [startDate, endDate, categories]);
 
   if (loading) return <div className="p-4">Загрузка...</div>;
 
   return (
-    <>
-      <FractionAnalysisTable data={categories} />
-    </>
+    <FractionAnalysisTable
+      data={summaryData}
+      period={period}
+      startDate={startDate}
+      endDate={endDate}
+      onPeriodChange={setPeriod}
+      onStartDateChange={setStartDate}
+      onEndDateChange={setEndDate}
+    />
   );
 }
