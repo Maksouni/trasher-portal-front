@@ -46,6 +46,13 @@ export default function FlexibleDatePicker({
   const getYear = (dateStr: string) => new Date(dateStr).getFullYear();
   const getMonth = (dateStr: string) => new Date(dateStr).getMonth();
 
+  function formatDateLocal(date: Date) {
+    const y = date.getFullYear();
+    const m = (date.getMonth() + 1).toString().padStart(2, "0");
+    const d = date.getDate().toString().padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
   return (
     <Box className="flex flex-col gap-3">
       <Typography>Период</Typography>
@@ -90,12 +97,12 @@ export default function FlexibleDatePicker({
               label="Год"
               onChange={(e: SelectChangeEvent) => {
                 const year = Number(e.target.value);
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-                start.setFullYear(year);
-                end.setFullYear(year);
-                onStartDateChange(start.toISOString().split("T")[0]);
-                onEndDateChange(end.toISOString().split("T")[0]);
+                // При смене года меняем startDate на 1 января выбранного года
+                const start = new Date(year, 0, 1);
+                // endDate на 31 декабря выбранного года
+                const end = new Date(year, 11, 31);
+                onStartDateChange(formatDateLocal(start));
+                onEndDateChange(formatDateLocal(end));
               }}
             >
               {Array.from({ length: 5 }).map((_, i) => {
@@ -117,8 +124,9 @@ export default function FlexibleDatePicker({
               onChange={(e: SelectChangeEvent) => {
                 const month = Number(e.target.value);
                 const year = getYear(startDate);
+                // дата - первый день выбранного месяца
                 const date = new Date(year, month, 1);
-                onStartDateChange(date.toISOString().split("T")[0]);
+                onStartDateChange(formatDateLocal(date));
               }}
             >
               {months.map((m, i) => (
@@ -137,8 +145,9 @@ export default function FlexibleDatePicker({
               onChange={(e: SelectChangeEvent) => {
                 const month = Number(e.target.value);
                 const year = getYear(endDate);
+                // последний день выбранного месяца
                 const lastDay = new Date(year, month + 1, 0);
-                onEndDateChange(lastDay.toISOString().split("T")[0]);
+                onEndDateChange(formatDateLocal(lastDay));
               }}
             >
               {months.map((m, i) => (
