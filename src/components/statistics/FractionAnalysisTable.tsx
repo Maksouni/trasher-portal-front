@@ -12,6 +12,7 @@ import {
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 import { CustomExportButton } from "./ExportTableButton";
 import FlexibleDatePicker from "../filters/FlexibleDatePicker";
+import { FractionData } from "../../types/fraction.types";
 
 function normalize(name?: string): string {
   return name
@@ -35,7 +36,7 @@ function toSafeClassName(name?: string): string {
 
 const columns: GridColDef[] = [
   {
-    field: "name",
+    field: "categoryName",
     headerName: "Фракция",
     flex: 1,
     sortable: true,
@@ -48,7 +49,7 @@ const columns: GridColDef[] = [
     flex: 1,
   },
   {
-    field: "tons",
+    field: "weight",
     headerName: "Объём (т)",
     type: "number",
     flex: 1,
@@ -60,22 +61,13 @@ const columns: GridColDef[] = [
     flex: 1,
   },
   {
-    field: "accuracy",
+    field: "avgConfidence",
     headerName: "Точность сортировки (%)",
     type: "number",
     flex: 1.5,
     cellClassName: "last-column-cell",
   },
 ];
-
-interface FractionData {
-  id: number;
-  name: string;
-  totalCount: number;
-  tons: number;
-  accuracy: number;
-  percent?: number;
-}
 
 interface Props {
   data: FractionData[];
@@ -103,7 +95,7 @@ export default function FractionAnalysisTable({
   const filteredData =
     fractionFilter === "Все"
       ? tableData
-      : tableData.filter((item) => item.name === fractionFilter);
+      : tableData.filter((item) => item.categoryName === fractionFilter);
 
   // сумма всех count для filteredData
   const totalCount = useMemo(() => {
@@ -144,7 +136,6 @@ export default function FractionAnalysisTable({
   return (
     <div className="flex flex-col gap-4 m-2 lg:mx-auto max-w-[1024px] lg:flex-row">
       {/* Левая колонка — таблица */}
-      {/* Левая колонка — таблица */}
       <div className="flex-1 min-w-0 order-2 lg:order-1 bg-white rounded-2xl shadow-md overflow-hidden">
         {/* Обертка с горизонтальным скроллом */}
         <div className="overflow-x-auto lg:mx-0">
@@ -162,7 +153,7 @@ export default function FractionAnalysisTable({
                 ),
               }}
               getRowClassName={(params) =>
-                `row-${toSafeClassName(normalize(params.row.name))}`
+                `row-${toSafeClassName(normalize(params.row.categoryName))}`
               }
               sx={{
                 border: "none",
@@ -178,7 +169,7 @@ export default function FractionAnalysisTable({
                 },
                 ...Object.fromEntries(
                   rowsWithPercent.map((row) => {
-                    const normalizedName = normalize(row.name);
+                    const normalizedName = normalize(row.categoryName);
                     const safeName = toSafeClassName(normalizedName);
                     const className = `.MuiDataGrid-row.row-${safeName}`;
                     const color = FRACTION_COLORS[normalizedName] || "#eee";
@@ -221,8 +212,8 @@ export default function FractionAnalysisTable({
           >
             <MenuItem value="Все">Все</MenuItem>
             {tableData.map((item) => (
-              <MenuItem key={item.id} value={item.name}>
-                {item.name}
+              <MenuItem key={item.id} value={item.categoryName}>
+                {item.categoryName}
               </MenuItem>
             ))}
           </Select>

@@ -3,16 +3,14 @@ import { DailyReport } from "../../types/chart.types";
 import BarChartBlock from "./BarChartBlock";
 import ChartBlock from "./ChartBlock";
 import PieChartBlock from "./PieChartBlock";
+import { FractionData } from "../../types/fraction.types";
 
 interface ChartViewProps {
   option: string;
   loading: boolean;
-  summaryData: {
-    categoryName: string;
-    totalCount: number;
-    avgConfidence: number;
-  }[];
+  summaryData: FractionData[];
   dailyData: DailyReport[];
+  period: "day" | "month";
 }
 
 export default function ChartView({
@@ -20,14 +18,14 @@ export default function ChartView({
   loading,
   summaryData,
   dailyData,
+  period,
 }: ChartViewProps) {
   if (option === "pie") {
     return (
       <PieChartBlock
-        data={summaryData.map((i) => ({
-          id: i.categoryName, // если есть id, или просто name
-          name: i.categoryName,
-          value: i.totalCount,
+        data={summaryData.map((i, index) => ({
+          ...i,
+          id: index + 1,
         }))}
       />
     );
@@ -37,9 +35,10 @@ export default function ChartView({
     return (
       <BarChartBlock
         data={summaryData.map((item) => ({
+          ...item,
           name: item.categoryName,
           value: item.totalCount,
-          confidence: item.avgConfidence,
+          confidence: item.avgConfidence * 100,
         }))}
       />
     );
@@ -69,7 +68,7 @@ export default function ChartView({
         ) : Object.entries(grouped).length > 0 ? (
           Object.entries(grouped).map(([categoryName, items]) => (
             <li key={categoryName}>
-              <ChartBlock title={categoryName} data={items} />
+              <ChartBlock title={categoryName} data={items} period={period} />
             </li>
           ))
         ) : (

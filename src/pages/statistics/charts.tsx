@@ -8,6 +8,7 @@ import ChartView from "../../components/statistics/ChartView";
 import StatsSummary from "../../components/statistics/StatsSummary";
 import { ChartType, DailyReport } from "../../types/chart.types";
 import dayjs from "dayjs";
+import { FractionData } from "../../types/fraction.types";
 
 export default function ChartsPage() {
   const [charts, setCharts] = useState<ChartType[]>([]);
@@ -22,13 +23,7 @@ export default function ChartsPage() {
   );
   const [endDate, setEndDate] = useState(dayjs().format("YYYY-MM-DD"));
 
-  const [summaryData, setSummaryData] = useState<
-    {
-      categoryName: string;
-      totalCount: number;
-      avgConfidence: number;
-    }[]
-  >([]);
+  const [summaryData, setSummaryData] = useState<FractionData[]>([]);
   const [dailyData, setDailyData] = useState<DailyReport[]>([]);
 
   const { showAlert } = useAlert();
@@ -71,7 +66,7 @@ export default function ChartsPage() {
             paramsSerializer: (params) =>
               qs.stringify(params, { arrayFormat: "repeat" }),
           }),
-          axios.get("/reports/daily", {
+          axios.get(`/reports/${period === "day" ? "daily" : "monthly"}`, {
             params: {
               from: startDate,
               to: endDate,
@@ -92,7 +87,7 @@ export default function ChartsPage() {
 
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, endDate, filteredCharts]);
+  }, [startDate, endDate, filteredCharts, period]);
 
   const handleToggleFilter = (filter: ChartType) => {
     setSelectedFilters((prev) => {
@@ -164,6 +159,7 @@ export default function ChartsPage() {
           loading={loading}
           summaryData={summaryData}
           dailyData={dailyData}
+          period={period}
         />
       </div>
     </div>

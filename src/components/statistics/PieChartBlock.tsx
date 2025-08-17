@@ -1,28 +1,19 @@
 import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
+import { FractionData } from "../../types/fraction.types";
 
-interface PieChartProps {
-  data: {
-    id: number | string;
-    name: string;
-    value: number;
-  }[];
+interface PieChartBlockProps {
+  data: FractionData[];
 }
 
-export default function PieChartBlock({ data }: PieChartProps) {
+export default function PieChartBlock({ data }: PieChartBlockProps) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   const pieParams = isSmallScreen
-    ? {
-        margin: { left: 100 },
-        height: 600,
-      }
-    : {
-        margin: { right: 225 },
-        height: 300,
-      };
+    ? { margin: { left: 100 }, height: 600 }
+    : { margin: { right: 225 }, height: 300 };
 
   return (
     <div className="flex items-center w-full bg-white rounded-2xl shadow-lg p-1 lg:p-8">
@@ -30,12 +21,22 @@ export default function PieChartBlock({ data }: PieChartProps) {
         <PieChart
           series={[
             {
-              data: data.map((chart) => ({
-                id: chart.id,
-                value: chart.value,
-                label: chart.name,
-                color: FRACTION_COLORS[chart.name] || "#CCCCCC",
+              data: data.map((item) => ({
+                id: item.id,
+                label: item.categoryName,
+                value: item.totalCount, // для размера сектора
+                weight: item.weight,
+                confidence: item.avgConfidence,
+                color: FRACTION_COLORS[item.categoryName] || "#CCCCCC",
               })),
+              // кастомный вывод в тултипе
+              valueFormatter: (_val, context) => {
+                const idx = context.dataIndex!;
+                const item = data[idx];
+                return `Количество: ${item.totalCount},
+                  Объём: ${(item.weight / 1_000_000).toFixed(2)} т,
+                  Средняя точность: ${(item.avgConfidence * 100).toFixed(1)}%`;
+              },
               highlightScope: { fade: "global", highlight: "item" },
               faded: {
                 innerRadius: 30,
@@ -44,6 +45,7 @@ export default function PieChartBlock({ data }: PieChartProps) {
               },
             },
           ]}
+          tooltip={{ trigger: "item" }}
           {...pieParams}
           slotProps={{
             legend: isSmallScreen

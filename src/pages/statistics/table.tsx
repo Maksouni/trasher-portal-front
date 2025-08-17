@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import axios from "../../api/axios";
@@ -7,10 +6,11 @@ import { useAlert } from "../../context/alert/useAlert";
 import FractionAnalysisTable from "../../components/statistics/FractionAnalysisTable";
 import { ChartType } from "../../types/chart.types";
 import dayjs from "dayjs";
+import { FractionData } from "../../types/fraction.types";
 
 export default function StatisticsTablePage() {
   const [categories, setCategories] = useState<ChartType[]>([]);
-  const [summaryData, setSummaryData] = useState<any[]>([]);
+  const [summaryData, setSummaryData] = useState<FractionData[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [period, setPeriod] = useState<"day" | "month">("day");
@@ -57,10 +57,10 @@ export default function StatisticsTablePage() {
           setSummaryData(
             res.data.map((item, i) => ({
               id: i + 1,
-              name: item.categoryName,
-              totalCount: item.totalCount,
-              tons: 0,
-              accuracy: Math.round(item.avgConfidence * 100),
+              ...item,
+
+              weight: item.weight / 1000000,
+              avgConfidence: (item.avgConfidence * 100).toFixed(2),
             }))
           );
         } else {

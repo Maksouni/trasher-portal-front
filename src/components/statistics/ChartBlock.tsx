@@ -1,5 +1,4 @@
 import { LineChart } from "@mui/x-charts";
-import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 
@@ -8,11 +7,27 @@ interface ChartBlockProps {
   data: {
     date: string;
     count: number;
-    avgConfidence: number;
+    avgConfidence: number | { parsedValue: number };
   }[];
+  period: "day" | "month";
 }
 
-export default function ChartBlock({ title, data }: ChartBlockProps) {
+const RU_MONTHS = [
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь",
+];
+
+export default function ChartBlock({ title, data, period }: ChartBlockProps) {
   const [chartWidth, setChartWidth] = useState(
     window.innerWidth < 768 ? 340 : 600
   );
@@ -22,31 +37,40 @@ export default function ChartBlock({ title, data }: ChartBlockProps) {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setChartWidth(340);
-        setChartHeight(300);
-      } else {
-        setChartWidth(600);
-        setChartHeight(400);
-      }
+      setChartWidth(window.innerWidth < 768 ? 340 : 600);
+      setChartHeight(window.innerWidth < 768 ? 300 : 400);
     };
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Сортируем по дате
+  // Сортируем данные по дате
   const sortedData = [...data].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
+  // Массивы для графика
   const xLabels = sortedData.map((d) => new Date(d.date).getTime());
-  const countData = sortedData.map((d) => d.count);
-  const confidenceData = sortedData.map((d) =>
-    Math.round(d.avgConfidence * 100)
+  const countData = sortedData.map((d) =>
+    typeof d.count === "number" ? d.count : 0
   );
+  const confidenceData = sortedData.map((d) => {
+    if (typeof d.avgConfidence === "number")
+      return Math.round(d.avgConfidence * 100);
+    if (d.avgConfidence && typeof d.avgConfidence.parsedValue === "number")
+      return Math.round(d.avgConfidence.parsedValue * 100);
+    return 0;
+  });
 
   const mainColor = FRACTION_COLORS[title] || "#8E24AA";
+
+  // Для отображения месяца только одним словом
+  const monthFormatter = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return period === "month"
+      ? RU_MONTHS[date.getMonth()]
+      : `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+  };
 
   return (
     <div className="flex items-center w-full bg-white rounded-2xl shadow-lg p-4">
@@ -73,8 +97,7 @@ export default function ChartBlock({ title, data }: ChartBlockProps) {
           {
             scaleType: "time",
             data: xLabels,
-            valueFormatter: (timestamp) =>
-              format(new Date(timestamp), "dd.MM.yyyy"),
+            valueFormatter: monthFormatter,
           },
         ]}
         yAxis={[

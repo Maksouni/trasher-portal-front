@@ -12,7 +12,9 @@ import {
 interface BarChartBlockProps {
   data: {
     name: string;
-    value: number;
+    value: number; // totalCount
+    weight: number;
+    confidence: number; // avgConfidence (0–1)
   }[];
 }
 
@@ -27,10 +29,13 @@ const CustomTooltip = ({
   label?: string;
 }) => {
   if (active && payload && payload.length) {
+    const { value, weight, confidence } = payload[0].payload;
     return (
       <div className="bg-white shadow-md border border-gray-200 p-2 rounded text-sm">
         <p className="font-semibold">{label}</p>
-        <p>{`Доля: ${payload[0].value}%`}</p>
+        <p>{`Количество: ${value}`}</p>
+        <p>{`Объём: ${(weight / 1_000_000).toFixed(4)} т`}</p>
+        <p>{`Доля: ${confidence.toFixed(2)}%`}</p>
       </div>
     );
   }
@@ -50,7 +55,7 @@ export default function BarChartBlock({ data }: BarChartBlockProps) {
             <XAxis dataKey="name" />
             <YAxis tickFormatter={(value) => `${value}%`} width={50} />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="value">
+            <Bar dataKey="confidence">
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}

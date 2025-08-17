@@ -53,6 +53,28 @@ export default function FlexibleDatePicker({
     return `${y}-${m}-${d}`;
   }
 
+  const MAX_DAY_DIFF = 30;
+
+  const clampEndDate = (start: Date, end: Date) => {
+    const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+    if (diff > MAX_DAY_DIFF) {
+      const newEnd = new Date(start);
+      newEnd.setDate(newEnd.getDate() + MAX_DAY_DIFF);
+      return newEnd;
+    }
+    return end;
+  };
+
+  const clampStartDate = (start: Date, end: Date) => {
+    const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+    if (diff > MAX_DAY_DIFF) {
+      const newStart = new Date(end);
+      newStart.setDate(newStart.getDate() - MAX_DAY_DIFF);
+      return newStart;
+    }
+    return start;
+  };
+
   return (
     <Box className="flex flex-col gap-3">
       <Typography>Период</Typography>
@@ -76,7 +98,19 @@ export default function FlexibleDatePicker({
             label="С"
             type="date"
             value={startDate}
-            onChange={(e) => onStartDateChange(e.target.value)}
+            onChange={(e) => {
+              const newStart = new Date(e.target.value);
+              let newEnd = new Date(endDate);
+
+              // если новая начальная дата > конечной → сдвигаем endDate
+              if (newStart > newEnd) newEnd = newStart;
+
+              // ограничиваем максимум 30 дней
+              newEnd = clampEndDate(newStart, newEnd);
+
+              onStartDateChange(formatDateLocal(newStart));
+              onEndDateChange(formatDateLocal(newEnd));
+            }}
             fullWidth
           />
           <TextField
@@ -84,7 +118,19 @@ export default function FlexibleDatePicker({
             label="По"
             type="date"
             value={endDate}
-            onChange={(e) => onEndDateChange(e.target.value)}
+            onChange={(e) => {
+              const newEnd = new Date(e.target.value);
+              let newStart = new Date(startDate);
+
+              // если новая конечная дата < начальной → сдвигаем startDate
+              if (newEnd < newStart) newStart = newEnd;
+
+              // ограничиваем максимум 30 дней
+              newStart = clampStartDate(newStart, newEnd);
+
+              onStartDateChange(formatDateLocal(newStart));
+              onEndDateChange(formatDateLocal(newEnd));
+            }}
             fullWidth
           />
         </Box>
@@ -97,12 +143,16 @@ export default function FlexibleDatePicker({
               label="Год"
               onChange={(e: SelectChangeEvent) => {
                 const year = Number(e.target.value);
-                // При смене года меняем startDate на 1 января выбранного года
-                const start = new Date(year, 0, 1);
-                // endDate на 31 декабря выбранного года
-                const end = new Date(year, 11, 31);
-                onStartDateChange(formatDateLocal(start));
-                onEndDateChange(formatDateLocal(end));
+                const start = new Date(year, getMonth(startDate), 1);
+                const end = new Date(year, getMonth(endDate) + 1, 0);
+
+                if (start > end) {
+                  onStartDateChange(formatDateLocal(start));
+                  onEndDateChange(formatDateLocal(start));
+                } else {
+                  onStartDateChange(formatDateLocal(start));
+                  onEndDateChange(formatDateLocal(end));
+                }
               }}
             >
               {Array.from({ length: 5 }).map((_, i) => {
@@ -124,8 +174,12 @@ export default function FlexibleDatePicker({
               onChange={(e: SelectChangeEvent) => {
                 const month = Number(e.target.value);
                 const year = getYear(startDate);
-                // дата - первый день выбранного месяца
                 const date = new Date(year, month, 1);
+
+                if (date > new Date(endDate)) {
+                  const lastDay = new Date(year, month + 1, 0);
+                  onEndDateChange(formatDateLocal(lastDay));
+                }
                 onStartDateChange(formatDateLocal(date));
               }}
             >
@@ -145,8 +199,12 @@ export default function FlexibleDatePicker({
               onChange={(e: SelectChangeEvent) => {
                 const month = Number(e.target.value);
                 const year = getYear(endDate);
-                // последний день выбранного месяца
                 const lastDay = new Date(year, month + 1, 0);
+
+                if (lastDay < new Date(startDate)) {
+                  const firstDay = new Date(year, month, 1);
+                  onStartDateChange(formatDateLocal(firstDay));
+                }
                 onEndDateChange(formatDateLocal(lastDay));
               }}
             >
