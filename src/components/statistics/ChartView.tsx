@@ -32,6 +32,8 @@ export default function ChartView({
   }
 
   if (option === "bar") {
+    const total = summaryData.reduce((acc, item) => acc + item.totalCount, 0);
+
     return (
       <BarChartBlock
         data={summaryData.map((item) => ({
@@ -39,10 +41,12 @@ export default function ChartView({
           name: item.categoryName,
           value: item.totalCount,
           confidence: item.avgConfidence * 100,
+          share: total > 0 ? (item.totalCount / total) * 100 : 0, // <-- доля в %
         }))}
       />
     );
   }
+
   const grouped = dailyData.reduce((acc, item) => {
     if (!acc[item.categoryName]) acc[item.categoryName] = [];
     acc[item.categoryName].push(item);

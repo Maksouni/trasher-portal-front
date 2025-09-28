@@ -1,3 +1,4 @@
+import formatWeight from "../../utils/formatWeight";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 import {
   BarChart,
@@ -15,6 +16,7 @@ interface BarChartBlockProps {
     value: number; // totalCount
     weight: number;
     confidence: number; // avgConfidence (0–1)
+    share: number;
   }[];
 }
 
@@ -29,13 +31,15 @@ const CustomTooltip = ({
   label?: string;
 }) => {
   if (active && payload && payload.length) {
-    const { value, weight, confidence } = payload[0].payload;
+    const { share, value, weight, confidence } = payload[0].payload;
+
     return (
       <div className="bg-white shadow-md border border-gray-200 p-2 rounded text-sm">
         <p className="font-semibold">{label}</p>
+        <p>{`Доля: ${share.toFixed(2)}%`}</p>
         <p>{`Количество: ${value}`}</p>
-        <p>{`Объём: ${(weight / 1_000_000).toFixed(4)} т`}</p>
-        <p>{`Доля: ${confidence.toFixed(2)}%`}</p>
+        <p>{`Объём: ${formatWeight(weight)}`}</p>{" "}
+        <p>{`Средняя точность: ${confidence.toFixed(2)}%`}</p>
       </div>
     );
   }
@@ -53,9 +57,13 @@ export default function BarChartBlock({ data }: BarChartBlockProps) {
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data}>
             <XAxis dataKey="name" />
-            <YAxis tickFormatter={(value) => `${value}%`} width={50} />
+            <YAxis
+              domain={[0, 100]}
+              tickFormatter={(value) => `${value}%`}
+              width={50}
+            />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="confidence">
+            <Bar dataKey="share">
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}

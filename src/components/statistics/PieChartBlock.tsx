@@ -2,6 +2,8 @@ import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 import { FractionData } from "../../types/fraction.types";
+import { format } from "path";
+import formatWeight from "../../utils/formatWeight";
 
 interface PieChartBlockProps {
   data: FractionData[];
@@ -34,7 +36,7 @@ export default function PieChartBlock({ data }: PieChartBlockProps) {
                 const idx = context.dataIndex!;
                 const item = data[idx];
                 return `Количество: ${item.totalCount},
-                  Объём: ${(item.weight / 1_000_000).toFixed(2)} т,
+                  Объём: ${formatWeight(item.weight)},
                   Средняя точность: ${(item.avgConfidence * 100).toFixed(1)}%`;
               },
               highlightScope: { fade: "global", highlight: "item" },
