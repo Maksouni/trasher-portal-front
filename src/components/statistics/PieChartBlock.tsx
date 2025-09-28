@@ -2,7 +2,6 @@ import { PieChart } from "@mui/x-charts";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 import { FractionData } from "../../types/fraction.types";
-import { format } from "path";
 import formatWeight from "../../utils/formatWeight";
 
 interface PieChartBlockProps {
