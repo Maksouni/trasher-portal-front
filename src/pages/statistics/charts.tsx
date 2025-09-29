@@ -135,7 +135,7 @@ export default function ChartsPage() {
   };
 
   return (
-    <div className="flex max-w-[1024px] min-h-screen flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
+    <div className="flex max-w-[1400px] min-h-screen flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
       <SidebarFilters
         chartOption={chartOption}
         onChartOptionChange={setChartOption}

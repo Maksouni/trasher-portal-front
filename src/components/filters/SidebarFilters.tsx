@@ -77,10 +77,11 @@ export default function SidebarFilters({
 
   return (
     <div
-      className="flex flex-col gap-4 lg:sticky self-start w-full lg:max-w-[300px]"
+      className="flex flex-col gap-4 lg:sticky self-start w-full lg:max-w-[300px] overflow-y-auto"
       style={{
         top: dynamicTop,
         transition: "top 0.3s ease",
+        maxHeight: `calc(100vh - ${dynamicTop}px)`,
       }}
     >
       <Button

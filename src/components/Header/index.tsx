@@ -67,7 +67,7 @@ export default function Header() {
       } fixed top-0 left-0 bg-transparent`}
     >
       {" "}
-      <div className="m-2 mt-3 w-full max-w-[1024px] flex items-center bg-white shadow-md rounded-md p-2 pb-1 pt-1">
+      <div className="m-2 mt-3 w-full max-w-[1400px] flex items-center bg-white shadow-md rounded-md p-2 pb-1 pt-1">
         {!isLargeScreen && (
           <>
             <IconButton

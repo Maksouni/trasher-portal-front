@@ -37,8 +37,8 @@ export default function ChartBlock({ title, data, period }: ChartBlockProps) {
 
   useEffect(() => {
     const handleResize = () => {
-      setChartWidth(window.innerWidth < 768 ? 340 : 600);
-      setChartHeight(window.innerWidth < 768 ? 300 : 400);
+      setChartWidth(window.innerWidth < 768 ? 340 : 900);
+      setChartHeight(window.innerWidth < 768 ? 300 : 500);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -48,7 +48,7 @@ export default function ChartBlock({ title, data, period }: ChartBlockProps) {
   const sortedData = [...data].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
-
+  console.log("sortedData", sortedData);
   // Массивы для графика
   const xLabels = sortedData.map((d) => new Date(d.date).getTime());
   const countData = sortedData.map((d) =>
@@ -98,6 +98,7 @@ export default function ChartBlock({ title, data, period }: ChartBlockProps) {
             scaleType: "time",
             data: xLabels,
             valueFormatter: monthFormatter,
+            tickNumber: period === "month" ? sortedData.length : undefined,
           },
         ]}
         yAxis={[

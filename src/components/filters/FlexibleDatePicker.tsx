@@ -10,6 +10,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
+import { useState } from "react";
 
 interface FlexibleDatePickerProps {
   period: "day" | "month";
@@ -43,6 +44,9 @@ export default function FlexibleDatePicker({
   onEndDateChange,
   onPeriodChange,
 }: FlexibleDatePickerProps) {
+  const [dayRange, setDayRange] = useState({ startDate, endDate });
+  const [monthRange, setMonthRange] = useState({ startDate, endDate });
+
   const getYear = (dateStr: string) => new Date(dateStr).getFullYear();
   const getMonth = (dateStr: string) => new Date(dateStr).getMonth();
 
@@ -75,13 +79,30 @@ export default function FlexibleDatePicker({
     return start;
   };
 
+  const handlePeriodChange = (val: "day" | "month") => {
+    if (val === "day") {
+      // сохраняем месячный диапазон
+      setMonthRange({ startDate, endDate });
+      // возвращаем дневной диапазон
+      onStartDateChange(dayRange.startDate);
+      onEndDateChange(dayRange.endDate);
+    } else {
+      // сохраняем дневной диапазон
+      setDayRange({ startDate, endDate });
+      // возвращаем месячный диапазон
+      onStartDateChange(monthRange.startDate);
+      onEndDateChange(monthRange.endDate);
+    }
+    onPeriodChange(val);
+  };
+
   return (
     <Box className="flex flex-col gap-3">
       <Typography>Период</Typography>
       <ToggleButtonGroup
         value={period}
         onChange={(_, val) => {
-          if (val) onPeriodChange(val);
+          if (val) handlePeriodChange(val);
         }}
         exclusive
         size="small"
@@ -102,10 +123,7 @@ export default function FlexibleDatePicker({
               const newStart = new Date(e.target.value);
               let newEnd = new Date(endDate);
 
-              // если новая начальная дата > конечной → сдвигаем endDate
               if (newStart > newEnd) newEnd = newStart;
-
-              // ограничиваем максимум 30 дней
               newEnd = clampEndDate(newStart, newEnd);
 
               onStartDateChange(formatDateLocal(newStart));
@@ -122,10 +140,7 @@ export default function FlexibleDatePicker({
               const newEnd = new Date(e.target.value);
               let newStart = new Date(startDate);
 
-              // если новая конечная дата < начальной → сдвигаем startDate
               if (newEnd < newStart) newStart = newEnd;
-
-              // ограничиваем максимум 30 дней
               newStart = clampStartDate(newStart, newEnd);
 
               onStartDateChange(formatDateLocal(newStart));
@@ -146,13 +161,12 @@ export default function FlexibleDatePicker({
                 const start = new Date(year, getMonth(startDate), 1);
                 const end = new Date(year, getMonth(endDate) + 1, 0);
 
-                if (start > end) {
-                  onStartDateChange(formatDateLocal(start));
-                  onEndDateChange(formatDateLocal(start));
-                } else {
-                  onStartDateChange(formatDateLocal(start));
-                  onEndDateChange(formatDateLocal(end));
-                }
+                const startStr = formatDateLocal(start);
+                const endStr = formatDateLocal(end);
+
+                onStartDateChange(startStr);
+                onEndDateChange(endStr);
+                setMonthRange({ startDate: startStr, endDate: endStr });
               }}
             >
               {Array.from({ length: 5 }).map((_, i) => {
@@ -174,13 +188,19 @@ export default function FlexibleDatePicker({
               onChange={(e: SelectChangeEvent) => {
                 const month = Number(e.target.value);
                 const year = getYear(startDate);
-                const date = new Date(year, month, 1);
+                const start = new Date(year, month, 1);
 
-                if (date > new Date(endDate)) {
-                  const lastDay = new Date(year, month + 1, 0);
-                  onEndDateChange(formatDateLocal(lastDay));
+                let end = new Date(endDate);
+                if (start > end) {
+                  end = new Date(year, month + 1, 0);
                 }
-                onStartDateChange(formatDateLocal(date));
+
+                const startStr = formatDateLocal(start);
+                const endStr = formatDateLocal(end);
+
+                onStartDateChange(startStr);
+                onEndDateChange(endStr);
+                setMonthRange({ startDate: startStr, endDate: endStr });
               }}
             >
               {months.map((m, i) => (
@@ -199,13 +219,19 @@ export default function FlexibleDatePicker({
               onChange={(e: SelectChangeEvent) => {
                 const month = Number(e.target.value);
                 const year = getYear(endDate);
-                const lastDay = new Date(year, month + 1, 0);
+                const end = new Date(year, month + 1, 0);
 
-                if (lastDay < new Date(startDate)) {
-                  const firstDay = new Date(year, month, 1);
-                  onStartDateChange(formatDateLocal(firstDay));
+                let start = new Date(startDate);
+                if (end < start) {
+                  start = new Date(year, month, 1);
                 }
-                onEndDateChange(formatDateLocal(lastDay));
+
+                const startStr = formatDateLocal(start);
+                const endStr = formatDateLocal(end);
+
+                onStartDateChange(startStr);
+                onEndDateChange(endStr);
+                setMonthRange({ startDate: startStr, endDate: endStr });
               }}
             >
               {months.map((m, i) => (

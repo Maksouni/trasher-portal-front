@@ -98,7 +98,7 @@ export default function UserManagement() {
   ];
 
   return (
-    <div className="flex flex-col gap-2 m-2 lg:mx-auto max-w-[1024px]">
+    <div className="flex flex-col gap-2 m-2 lg:mx-auto max-w-[1400px]">
       {/* search */}
       <div className="flex gap-4 bg-white rounded-2xl shadow-lg overflow-hidden p-4">
         <FormControl variant="outlined" fullWidth size="small">

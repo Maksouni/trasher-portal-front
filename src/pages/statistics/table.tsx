@@ -77,7 +77,7 @@ export default function StatisticsTablePage() {
     if (categories.length > 0) {
       fetchSummary();
     }
-  }, [startDate, endDate, categories]);
+  }, [startDate, endDate, categories, period]);
 
   if (loading) return <div className="p-4">Загрузка...</div>;
 

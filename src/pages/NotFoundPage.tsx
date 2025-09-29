@@ -5,7 +5,7 @@ export default function NotFoundPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-center max-w-[1024px] m-2 lg:mx-auto h-[512px] bg-white rounded-2xl shadow-2xl p-4">
+    <div className="flex flex-col items-center justify-center max-w-[1400px] m-2 lg:mx-auto h-[512px] bg-white rounded-2xl shadow-2xl p-4">
       <Typography variant="h1" component="h1">
         404
       </Typography>

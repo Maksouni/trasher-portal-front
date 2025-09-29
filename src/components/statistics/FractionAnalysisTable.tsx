@@ -134,7 +134,7 @@ export default function FractionAnalysisTable({
   }
 
   return (
-    <div className="flex flex-col gap-4 m-2 lg:mx-auto max-w-[1024px] lg:flex-row">
+    <div className="flex flex-col gap-4 m-2 lg:mx-auto max-w-[1400px] lg:flex-row">
       {/* Левая колонка — таблица */}
       <div className="flex-1 min-w-0 order-2 lg:order-1 bg-white rounded-2xl shadow-md overflow-hidden">
         {/* Обертка с горизонтальным скроллом */}
