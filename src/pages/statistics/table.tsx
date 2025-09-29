@@ -79,6 +79,21 @@ export default function StatisticsTablePage() {
     }
   }, [startDate, endDate, categories, period]);
 
+  const handlePeriodChange = (val: "day" | "month") => {
+    if (val === "month") {
+      const start = dayjs(endDate).startOf("month").format("YYYY-MM-DD");
+      const end = dayjs(endDate).endOf("month").format("YYYY-MM-DD");
+      setStartDate(start);
+      setEndDate(end);
+    } else {
+      const start = dayjs().subtract(7, "day").format("YYYY-MM-DD");
+      const end = dayjs().format("YYYY-MM-DD");
+      setStartDate(start);
+      setEndDate(end);
+    }
+    setPeriod(val);
+  };
+
   if (loading) return <div className="p-4">Загрузка...</div>;
 
   return (
@@ -87,7 +102,7 @@ export default function StatisticsTablePage() {
       period={period}
       startDate={startDate}
       endDate={endDate}
-      onPeriodChange={setPeriod}
+      onPeriodChange={handlePeriodChange}
       onStartDateChange={setStartDate}
       onEndDateChange={setEndDate}
     />

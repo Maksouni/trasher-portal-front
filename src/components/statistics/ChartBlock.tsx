@@ -29,10 +29,10 @@ const RU_MONTHS = [
 
 export default function ChartBlock({ title, data, period }: ChartBlockProps) {
   const [chartWidth, setChartWidth] = useState(
-    window.innerWidth < 768 ? 340 : 600
+    window.innerWidth < 768 ? 340 : 900
   );
   const [chartHeight, setChartHeight] = useState(
-    window.innerWidth < 768 ? 300 : 400
+    window.innerWidth < 768 ? 300 : 500
   );
 
   useEffect(() => {

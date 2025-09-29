@@ -134,6 +134,21 @@ export default function ChartsPage() {
     }
   };
 
+  const handlePeriodChange = (val: "day" | "month") => {
+    if (val === "month") {
+      const start = dayjs(endDate).startOf("month").format("YYYY-MM-DD");
+      const end = dayjs(endDate).endOf("month").format("YYYY-MM-DD");
+      setStartDate(start);
+      setEndDate(end);
+    } else {
+      const start = dayjs().subtract(7, "day").format("YYYY-MM-DD");
+      const end = dayjs().format("YYYY-MM-DD");
+      setStartDate(start);
+      setEndDate(end);
+    }
+    setPeriod(val);
+  };
+
   return (
     <div className="flex max-w-[1400px] min-h-screen flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
       <SidebarFilters
@@ -149,7 +164,7 @@ export default function ChartsPage() {
         onEndDateChange={setEndDate}
         onDownload={downloadFile}
         period={period}
-        onPeriodChange={setPeriod}
+        onPeriodChange={handlePeriodChange}
       />
 
       <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">

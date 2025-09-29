@@ -45,7 +45,7 @@ function App() {
   return (
     //TODO: потом сделать тёмную тему
     <ThemeProvider theme={getTheme("light")}>
-      <div className="app pt-18">
+      <div className="app pt-18 px-2">
         <BrowserRouter>
           <AuthProvider>
             <AlertProvider>
