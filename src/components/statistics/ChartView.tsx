@@ -41,7 +41,7 @@ export default function ChartView({
           name: item.categoryName,
           value: item.totalCount,
           confidence: item.avgConfidence * 100,
-          share: total > 0 ? (item.totalCount / total) * 100 : 0, // <-- доля в %
+          share: total > 0 ? (item.totalCount / total) * 100 : 0,
         }))}
       />
     );
