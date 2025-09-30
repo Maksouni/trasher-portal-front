@@ -13,6 +13,8 @@ export default function StreamPlayer({ src, width = 720 }: StreamPlayerProps) {
     const video = videoRef.current;
     if (!video) return;
 
+    video.playbackRate = 0.5;
+
     if (Hls.isSupported()) {
       const hls = new Hls({
         // enableWebVTT: false,
@@ -23,6 +25,7 @@ export default function StreamPlayer({ src, width = 720 }: StreamPlayerProps) {
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.playbackRate = 0.5;
         video.play().catch((err) => console.error("Auto-play failed:", err));
       });
 
@@ -61,7 +64,10 @@ export default function StreamPlayer({ src, width = 720 }: StreamPlayerProps) {
       };
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
-      video.addEventListener("loadedmetadata", () => video.play());
+      video.addEventListener("loadedmetadata", () => {
+        video.playbackRate = 0.5;
+        video.play();
+      });
     }
   }, [src]);
 
