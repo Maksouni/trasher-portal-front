@@ -29,9 +29,7 @@ export default function ChartView({
         }))}
       />
     );
-  }
-
-  if (option === "bar") {
+  } else if (option === "bar") {
     const total = summaryData.reduce((acc, item) => acc + item.totalCount, 0);
 
     return (
@@ -53,32 +51,33 @@ export default function ChartView({
     return acc;
   }, {} as Record<string, DailyReport[]>);
 
-  // option === "linear"
-  return (
-    <div className="charts-container">
-      <ul className="list-none flex flex-col gap-5 lg:gap-4">
-        {loading ? (
-          <Stack spacing={2}>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton
-                key={i}
-                variant="rounded"
-                sx={{ borderRadius: 4 }}
-                width="100%"
-                height={400}
-              />
-            ))}
-          </Stack>
-        ) : Object.entries(grouped).length > 0 ? (
-          Object.entries(grouped).map(([categoryName, items]) => (
-            <li key={categoryName}>
-              <ChartBlock title={categoryName} data={items} period={period} />
-            </li>
-          ))
-        ) : (
-          <Typography color="error">Нет данных для отображения</Typography>
-        )}
-      </ul>
-    </div>
-  );
+  if (option === "linear") {
+    return (
+      <div className="charts-container">
+        <ul className="list-none flex flex-col gap-5 lg:gap-4">
+          {loading ? (
+            <Stack spacing={2}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton
+                  key={i}
+                  variant="rounded"
+                  sx={{ borderRadius: 4 }}
+                  width="100%"
+                  height={400}
+                />
+              ))}
+            </Stack>
+          ) : Object.entries(grouped).length > 0 ? (
+            Object.entries(grouped).map(([categoryName, items]) => (
+              <li key={categoryName}>
+                <ChartBlock title={categoryName} data={items} period={period} />
+              </li>
+            ))
+          ) : (
+            <Typography color="error">Нет данных для отображения</Typography>
+          )}
+        </ul>
+      </div>
+    );
+  }
 }

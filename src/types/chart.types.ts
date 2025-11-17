@@ -9,4 +9,5 @@ export interface DailyReport {
   categoryName: string;
   count: number;
   avgConfidence: number;
+  weight: number;
 }

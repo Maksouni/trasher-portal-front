@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import axios from "../../api/axios";
 import { apiUrl } from "../../dotenv";
@@ -6,6 +7,7 @@ import { useAlert } from "../../context/alert/useAlert";
 import SidebarFilters from "../../components/filters/SidebarFilters";
 import ChartView from "../../components/statistics/ChartView";
 import StatsSummary from "../../components/statistics/StatsSummary";
+import FractionAnalysisTable from "../../components/statistics/FractionAnalysisTable"; // <-- добавляем
 import { ChartType, DailyReport } from "../../types/chart.types";
 import dayjs from "dayjs";
 import { FractionData } from "../../types/fraction.types";
@@ -15,7 +17,7 @@ export default function ChartsPage() {
   const [filteredCharts, setFilteredCharts] = useState<ChartType[]>([]);
   const [selectedFilters, setSelectedFilters] = useState<ChartType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [chartOption, setChartOption] = useState("linear");
+  const [chartOption, setChartOption] = useState("table");
   const [period, setPeriod] = useState<"day" | "month">("day");
 
   const [startDate, setStartDate] = useState(
@@ -46,7 +48,6 @@ export default function ChartsPage() {
       }
     };
     fetchCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -86,7 +87,6 @@ export default function ChartsPage() {
     };
 
     fetchStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startDate, endDate, filteredCharts, period]);
 
   const handleToggleFilter = (filter: ChartType) => {
@@ -176,6 +176,9 @@ export default function ChartsPage() {
           dailyData={dailyData}
           period={period}
         />
+        {chartOption == "table" && (
+          <FractionAnalysisTable data={dailyData} period={period} />
+        )}
       </div>
     </div>
   );

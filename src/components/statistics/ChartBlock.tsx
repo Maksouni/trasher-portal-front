@@ -48,7 +48,6 @@ export default function ChartBlock({ title, data, period }: ChartBlockProps) {
   const sortedData = [...data].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
-  console.log("sortedData", sortedData);
   // Массивы для графика
   const xLabels = sortedData.map((d) => new Date(d.date).getTime());
   const countData = sortedData.map((d) =>

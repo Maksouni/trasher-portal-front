@@ -1,18 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { DataGrid, GridColDef, GridToolbarContainer } from "@mui/x-data-grid";
-import {
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  SelectChangeEvent,
-  Typography,
-} from "@mui/material";
+import { Typography } from "@mui/material";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 import { CustomExportButton } from "./ExportTableButton";
-import FlexibleDatePicker from "../filters/FlexibleDatePicker";
-import { FractionData } from "../../types/fraction.types";
+import { DailyReport } from "../../types/chart.types";
+import dayjs from "dayjs";
+import "dayjs/locale/ru";
+import formatWeight from "../../utils/formatWeight";
+
+dayjs.locale("ru");
 
 function normalize(name?: string): string {
   return name
@@ -39,27 +35,11 @@ const columns: GridColDef[] = [
     field: "categoryName",
     headerName: "Фракция",
     flex: 1,
-    sortable: true,
     cellClassName: "first-column-cell",
   },
-  {
-    field: "totalCount",
-    headerName: "Количество (шт)",
-    type: "number",
-    flex: 1,
-  },
-  {
-    field: "weight",
-    headerName: "Объём (т)",
-    type: "number",
-    flex: 1,
-  },
-  {
-    field: "percent",
-    headerName: "Доля (%)",
-    type: "number",
-    flex: 1,
-  },
+  { field: "count", headerName: "Количество (шт)", type: "number", flex: 1 },
+  { field: "weight", headerName: "Объём", type: "number", flex: 1 },
+  { field: "percent", headerName: "Доля (%)", type: "number", flex: 1 },
   {
     field: "avgConfidence",
     headerName: "Точность сортировки (%)",
@@ -70,155 +50,96 @@ const columns: GridColDef[] = [
 ];
 
 interface Props {
-  data: FractionData[];
+  data: DailyReport[];
   period: "day" | "month";
-  startDate: string;
-  endDate: string;
-  onPeriodChange: (period: "day" | "month") => void;
-  onStartDateChange: (date: string) => void;
-  onEndDateChange: (date: string) => void;
 }
 
-export default function FractionAnalysisTable({
-  data,
-  period,
-  endDate,
-  onEndDateChange,
-  onPeriodChange,
-  onStartDateChange,
-  startDate,
-}: Props) {
-  const [fractionFilter, setFractionFilter] = useState("Все");
-
-  const tableData = useMemo(() => data, [data]);
-
-  const filteredData =
-    fractionFilter === "Все"
-      ? tableData
-      : tableData.filter((item) => item.categoryName === fractionFilter);
-
-  // сумма всех count для filteredData
-  const totalCount = useMemo(() => {
-    return filteredData.reduce((sum, item) => sum + (item.totalCount ?? 0), 0);
-  }, [filteredData]);
-
-  // Формируем данные для таблицы с вычислением процента по количеству
-  const rowsWithPercent = useMemo(() => {
-    if (totalCount === 0)
-      return filteredData.map((item) => ({ ...item, percent: 0 }));
-
-    const t = filteredData.map((item) => ({
-      ...item,
-      percent: ((item.totalCount / totalCount) * 100).toFixed(2),
-    }));
-
-    return t;
-  }, [filteredData, totalCount]);
-
-  const handleFractionChange = (e: SelectChangeEvent) => {
-    setFractionFilter(e.target.value);
-  };
-
-  function CustomToolbar({
-    rows,
-    columns,
-  }: {
-    rows: typeof rowsWithPercent;
-    columns: GridColDef[];
-  }) {
-    return (
-      <GridToolbarContainer>
-        <CustomExportButton rows={rows} columns={columns} />
-      </GridToolbarContainer>
-    );
-  }
+export default function FractionAnalysisTable({ data, period }: Props) {
+  const groupedByDate = useMemo(() => {
+    const map: Record<string, DailyReport[]> = {};
+    data.forEach((item) => {
+      if (!map[item.date]) map[item.date] = [];
+      map[item.date].push(item);
+    });
+    return map;
+  }, [data]);
 
   return (
-    <div className="flex flex-col gap-4 m-2 lg:mx-auto max-w-[1400px] lg:flex-row">
-      {/* Левая колонка — таблица */}
-      <div className="flex-1 min-w-0 order-2 lg:order-1 bg-white rounded-2xl shadow-md overflow-hidden">
-        {/* Обертка с горизонтальным скроллом */}
-        <div className="overflow-x-auto lg:mx-0">
-          {/* Внутренний контейнер с фиксированной минимальной шириной */}
-          <div className="min-w-[600px]">
-            <DataGrid
-              rows={rowsWithPercent}
-              columns={columns}
-              disableRowSelectionOnClick
-              hideFooter
-              getRowId={(row) => row.id}
-              slots={{
-                toolbar: (_toolbarProps) => (
-                  <CustomToolbar rows={rowsWithPercent} columns={columns} />
-                ),
-              }}
-              getRowClassName={(params) =>
-                `row-${toSafeClassName(normalize(params.row.categoryName))}`
-              }
-              sx={{
-                border: "none",
-                "& .MuiDataGrid-columnHeaders": {
-                  backgroundColor: "#f5f5f5",
-                  fontWeight: "bold",
-                },
-                "& .first-column-cell": {
-                  paddingLeft: "16px",
-                },
-                "& .last-column-cell": {
-                  paddingRight: "16px",
-                },
-                ...Object.fromEntries(
-                  rowsWithPercent.map((row) => {
-                    const normalizedName = normalize(row.categoryName);
-                    const safeName = toSafeClassName(normalizedName);
-                    const className = `.MuiDataGrid-row.row-${safeName}`;
-                    const color = FRACTION_COLORS[normalizedName] || "#eee";
-                    return [
-                      className,
-                      {
-                        backgroundColor: `${color}33`,
-                        borderBottom: "1px solid #e0e0e0",
+    <div className="flex flex-col m-2 max-w-[1400px]">
+      {Object.entries(groupedByDate).map(([date, dayData]) => {
+        const totalCount = dayData.reduce(
+          (sum, item) => sum + (item.count ?? 0),
+          0
+        );
+        const rowsWithPercent = dayData.map((item, index) => ({
+          ...item,
+          weight: formatWeight(item.weight),
+          id: `${date}-${index}`,
+          percent: totalCount
+            ? parseFloat(((item.count / totalCount) * 100).toFixed(2))
+            : 0,
+        }));
+
+        function CustomToolbar() {
+          return (
+            <GridToolbarContainer>
+              <CustomExportButton rows={rowsWithPercent} columns={columns} />
+            </GridToolbarContainer>
+          );
+        }
+
+        return (
+          <div key={date}>
+            <Typography variant="h6" className="mb-2 pl-2">
+              {dayjs(date).format(period == "day" ? "DD.MM.YYYY" : "MMMM")}
+            </Typography>
+            <div className="flex-1 min-w-0 bg-white rounded-2xl shadow-md overflow-hidden mb-6">
+              <div className="overflow-x-auto">
+                <div className="min-w-[600px]">
+                  <DataGrid
+                    rows={rowsWithPercent}
+                    columns={columns}
+                    disableRowSelectionOnClick
+                    hideFooter
+                    getRowId={(row) => row.id}
+                    slots={{ toolbar: CustomToolbar }}
+                    getRowClassName={(params) =>
+                      `row-${toSafeClassName(
+                        normalize(params.row.categoryName)
+                      )}`
+                    }
+                    sx={{
+                      border: "none",
+                      "& .MuiDataGrid-columnHeaders": {
+                        backgroundColor: "#f5f5f5",
+                        fontWeight: "bold",
                       },
-                    ];
-                  })
-                ),
-              }}
-            />
+                      "& .first-column-cell": { paddingLeft: "16px" },
+                      "& .last-column-cell": { paddingRight: "16px" },
+                      ...Object.fromEntries(
+                        rowsWithPercent.map((row) => {
+                          const normalizedName = normalize(row.categoryName);
+                          const safeName = toSafeClassName(normalizedName);
+                          const className = `.MuiDataGrid-row.row-${safeName}`;
+                          const color =
+                            FRACTION_COLORS[normalizedName] || "#eee";
+                          return [
+                            className,
+                            {
+                              backgroundColor: `${color}33`,
+                              borderBottom: "1px solid #e0e0e0",
+                            },
+                          ];
+                        })
+                      ),
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Правая колонка — фильтры */}
-      <aside className="w-full lg:w-[320px] lg:order-2 order-1  flex-shrink-0 bg-white rounded-2xl shadow-md px-4 py-4 flex flex-col gap-4">
-        <Typography variant="h6" fontWeight={600}>
-          Анализ фракций
-        </Typography>
-
-        <FlexibleDatePicker
-          period={period}
-          startDate={startDate}
-          endDate={endDate}
-          onPeriodChange={onPeriodChange}
-          onStartDateChange={onStartDateChange}
-          onEndDateChange={onEndDateChange}
-        />
-
-        <FormControl size="small" fullWidth>
-          <InputLabel>Фракция</InputLabel>
-          <Select
-            value={fractionFilter}
-            onChange={handleFractionChange}
-            label="Фракция"
-          >
-            <MenuItem value="Все">Все</MenuItem>
-            {tableData.map((item) => (
-              <MenuItem key={item.id} value={item.categoryName}>
-                {item.categoryName}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </aside>
+        );
+      })}
     </div>
   );
 }
