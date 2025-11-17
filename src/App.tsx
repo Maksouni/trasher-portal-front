@@ -14,7 +14,6 @@ import { getTheme } from "./theme";
 import StreamPage from "./pages/stream/StreamPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { AlertProvider } from "./context/alert/AlertProvider";
-import StatisticsTablePage from "./pages/statistics/table";
 
 function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
   const { isLoading } = useAuth();
@@ -68,14 +67,7 @@ function App() {
                     </RequireAuth>
                   }
                 />
-                <Route
-                  path="/statistics/table"
-                  element={
-                    <RequireAuth>
-                      <StatisticsTablePage />
-                    </RequireAuth>
-                  }
-                />
+
                 <Route
                   path="/stream"
                   element={
