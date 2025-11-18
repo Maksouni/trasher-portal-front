@@ -1,23 +1,24 @@
 import { apiUrl } from "../../dotenv";
 import StreamPlayer from "../../components/StreamPlayer";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 export default function StreamPage() {
   const [streams, setStreams] = useState<string[]>([]);
+  const syncGroup = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       const res = await axios.get(`${apiUrl}/media`);
-      const streamStrings = [];
+      const streamStrings: string[] = [];
       for (let i = 1; i <= res.data; i++) {
         streamStrings.push(`stream${i}`);
       }
-
       setStreams(streamStrings);
     };
     fetchData();
   }, []);
+
   return (
     <div className="flex flex-col items-center m-4 gap-6">
       {streams.map((streamKey, idx) => (
@@ -29,6 +30,8 @@ export default function StreamPage() {
           <StreamPlayer
             src={`${apiUrl}/media/${streamKey}/playlist.m3u8`}
             width={1024}
+            syncGroup={syncGroup}
+            index={idx}
           />
         </div>
       ))}

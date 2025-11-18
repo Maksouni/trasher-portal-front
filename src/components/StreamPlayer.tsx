@@ -4,9 +4,16 @@ import Hls from "hls.js";
 interface StreamPlayerProps {
   src: string;
   width?: number;
+  syncGroup?: React.MutableRefObject<(HTMLVideoElement | null)[]>;
+  index?: number;
 }
 
-export default function StreamPlayer({ src, width = 720 }: StreamPlayerProps) {
+export default function StreamPlayer({
+  src,
+  width = 720,
+  syncGroup,
+  index = 0,
+}: StreamPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -16,52 +23,16 @@ export default function StreamPlayer({ src, width = 720 }: StreamPlayerProps) {
     video.playbackRate = 0.5;
 
     if (Hls.isSupported()) {
-      const hls = new Hls({
-        // enableWebVTT: false,
-        // lowLatencyMode: true,
-      });
-
+      const hls = new Hls();
       hls.loadSource(src);
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.playbackRate = 0.5;
-        video.play().catch((err) => console.error("Auto-play failed:", err));
+        video.play().catch(console.error);
       });
 
-      hls.on(Hls.Events.ERROR, (_event, data) => {
-        console.error("HLS error:", data);
-
-        if (data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              if (data.details === Hls.ErrorDetails.BUFFER_ADD_CODEC_ERROR) {
-                console.warn("Buffer add codec error, trying to recover...");
-                // Пробуем восстановиться:
-                hls.destroy();
-                // Можно попробовать пересоздать плеер или просто остановить
-              } else {
-                console.warn(
-                  "Fatal media error, trying to recover media error"
-                );
-                hls.recoverMediaError();
-              }
-              break;
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              console.warn("Network error, trying to recover...");
-              hls.startLoad();
-              break;
-            default:
-              console.error("Unrecoverable error, destroying hls instance");
-              hls.destroy();
-              break;
-          }
-        }
-      });
-
-      return () => {
-        hls.destroy();
-      };
+      return () => hls.destroy();
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
       video.addEventListener("loadedmetadata", () => {
@@ -70,6 +41,38 @@ export default function StreamPlayer({ src, width = 720 }: StreamPlayerProps) {
       });
     }
   }, [src]);
+
+  useEffect(() => {
+    if (!syncGroup || !videoRef.current) return;
+    if (!syncGroup.current) syncGroup.current = [];
+    syncGroup.current[index] = videoRef.current;
+  }, [syncGroup, index]);
+
+  useEffect(() => {
+    if (!syncGroup || !syncGroup.current) return;
+    const master = syncGroup.current[0];
+    if (!master) return;
+
+    const sync = () => {
+      const slave = videoRef.current;
+      if (!slave) return;
+
+      if (index === 0) {
+        slave.playbackRate = 0.5;
+      } else {
+        const diff = master.currentTime - slave.currentTime;
+        if (Math.abs(diff) > 0.05) {
+          slave.playbackRate = 0.5 + diff * 0.1;
+        } else {
+          slave.playbackRate = 0.5;
+        }
+      }
+      requestAnimationFrame(sync);
+    };
+
+    const rafId = requestAnimationFrame(sync);
+    return () => cancelAnimationFrame(rafId);
+  }, [syncGroup, index]);
 
   return (
     <video
