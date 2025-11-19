@@ -25,7 +25,7 @@ export default function StreamPlayer({ src, width = 720 }: StreamPlayerProps) {
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.playbackRate = 0.5;
+        video.playbackRate = 0.16;
         video.play().catch((err) => console.error("Auto-play failed:", err));
       });
 
