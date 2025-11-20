@@ -62,15 +62,10 @@ export default function FractionPivotTable({ data, period }: Props) {
       headerName: cat,
       flex: 1,
     })),
-    {
-      field: "total",
-      headerName: metric == "avgConfidence" ? "Среднее" : "Сумма",
-      flex: 0.7,
-    },
   ];
 
   const rows = useMemo(() => {
-    return Object.entries(grouped).map(([date, arr]) => {
+    const rowData = Object.entries(grouped).map(([date, arr]) => {
       const row: any = {
         id: date,
         date:
@@ -78,6 +73,7 @@ export default function FractionPivotTable({ data, period }: Props) {
             ? dayjs(date).format("MMMM")
             : dayjs(date).format("DD.MM.YYYY"),
       };
+
       allCategories.forEach((cat) => {
         const items = arr.filter((i) => normalize(i.categoryName) === cat);
 
@@ -94,34 +90,64 @@ export default function FractionPivotTable({ data, period }: Props) {
         } else if (metric === "weight") {
           const w = items.reduce((s, i) => s + (i.weight ?? 0), 0);
           row[`raw_${toSafeClassName(cat)}`] = w;
-          row[toSafeClassName(cat)] = formatWeight(w);
+          row[toSafeClassName(cat)] = formatWeight(w); // вот здесь форматируем!
         }
       });
 
-      if (metric === "avgConfidence") {
-        const values = allCategories.map((cat) => row[toSafeClassName(cat)]);
-        const avg = values.reduce((s, v) => s + v, 0) / (values.length || 1);
-        row.total = parseFloat(avg.toFixed(2));
-      } else {
-        if (metric === "weight") {
-          const sum = allCategories.reduce(
-            (s, cat) => s + (row[`raw_${toSafeClassName(cat)}`] ?? 0),
-            0
-          );
-          row.total = formatWeight(sum);
-        } else {
-          const sum = allCategories.reduce(
-            (s, cat) =>
-              s + (Number(row[toSafeClassName(cat)].replace(/\s/g, "")) || 0),
-            0
-          );
-
-          row.total = new Intl.NumberFormat("ru-RU").format(sum);
-        }
-      }
-
       return row;
     });
+
+    const totalRow: any = { id: "total", date: "Итого" };
+    allCategories.forEach((cat) => {
+      const field = toSafeClassName(cat);
+
+      if (metric === "avgConfidence") {
+        const sum = rowData.reduce((s, r) => s + (r[field] ?? 0), 0);
+        const avg = rowData.length ? sum / rowData.length : 0;
+        totalRow[field] = parseFloat(avg.toFixed(2));
+      } else if (metric === "count" || metric === "weight") {
+        const sum =
+          metric === "weight"
+            ? rowData.reduce((s, r) => s + (r[`raw_${field}`] ?? 0), 0)
+            : rowData.reduce(
+                (s, r) => s + Number(r[field].toString().replace(/\s/g, "")),
+                0
+              );
+        totalRow[field] =
+          metric === "weight"
+            ? formatWeight(sum)
+            : new Intl.NumberFormat("ru-RU").format(sum);
+      }
+    });
+
+    // total для строки "Итого"
+    if (metric === "avgConfidence") {
+      const values = allCategories.map((cat) => totalRow[toSafeClassName(cat)]);
+      const avg = values.reduce((s, v) => s + v, 0) / (values.length || 1);
+      totalRow.total = parseFloat(avg.toFixed(2));
+    } else {
+      const sum =
+        metric === "weight"
+          ? allCategories.reduce(
+              (s, cat) => s + (totalRow[`raw_${toSafeClassName(cat)}`] ?? 0),
+              0
+            )
+          : allCategories.reduce(
+              (s, cat) =>
+                s +
+                (Number(
+                  totalRow[toSafeClassName(cat)].toString().replace(/\s/g, "")
+                ) || 0),
+              0
+            );
+
+      totalRow.total =
+        metric === "weight"
+          ? formatWeight(sum)
+          : new Intl.NumberFormat("ru-RU").format(sum);
+    }
+
+    return [...rowData, totalRow];
   }, [grouped, period, allCategories, metric]);
 
   return (

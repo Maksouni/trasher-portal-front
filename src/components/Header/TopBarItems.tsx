@@ -14,7 +14,7 @@ export default function TopBarItems({ items }: TopBarItemsProps) {
       {items.map((item, index) => (
         <div
           key={index}
-          className="flex items-center cursor-pointer transition-all duration-200 ease-in-out hover:translate-y-[-2px]"
+          className="flex items-center cursor-pointer transition-all duration-200 ease-in-out hover:opacity-60"
           onClick={item.onClick}
           style={
             index === items.length - 1
@@ -26,10 +26,10 @@ export default function TopBarItems({ items }: TopBarItemsProps) {
           <Typography
             variant="body1"
             sx={{
+              transition: "ease-in-out",
               marginLeft: 1,
-              fontSize: location.pathname === item.address ? "1.15rem" : "1rem",
-              fontWeight:
-                location.pathname === item.address ? "bold" : "normal",
+              textDecoration:
+                location.pathname === item.address ? "underline" : "none",
             }}
           >
             {item.title}
