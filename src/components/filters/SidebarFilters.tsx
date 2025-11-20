@@ -14,7 +14,6 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import TableChartIcon from "@mui/icons-material/TableChart";
 import CheckFilters from "../../components/filters/CheckFilters";
 import { ChartType } from "../../types/chart.types";
-import { useScrollDirection } from "../../hooks/useScrollDirection";
 import FlexibleDatePicker from "./FlexibleDatePicker";
 
 interface SidebarFiltersProps {
@@ -48,10 +47,6 @@ export default function SidebarFilters({
   period,
   onPeriodChange,
 }: SidebarFiltersProps) {
-  const scrollDirection = useScrollDirection();
-  const headerHeight = 78;
-  const dynamicTop = scrollDirection === "down" ? 16 : headerHeight;
-
   const handleChartOption = (
     _: React.MouseEvent<HTMLElement>,
     newOption: string | null
@@ -67,12 +62,7 @@ export default function SidebarFilters({
   return (
     <Paper
       elevation={3}
-      className="flex flex-col gap-4 lg:sticky self-start w-full lg:max-w-[300px] overflow-y-auto p-4"
-      sx={{
-        top: dynamicTop,
-        transition: "top 0.3s ease",
-        maxHeight: `calc(100vh - ${dynamicTop}px)`,
-      }}
+      className="flex flex-col gap-4 lg:sticky self-start w-full lg:max-w-[300px] lg:min-w-[300px] overflow-y-auto p-4"
     >
       <Typography variant="h6">Варианты отображения</Typography>
       <ToggleButtonGroup
