@@ -4,23 +4,16 @@ import BarChartBlock from "./BarChartBlock";
 import ChartBlock from "./ChartBlock";
 import PieChartBlock from "./PieChartBlock";
 import { FractionData } from "../../types/fraction.types";
+import { useCharts } from "../../context/charts/useChart";
 
 interface ChartViewProps {
-  option: string;
-  loading: boolean;
   summaryData: FractionData[];
   dailyData: DailyReport[];
-  period: "day" | "month";
 }
 
-export default function ChartView({
-  option,
-  loading,
-  summaryData,
-  dailyData,
-  period,
-}: ChartViewProps) {
-  if (option === "pie") {
+export default function ChartView({ summaryData, dailyData }: ChartViewProps) {
+  const { chartOption, loading, period } = useCharts();
+  if (chartOption === "pie") {
     return (
       <PieChartBlock
         data={summaryData.map((i, index) => ({
@@ -29,7 +22,7 @@ export default function ChartView({
         }))}
       />
     );
-  } else if (option === "bar") {
+  } else if (chartOption === "bar") {
     const total = summaryData.reduce((acc, item) => acc + item.totalCount, 0);
 
     return (
@@ -51,7 +44,7 @@ export default function ChartView({
     return acc;
   }, {} as Record<string, DailyReport[]>);
 
-  if (option === "linear") {
+  if (chartOption === "linear") {
     return (
       <div className="charts-container">
         <ul className="list-none flex flex-col gap-5 lg:gap-4">

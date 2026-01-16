@@ -2,9 +2,9 @@ import { Skeleton } from "@mui/material";
 import StatsBlock from "../../components/statistics/StatsBlock";
 import BarChartRounded from "@mui/icons-material/BarChartRounded";
 import StreamIcon from "@mui/icons-material/Stream";
+import { useCharts } from "../../context/charts/useChart";
 
 interface StatsSummaryProps {
-  loading: boolean;
   data: {
     categoryName: string;
     totalCount: number;
@@ -12,7 +12,8 @@ interface StatsSummaryProps {
   }[];
 }
 
-export default function StatsSummary({ loading, data }: StatsSummaryProps) {
+export default function StatsSummary({ data }: StatsSummaryProps) {
+  const { loading } = useCharts();
   // Например, суммируем количество и среднюю точность по всем категориям
   const totalCount = data.reduce((acc, cur) => acc + cur.totalCount, 0);
   const accuracy =

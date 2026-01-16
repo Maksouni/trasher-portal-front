@@ -1,6 +1,7 @@
 import { LineChart } from "@mui/x-charts";
 import { useState, useEffect } from "react";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
+import { PeriodType } from "../../types/chart.types";
 
 interface ChartBlockProps {
   title: string;
@@ -9,7 +10,7 @@ interface ChartBlockProps {
     count: number;
     avgConfidence: number | { parsedValue: number };
   }[];
-  period: "day" | "month";
+  period: PeriodType;
 }
 
 const RU_MONTHS = [

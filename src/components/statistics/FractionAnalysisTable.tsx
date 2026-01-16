@@ -7,6 +7,7 @@ import "dayjs/locale/ru";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 import formatWeight from "../../utils/formatWeight";
 import { DailyReport } from "../../types/chart.types";
+import { useCharts } from "../../context/charts/useChart";
 
 dayjs.locale("ru");
 
@@ -32,10 +33,10 @@ function toSafeClassName(name?: string): string {
 
 interface Props {
   data: DailyReport[];
-  period: "day" | "month";
 }
 
-export default function FractionPivotTable({ data, period }: Props) {
+export default function FractionPivotTable({ data }: Props) {
+  const { period } = useCharts();
   const [metric, setMetric] = useState<"count" | "weight" | "avgConfidence">(
     "count"
   );
