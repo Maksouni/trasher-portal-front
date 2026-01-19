@@ -43,12 +43,16 @@ export default function FractionPivotTable({ data }: Props) {
 
   const grouped = useMemo(() => {
     const map: Record<string, DailyReport[]> = {};
+
     data.forEach((item) => {
-      if (!map[item.date]) map[item.date] = [];
-      map[item.date].push(item);
+      const key = period === "5min" ? (item.ts ?? item.date) : item.date;
+
+      if (!map[key]) map[key] = [];
+      map[key].push(item);
     });
+
     return map;
-  }, [data]);
+  }, [data, period]);
 
   const allCategories = useMemo(() => {
     const set = new Set<string>();
@@ -70,9 +74,11 @@ export default function FractionPivotTable({ data }: Props) {
       const row: any = {
         id: date,
         date:
-          period === "month"
-            ? dayjs(date).format("MMMM")
-            : dayjs(date).format("DD.MM.YYYY"),
+          period === "5min"
+            ? dayjs(date).format("HH:mm")
+            : period === "month"
+              ? dayjs(date).format("MMMM")
+              : dayjs(date).format("DD.MM.YYYY"),
       };
 
       allCategories.forEach((cat) => {
