@@ -38,7 +38,7 @@ interface Props {
 export default function FractionPivotTable({ data }: Props) {
   const { period } = useCharts();
   const [metric, setMetric] = useState<"count" | "weight" | "avgConfidence">(
-    "count"
+    "count",
   );
 
   const grouped = useMemo(() => {
@@ -86,7 +86,7 @@ export default function FractionPivotTable({ data }: Props) {
           row[toSafeClassName(cat)] = parseFloat(avg.toFixed(2));
         } else if (metric === "count") {
           row[toSafeClassName(cat)] = new Intl.NumberFormat("ru-RU").format(
-            items.reduce((s, i) => s + (i.count ?? 0), 0)
+            items.reduce((s, i) => s + (i.count ?? 0), 0),
           );
         } else if (metric === "weight") {
           const w = items.reduce((s, i) => s + (i.weight ?? 0), 0);
@@ -112,7 +112,7 @@ export default function FractionPivotTable({ data }: Props) {
             ? rowData.reduce((s, r) => s + (r[`raw_${field}`] ?? 0), 0)
             : rowData.reduce(
                 (s, r) => s + Number(r[field].toString().replace(/\s/g, "")),
-                0
+                0,
               );
         totalRow[field] =
           metric === "weight"
@@ -131,15 +131,15 @@ export default function FractionPivotTable({ data }: Props) {
         metric === "weight"
           ? allCategories.reduce(
               (s, cat) => s + (totalRow[`raw_${toSafeClassName(cat)}`] ?? 0),
-              0
+              0,
             )
           : allCategories.reduce(
               (s, cat) =>
                 s +
                 (Number(
-                  totalRow[toSafeClassName(cat)].toString().replace(/\s/g, "")
+                  totalRow[toSafeClassName(cat)].toString().replace(/\s/g, ""),
                 ) || 0),
-              0
+              0,
             );
 
       totalRow.total =
@@ -151,11 +151,18 @@ export default function FractionPivotTable({ data }: Props) {
     return [...rowData, totalRow];
   }, [grouped, period, allCategories, metric]);
 
+  const periodLabel =
+    period === "day"
+      ? "Отчёт по дням"
+      : period === "month"
+        ? "Отчёт по месяцам"
+        : "Отчёт по минутам";
+
   return (
     <div className="flex flex-col m-2 max-w-[1500px]">
       <div className="mb-2 flex gap-4 items-center">
         <Typography variant="h6" className="pl-2">
-          {period === "day" ? "Отчёт по дням" : "Отчёт по месяцам"}
+          {periodLabel}
         </Typography>
         <Select
           value={metric}
@@ -193,7 +200,7 @@ export default function FractionPivotTable({ data }: Props) {
                       `.MuiDataGrid-columnHeader[data-field="${field}"]`,
                       { backgroundColor: `${color}55` },
                     ];
-                  })
+                  }),
                 ),
 
                 ...Object.fromEntries(
@@ -205,7 +212,7 @@ export default function FractionPivotTable({ data }: Props) {
                       `.MuiDataGrid-cell[data-field="${field}"]`,
                       { backgroundColor: `${color}30` },
                     ];
-                  })
+                  }),
                 ),
               }}
             />
