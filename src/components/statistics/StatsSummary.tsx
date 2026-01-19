@@ -13,7 +13,7 @@ interface StatsSummaryProps {
 }
 
 export default function StatsSummary({ data }: StatsSummaryProps) {
-  const { loading } = useCharts();
+  const { loading, period } = useCharts();
   // Например, суммируем количество и среднюю точность по всем категориям
   const totalCount = data.reduce((acc, cur) => acc + cur.totalCount, 0);
   const accuracy =
@@ -44,12 +44,18 @@ export default function StatsSummary({ data }: StatsSummaryProps) {
           <StatsBlock
             icon={<BarChartRounded />}
             value={totalCount.toLocaleString("ru-RU")}
-            title="Количество обнаружений"
+            title={
+              period == "5min"
+                ? "Количество обнаружений (за день)"
+                : "Количество обнаружений"
+            }
           />
           <StatsBlock
             icon={<StreamIcon />}
             value={`${accuracy.toFixed(2)} %`}
-            title="Общая точность"
+            title={
+              period == "5min" ? "Общая точность (за день)" : "Общая точность"
+            }
           />
         </>
       )}

@@ -27,14 +27,14 @@ export default function ChartsProvider({ children, onDataChange }: Props) {
   const [period, setPeriod] = useState<PeriodType>("day");
 
   const [startDateTime, setStartDateTime] = useState(
-    dayjs().subtract(1, "hour").format("YYYY-MM-DDTHH:mm")
+    dayjs().subtract(1, "hour").format("YYYY-MM-DDTHH:mm"),
   );
   const [endDateTime, setEndDateTime] = useState(
-    dayjs().format("YYYY-MM-DDTHH:mm")
+    dayjs().format("YYYY-MM-DDTHH:mm"),
   );
 
   const [startDate, setStartDate] = useState(
-    dayjs().subtract(7, "day").format("YYYY-MM-DD")
+    dayjs().subtract(7, "day").format("YYYY-MM-DD"),
   );
   const [endDate, setEndDate] = useState(dayjs().format("YYYY-MM-DD"));
 
@@ -55,17 +55,28 @@ export default function ChartsProvider({ children, onDataChange }: Props) {
     const categoryIds = filteredCharts.map((f) => f.id);
 
     if (period === "5min") {
-      axios
-        .get("/reports/daily-time", {
+      const day = dayjs(startDateTime).format("YYYY-MM-DD");
+
+      Promise.all([
+        axios.get("/reports/summary", {
+          params: {
+            from: day,
+            to: day,
+            cat: categoryIds,
+          },
+          paramsSerializer: (p) => qs.stringify(p, { arrayFormat: "repeat" }),
+        }),
+        axios.get("/reports/daily-time", {
           params: {
             from: localToUtcISO(startDateTime),
             to: localToUtcISO(endDateTime),
             cat: categoryIds,
           },
           paramsSerializer: (p) => qs.stringify(p, { arrayFormat: "repeat" }),
-        })
-        .then((res) => {
-          onDataChange([], res.data);
+        }),
+      ])
+        .then(([summary, daily]) => {
+          onDataChange(summary.data, daily.data);
         })
         .catch(() => showAlert("Ошибка загрузки статистики", "error", 4000));
 
@@ -98,8 +109,8 @@ export default function ChartsProvider({ children, onDataChange }: Props) {
 
       setFilteredCharts(
         charts.filter(
-          (c) => updated.length === 0 || updated.some((f) => f.name === c.name)
-        )
+          (c) => updated.length === 0 || updated.some((f) => f.name === c.name),
+        ),
       );
 
       return updated;

@@ -38,11 +38,14 @@ export default function ChartView({ summaryData, dailyData }: ChartViewProps) {
     );
   }
 
-  const grouped = dailyData.reduce((acc, item) => {
-    if (!acc[item.categoryName]) acc[item.categoryName] = [];
-    acc[item.categoryName].push(item);
-    return acc;
-  }, {} as Record<string, DailyReport[]>);
+  const grouped = dailyData.reduce(
+    (acc, item) => {
+      if (!acc[item.categoryName]) acc[item.categoryName] = [];
+      acc[item.categoryName].push(item);
+      return acc;
+    },
+    {} as Record<string, DailyReport[]>,
+  );
 
   if (chartOption === "linear") {
     return (

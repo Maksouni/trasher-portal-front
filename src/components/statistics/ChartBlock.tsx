@@ -1,15 +1,11 @@
 import { LineChart } from "@mui/x-charts";
 import { useState, useEffect } from "react";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
-import { PeriodType } from "../../types/chart.types";
+import { DailyReport, PeriodType } from "../../types/chart.types";
 
 interface ChartBlockProps {
   title: string;
-  data: {
-    date: string;
-    count: number;
-    avgConfidence: number | { parsedValue: number };
-  }[];
+  data: DailyReport[];
   period: PeriodType;
 }
 
@@ -30,10 +26,10 @@ const RU_MONTHS = [
 
 export default function ChartBlock({ title, data, period }: ChartBlockProps) {
   const [chartWidth, setChartWidth] = useState(
-    window.innerWidth < 768 ? 340 : 900
+    window.innerWidth < 768 ? 340 : 900,
   );
   const [chartHeight, setChartHeight] = useState(
-    window.innerWidth < 768 ? 300 : 500
+    window.innerWidth < 768 ? 300 : 500,
   );
 
   useEffect(() => {
@@ -47,29 +43,41 @@ export default function ChartBlock({ title, data, period }: ChartBlockProps) {
 
   // Сортируем данные по дате
   const sortedData = [...data].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
   // Массивы для графика
-  const xLabels = sortedData.map((d) => new Date(d.date).getTime());
+  const xLabels = sortedData.map((d) =>
+    period === "5min"
+      ? new Date(d.ts ?? d.date).getTime()
+      : new Date(d.date).getTime(),
+  );
   const countData = sortedData.map((d) =>
-    typeof d.count === "number" ? d.count : 0
+    typeof d.count === "number" ? d.count : 0,
   );
   const confidenceData = sortedData.map((d) => {
     if (typeof d.avgConfidence === "number")
       return Math.round(d.avgConfidence * 100);
-    if (d.avgConfidence && typeof d.avgConfidence.parsedValue === "number")
-      return Math.round(d.avgConfidence.parsedValue * 100);
+    if (d.avgConfidence === "number") return Math.round(d.avgConfidence * 100);
     return 0;
   });
 
   const mainColor = FRACTION_COLORS[title] || "#8E24AA";
 
-  // Для отображения месяца только одним словом
-  const monthFormatter = (timestamp: number) => {
+  const xFormatter = (timestamp: number) => {
     const date = new Date(timestamp);
-    return period === "month"
-      ? RU_MONTHS[date.getMonth()]
-      : `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+
+    if (period === "5min") {
+      return date.toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    if (period === "month") {
+      return RU_MONTHS[date.getMonth()];
+    }
+
+    return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
   };
 
   return (
@@ -97,7 +105,7 @@ export default function ChartBlock({ title, data, period }: ChartBlockProps) {
           {
             scaleType: "time",
             data: xLabels,
-            valueFormatter: monthFormatter,
+            valueFormatter: xFormatter,
             tickNumber: period === "month" ? sortedData.length : undefined,
           },
         ]}
