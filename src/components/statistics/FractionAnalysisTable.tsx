@@ -192,7 +192,7 @@ export default function FractionPivotTable() {
         : "Отчёт по минутам";
 
   return (
-    <Box sx={{ py: 2 }}>
+    <Box sx={{ pb: 4 }}>
       <Paper
         elevation={0}
         sx={{
