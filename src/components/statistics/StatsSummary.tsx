@@ -1,64 +1,62 @@
-import { Skeleton } from "@mui/material";
+import { Skeleton, Stack } from "@mui/material";
 import StatsBlock from "../../components/statistics/StatsBlock";
 import BarChartRounded from "@mui/icons-material/BarChartRounded";
 import StreamIcon from "@mui/icons-material/Stream";
 import { useCharts } from "../../context/charts/useChart";
+import { alpha } from "@mui/material";
 
-interface StatsSummaryProps {
-  data: {
-    categoryName: string;
-    totalCount: number;
-    avgConfidence: number;
-  }[];
-}
+export default function StatsSummary() {
+  const { isDataLoading, period, summaryData } = useCharts();
 
-export default function StatsSummary({ data }: StatsSummaryProps) {
-  const { loading, period } = useCharts();
-  // Например, суммируем количество и среднюю точность по всем категориям
-  const totalCount = data.reduce((acc, cur) => acc + cur.totalCount, 0);
+  const totalCount = summaryData.reduce((acc, cur) => acc + cur.totalCount, 0);
   const accuracy =
-    data.length > 0
-      ? (data.reduce((acc, cur) => acc + cur.avgConfidence, 0) / data.length) *
+    summaryData.length > 0
+      ? (summaryData.reduce((acc, cur) => acc + cur.avgConfidence, 0) /
+          summaryData.length) *
         100
       : 0;
 
   return (
-    <div className="flex flex-col items-center justify-center sm:flex-row gap-3">
-      {loading ? (
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      spacing={2}
+      sx={{
+        width: "100%",
+        boxSizing: "border-box",
+      }}
+    >
+      {isDataLoading ? (
         <>
-          <Skeleton
-            variant="rounded"
-            sx={{ borderRadius: 4 }}
-            width={303}
-            height={84}
-          />
-          <Skeleton
-            variant="rounded"
-            sx={{ borderRadius: 4 }}
-            width={303}
-            height={84}
-          />
+          {[1, 2].map((i) => (
+            <Skeleton
+              key={i}
+              variant="rounded"
+              height={100}
+              sx={{
+                flex: 1,
+                borderRadius: "16px",
+                background: (theme) =>
+                  alpha(theme.palette.background.paper, 0.4),
+              }}
+            />
+          ))}
         </>
       ) : (
         <>
           <StatsBlock
-            icon={<BarChartRounded />}
+            icon={<BarChartRounded sx={{ fontSize: 28 }} />}
             value={totalCount.toLocaleString("ru-RU")}
             title={
-              period == "5min"
-                ? "Количество обнаружений (за день)"
-                : "Количество обнаружений"
+              period === "5min" ? "Обнаружения (день)" : "Всего обнаружений"
             }
           />
           <StatsBlock
-            icon={<StreamIcon />}
+            icon={<StreamIcon sx={{ fontSize: 28 }} />}
             value={`${accuracy.toFixed(2)} %`}
-            title={
-              period == "5min" ? "Общая точность (за день)" : "Общая точность"
-            }
+            title={period === "5min" ? "Точность (день)" : "Средняя точность"}
           />
         </>
       )}
-    </div>
+    </Stack>
   );
 }

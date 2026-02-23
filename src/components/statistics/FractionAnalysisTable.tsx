@@ -1,7 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState } from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { Typography, Select, MenuItem } from "@mui/material";
+import {
+  Typography,
+  Select,
+  MenuItem,
+  alpha,
+  Box,
+  Paper,
+  Stack,
+  useTheme,
+  Skeleton,
+} from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
@@ -31,45 +41,76 @@ function toSafeClassName(name?: string): string {
     : "";
 }
 
-interface Props {
-  data: DailyReport[];
-}
-
-export default function FractionPivotTable({ data }: Props) {
-  const { period } = useCharts();
+export default function FractionPivotTable() {
+  const { period, dailyData, isDataLoading } = useCharts();
   const [metric, setMetric] = useState<"count" | "weight" | "avgConfidence">(
     "count",
   );
+  const theme = useTheme();
 
   const grouped = useMemo(() => {
     const map: Record<string, DailyReport[]> = {};
-
-    data.forEach((item) => {
+    dailyData.forEach((item) => {
       const key = period === "5min" ? (item.ts ?? item.date) : item.date;
-
       if (!map[key]) map[key] = [];
       map[key].push(item);
     });
-
     return map;
-  }, [data, period]);
+  }, [dailyData, period]);
 
   const allCategories = useMemo(() => {
     const set = new Set<string>();
-    data.forEach((d) => set.add(normalize(d.categoryName)));
+    dailyData.forEach((d) => set.add(normalize(d.categoryName)));
     return Array.from(set);
-  }, [data]);
+  }, [dailyData]);
 
-  const columns: GridColDef[] = [
-    { field: "date", headerName: "Дата", flex: 1 },
-    ...allCategories.map((cat) => ({
-      field: toSafeClassName(cat),
-      headerName: cat,
-      flex: 1,
-    })),
-  ];
+  const columns: GridColDef[] = useMemo(
+    () => [
+      {
+        field: "date",
+        headerName: "Период",
+        minWidth: 140,
+        flex: 1.2,
+      },
+      ...allCategories.map((cat) => ({
+        field: toSafeClassName(cat),
+        headerName: cat,
+        flex: 1,
+        minWidth: 110,
+        align: "right" as const,
+        headerAlign: "right" as const,
+        valueFormatter: (value: any) => {
+          if (value === null || value === undefined) return "—";
+          if (metric === "weight") return formatWeight(value);
+          if (metric === "count")
+            return new Intl.NumberFormat("ru-RU").format(value);
+          if (metric === "avgConfidence") return `${value}%`;
+          return value;
+        },
+      })),
+      {
+        field: "total",
+        headerName: "Итого",
+        flex: 1,
+        minWidth: 110,
+        align: "right" as const,
+        headerAlign: "right" as const,
+        sx: { fontWeight: 700 },
+        valueFormatter: (value: any) => {
+          if (value === null || value === undefined) return "—";
+          if (metric === "weight") return formatWeight(value);
+          if (metric === "count")
+            return new Intl.NumberFormat("ru-RU").format(value);
+          return value;
+        },
+      },
+    ],
+    [allCategories, metric],
+  );
 
   const rows = useMemo(() => {
+    if (dailyData.length === 0) return [];
+
     const rowData = Object.entries(grouped).map(([date, arr]) => {
       const row: any = {
         id: date,
@@ -82,6 +123,7 @@ export default function FractionPivotTable({ data }: Props) {
       };
 
       allCategories.forEach((cat) => {
+        const field = toSafeClassName(cat);
         const items = arr.filter((i) => normalize(i.categoryName) === cat);
 
         if (metric === "avgConfidence") {
@@ -89,73 +131,58 @@ export default function FractionPivotTable({ data }: Props) {
             ? items.reduce((s, i) => s + (i.avgConfidence ?? 0), 0) /
               items.length
             : 0;
-          row[toSafeClassName(cat)] = parseFloat(avg.toFixed(2));
+          row[field] = parseFloat((avg * 100).toFixed(2));
         } else if (metric === "count") {
-          row[toSafeClassName(cat)] = new Intl.NumberFormat("ru-RU").format(
-            items.reduce((s, i) => s + (i.count ?? 0), 0),
-          );
+          row[field] = items.reduce((s, i) => s + (i.count ?? 0), 0);
         } else if (metric === "weight") {
-          const w = items.reduce((s, i) => s + (i.weight ?? 0), 0);
-          row[`raw_${toSafeClassName(cat)}`] = w;
-          row[toSafeClassName(cat)] = formatWeight(w); // вот здесь форматируем!
+          row[field] = items.reduce((s, i) => s + (i.weight ?? 0), 0);
         }
       });
+
+      const categoryFields = allCategories.map((cat) => toSafeClassName(cat));
+      row.total = categoryFields.reduce((sum, f) => sum + (row[f] || 0), 0);
+
+      if (metric === "avgConfidence")
+        row.total = parseFloat(
+          (row.total / (categoryFields.length || 1)).toFixed(2),
+        );
 
       return row;
     });
 
-    const totalRow: any = { id: "total", date: "Итого" };
+    const totalRow: any = { id: "total", date: "ИТОГО" };
     allCategories.forEach((cat) => {
       const field = toSafeClassName(cat);
-
       if (metric === "avgConfidence") {
-        const sum = rowData.reduce((s, r) => s + (r[field] ?? 0), 0);
-        const avg = rowData.length ? sum / rowData.length : 0;
+        const avg =
+          rowData.reduce((s, r) => s + (r[field] || 0), 0) /
+          (rowData.length || 1);
         totalRow[field] = parseFloat(avg.toFixed(2));
-      } else if (metric === "count" || metric === "weight") {
-        const sum =
-          metric === "weight"
-            ? rowData.reduce((s, r) => s + (r[`raw_${field}`] ?? 0), 0)
-            : rowData.reduce(
-                (s, r) => s + Number(r[field].toString().replace(/\s/g, "")),
-                0,
-              );
-        totalRow[field] =
-          metric === "weight"
-            ? formatWeight(sum)
-            : new Intl.NumberFormat("ru-RU").format(sum);
+      } else {
+        totalRow[field] = rowData.reduce((s, r) => s + (r[field] || 0), 0);
       }
     });
 
-    // total для строки "Итого"
-    if (metric === "avgConfidence") {
-      const values = allCategories.map((cat) => totalRow[toSafeClassName(cat)]);
-      const avg = values.reduce((s, v) => s + v, 0) / (values.length || 1);
-      totalRow.total = parseFloat(avg.toFixed(2));
-    } else {
-      const sum =
-        metric === "weight"
-          ? allCategories.reduce(
-              (s, cat) => s + (totalRow[`raw_${toSafeClassName(cat)}`] ?? 0),
-              0,
-            )
-          : allCategories.reduce(
-              (s, cat) =>
-                s +
-                (Number(
-                  totalRow[toSafeClassName(cat)].toString().replace(/\s/g, ""),
-                ) || 0),
-              0,
-            );
-
-      totalRow.total =
-        metric === "weight"
-          ? formatWeight(sum)
-          : new Intl.NumberFormat("ru-RU").format(sum);
-    }
+    totalRow.total = allCategories.reduce(
+      (s, cat) => s + (totalRow[toSafeClassName(cat)] || 0),
+      0,
+    );
+    if (metric === "avgConfidence")
+      totalRow.total = parseFloat(
+        (totalRow.total / (allCategories.length || 1)).toFixed(2),
+      );
 
     return [...rowData, totalRow];
-  }, [grouped, period, allCategories, metric]);
+  }, [grouped, period, allCategories, metric, dailyData]);
+
+  if (isDataLoading && dailyData.length === 0) {
+    return (
+      <Paper sx={{ p: 3, borderRadius: "20px", mt: 2 }}>
+        <Skeleton variant="text" width="200px" height={40} sx={{ mb: 2 }} />
+        <Skeleton variant="rounded" height={400} />
+      </Paper>
+    );
+  }
 
   const periodLabel =
     period === "day"
@@ -165,66 +192,88 @@ export default function FractionPivotTable({ data }: Props) {
         : "Отчёт по минутам";
 
   return (
-    <div className="flex flex-col m-2 max-w-[1500px]">
-      <div className="mb-2 flex gap-4 items-center">
-        <Typography variant="h6" className="pl-2">
-          {periodLabel}
-        </Typography>
-        <Select
-          value={metric}
-          onChange={(e) => setMetric(e.target.value as any)}
-          size="small"
-          // sx={{ backgroundColor: "white" }}
+    <Box sx={{ py: 2 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: "20px",
+          background: alpha(theme.palette.background.paper, 0.6),
+          backdropFilter: "blur(12px)",
+          border: "1px solid",
+          borderColor: alpha(theme.palette.divider, 0.1),
+        }}
+      >
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems="center"
+          spacing={2}
+          sx={{ mb: 3 }}
         >
-          <MenuItem value="count">Количество</MenuItem>
-          <MenuItem value="weight">Объём</MenuItem>
-          <MenuItem value="avgConfidence">Точность сортировки</MenuItem>
-        </Select>
-      </div>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 700, color: "text.primary" }}
+          >
+            {periodLabel}
+          </Typography>
 
-      <div className="flex-1 bg-white rounded-2xl shadow-md overflow-hidden mt-2 mb-6">
-        <div className="overflow-x-auto">
-          <div className="min-w-[600px]">
-            <DataGrid
-              rows={rows}
-              columns={columns}
-              hideFooter
-              disableRowSelectionOnClick
-              sx={{
-                border: "none",
-                "& .MuiDataGrid-columnHeaders": {
-                  backgroundColor: "#f5f5f5",
-                  fontWeight: "bold",
-                },
+          <Select
+            value={metric}
+            onChange={(e) => setMetric(e.target.value as any)}
+            size="small"
+            sx={{
+              borderRadius: "10px",
+              minWidth: 220,
+              bgcolor: alpha(theme.palette.background.paper, 0.8),
+            }}
+          >
+            <MenuItem value="count">Количество (шт)</MenuItem>
+            <MenuItem value="weight">Объём (кг/т)</MenuItem>
+            <MenuItem value="avgConfidence">Точность (%)</MenuItem>
+          </Select>
+        </Stack>
 
-                ...Object.fromEntries(
-                  allCategories.map((cat) => {
-                    const color = FRACTION_COLORS[cat] || "#eee";
-                    const field = toSafeClassName(cat);
-
-                    return [
-                      `.MuiDataGrid-columnHeader[data-field="${field}"]`,
-                      { backgroundColor: `${color}55` },
-                    ];
-                  }),
-                ),
-
-                ...Object.fromEntries(
-                  allCategories.map((cat) => {
-                    const color = FRACTION_COLORS[cat] || "#eee";
-                    const field = toSafeClassName(cat);
-
-                    return [
-                      `.MuiDataGrid-cell[data-field="${field}"]`,
-                      { backgroundColor: `${color}30` },
-                    ];
-                  }),
-                ),
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+        <Box sx={{ width: "100%", height: 600 }}>
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            loading={isDataLoading}
+            disableRowSelectionOnClick
+            disableColumnMenu
+            disableColumnResize
+            density="comfortable"
+            sx={{
+              border: "none",
+              "& .MuiDataGrid-columnHeaders": {
+                bgcolor: alpha(theme.palette.divider, 0.05),
+                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              },
+              "& .MuiDataGrid-columnHeaderTitle": {
+                fontWeight: 600,
+                color: "text.secondary",
+              },
+              ...Object.fromEntries(
+                allCategories.map((cat) => {
+                  const color = FRACTION_COLORS[cat] || "#999";
+                  const field = toSafeClassName(cat);
+                  return [
+                    `& .MuiDataGrid-cell[data-field="${field}"]`,
+                    {
+                      bgcolor: alpha(color, 0.2),
+                    },
+                  ];
+                }),
+              ),
+              '& .MuiDataGrid-row[data-id="total"]': {
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                fontWeight: 800,
+                "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.2) },
+              },
+            }}
+          />
+        </Box>
+      </Paper>
+    </Box>
   );
 }

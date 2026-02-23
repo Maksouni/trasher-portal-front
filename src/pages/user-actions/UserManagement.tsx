@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { DataGrid, GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import SearchIcon from "@mui/icons-material/Search";
-import EditIcon from "@mui/icons-material/Edit";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import {
   Button,
   FormControl,
@@ -14,7 +15,15 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Box,
+  Typography,
+  alpha,
+  useTheme,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import AddUserModal from "./AddUserModal";
+import EditUserModal from "./EditUserModal";
 
 interface User {
   id: number;
@@ -32,148 +41,247 @@ export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState(mockUsers);
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
-    []
+    [],
   );
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
+  const theme = useTheme();
 
-  const handleEdit = (userId: number) => {
-    navigate(`edit/${userId}`);
+  const glassStyle = {
+    bgcolor: alpha(theme.palette.background.paper, 0.6),
+    backdropFilter: "blur(12px)",
+    borderRadius: "24px",
+    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+    boxShadow: "0 8px 32px 0 rgba(0,0,0,0.05)",
+    overflow: "hidden",
   };
 
-  const handleAdd = () => {
-    navigate(`add`);
+  const handleEditClick = (user: User) => {
+    setSelectedUser(user);
+    setEditModalOpen(true);
   };
 
   const handleDelete = () => {
-    const newUsers = users.filter((user) => !selectionModel.includes(user.id));
-    setUsers(newUsers);
+    setUsers(users.filter((user) => !selectionModel.includes(user.id)));
     setSelectionModel([]);
     setOpen(false);
   };
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   const filteredUsers = users.filter((user) =>
-    user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    user.username.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 90 },
+    { field: "id", headerName: "ID", width: 80 },
     {
       field: "username",
       headerName: "Имя пользователя",
-      width: 150,
-      editable: false,
+      flex: 1,
+      renderCell: (params) => (
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          {params.value}
+        </Typography>
+      ),
     },
     {
       field: "role",
       headerName: "Роль",
       width: 150,
-      editable: false,
+      renderCell: (params) => (
+        <Box
+          sx={{
+            px: 1.5,
+            py: 0.5,
+            borderRadius: "8px",
+            bgcolor:
+              params.value === "admin"
+                ? alpha(theme.palette.primary.main, 0.1)
+                : alpha(theme.palette.success.main, 0.1),
+            color:
+              params.value === "admin"
+                ? theme.palette.primary.main
+                : theme.palette.success.main,
+            fontWeight: 700,
+            fontSize: "0.75rem",
+            textTransform: "uppercase",
+          }}
+        >
+          {params.value}
+        </Box>
+      ),
     },
     {
       field: "actions",
       headerName: "Действие",
-      width: 150,
+      width: 120,
       sortable: false,
-      filterable: false,
       renderCell: (params) => (
-        <Button
-          variant="contained"
-          color="success"
-          startIcon={<EditIcon />}
-          onClick={() => handleEdit(params.row.id)}
-        >
-          Изменить
-        </Button>
+        <Tooltip title="Изменить">
+          <IconButton
+            color="primary"
+            onClick={() => handleEditClick(params.row.id)}
+            sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}
+          >
+            <EditRoundedIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       ),
     },
   ];
 
   return (
-    <div className="flex flex-col gap-2 m-2 lg:mx-auto max-w-[1400px]">
-      {/* search */}
-      <div className="flex gap-4 bg-white rounded-2xl shadow-lg overflow-hidden p-4">
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,
+        m: 2,
+        mx: "auto",
+        width: "100%",
+      }}
+    >
+      <Box
+        sx={{
+          ...glassStyle,
+          p: 2,
+          display: "flex",
+          gap: 2,
+          alignItems: "center",
+        }}
+      >
         <FormControl variant="outlined" fullWidth size="small">
           <InputLabel>Поиск</InputLabel>
           <OutlinedInput
             value={searchQuery}
-            placeholder="Найти пользователя"
             onChange={(e) => setSearchQuery(e.target.value)}
             startAdornment={
               <InputAdornment position="start">
-                <SearchIcon />
+                <SearchIcon sx={{ color: "text.secondary" }} />
               </InputAdornment>
             }
-            label="Поиск" // Нужно передать label сюда!
+            label="Поиск"
+            sx={{ borderRadius: "12px" }}
           />
         </FormControl>
-        <Button variant="contained" onClick={handleAdd}>
+
+        <Button
+          variant="contained"
+          startIcon={<AddRoundedIcon />}
+          onClick={() => setAddModalOpen(true)}
+          sx={{
+            borderRadius: "12px",
+            px: 3,
+            height: "40px",
+            whiteSpace: "nowrap",
+          }}
+        >
           Добавить
         </Button>
-      </div>
+      </Box>
 
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <Box sx={glassStyle}>
+        <Box
+          sx={{
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            Пользователи
+          </Typography>
+          {selectionModel.length > 0 && (
+            <Button
+              variant="contained"
+              color="error"
+              size="small"
+              startIcon={<DeleteRoundedIcon />}
+              onClick={() => setOpen(true)}
+              sx={{ borderRadius: "10px" }}
+            >
+              Удалить ({selectionModel.length})
+            </Button>
+          )}
+        </Box>
+
         <DataGrid
           rows={filteredUsers}
           columns={columns}
           checkboxSelection
           disableRowSelectionOnClick
           rowSelectionModel={selectionModel}
-          onRowSelectionModelChange={(newSelectionModel) => {
-            setSelectionModel(newSelectionModel);
-          }}
+          onRowSelectionModelChange={(newModel) => setSelectionModel(newModel)}
           initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
-              },
+            pagination: { paginationModel: { pageSize: 10 } },
+          }}
+          pageSizeOptions={[5, 10, 25]}
+          disableColumnResize
+          sx={{
+            border: "none",
+            "& .MuiDataGrid-columnHeaders": {
+              bgcolor: alpha(theme.palette.divider, 0.02),
+              borderBottom: `1px solid ${theme.palette.divider}`,
+            },
+            "& .MuiDataGrid-cell": {
+              display: "flex",
+              alignItems: "center",
+              borderBottom: `1px solid ${alpha(theme.palette.divider, 0.05)}`,
+            },
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: `1px solid ${theme.palette.divider}`,
+            },
+            "& .MuiDataGrid-cell:focus": {
+              outline: "none",
             },
           }}
-          pageSizeOptions={[5]}
-          sx={{ border: "none" }}
         />
-        <Button
-          variant="contained"
-          color="secondary"
-          sx={{ marginLeft: 2, marginBottom: 2 }}
-          onClick={handleClickOpen}
-          disabled={selectionModel.length === 0}
-        >
-          Удалить выбранных
-        </Button>
-      </div>
+      </Box>
 
       <Dialog
         open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        onClose={() => setOpen(false)}
+        slotProps={{ paper: { sx: { borderRadius: "20px", p: 1 } } }}
       >
-        <DialogTitle id="alert-dialog-title">
-          {"Подтверждение удаления"}
+        <DialogTitle sx={{ fontWeight: 700 }}>
+          Удаление пользователей
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Вы уверены, что хотите удалить выбранных пользователей?
+          <DialogContentText>
+            Выбрано пользователей: <b>{selectionModel.length}</b>. Это действие
+            нельзя будет отменить. Продолжить?
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={() => setOpen(false)}
+            sx={{ color: "text.secondary" }}
+          >
             Отмена
           </Button>
-          <Button onClick={handleDelete} color="secondary" autoFocus>
-            Удалить
+          <Button
+            onClick={handleDelete}
+            variant="contained"
+            color="error"
+            sx={{ borderRadius: "10px" }}
+          >
+            Удалить навсегда
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+      <AddUserModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onAdd={(data) => console.log("Add logic", data)}
+      />
+      <EditUserModal
+        open={editModalOpen}
+        user={selectedUser}
+        onClose={() => setEditModalOpen(false)}
+        onUpdate={(data) => console.log("Update logic", data)}
+      />
+    </Box>
   );
 }

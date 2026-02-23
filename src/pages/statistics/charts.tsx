@@ -1,32 +1,53 @@
-import { useState } from "react";
+import { Box, Stack } from "@mui/material";
 import SidebarFilters from "../../components/filters/SidebarFilters";
 import ChartView from "../../components/statistics/ChartView";
 import FractionAnalysisTable from "../../components/statistics/FractionAnalysisTable";
 import StatsSummary from "../../components/statistics/StatsSummary";
 import ChartsProvider from "../../context/charts/ChartsProvider";
-import { DailyReport } from "../../types/chart.types";
-import { FractionData } from "../../types/fraction.types";
+import { useCharts } from "../../context/charts/useChart";
 
-export default function ChartsPage() {
-  const [summaryData, setSummaryData] = useState<FractionData[]>([]);
-  const [dailyData, setDailyData] = useState<DailyReport[]>([]);
+function ChartsContent() {
+  const { chartOption } = useCharts();
 
   return (
-    <ChartsProvider
-      onDataChange={(summary, daily) => {
-        setSummaryData(summary);
-        setDailyData(daily);
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", lg: "row" },
+        gap: { xs: 2, lg: 3 },
+        width: "100%",
       }}
     >
-      <div className="flex max-w-[1400px] min-h-screen flex-col m-2 lg:mx-auto gap-3 lg:flex-row lg:gap-6">
+      <Box
+        sx={{
+          order: { xs: 1, lg: 2 },
+          width: { xs: "100%", lg: "300px" },
+          flexShrink: 0,
+        }}
+      >
         <SidebarFilters />
+      </Box>
 
-        <div className="flex flex-col gap-3 order-last lg:order-first lg:grow-1">
-          <StatsSummary data={summaryData} />
-          <ChartView summaryData={summaryData} dailyData={dailyData} />
-          <FractionAnalysisTable data={dailyData} />
-        </div>
-      </div>
+      <Stack
+        spacing={2}
+        sx={{
+          flexGrow: 1,
+          order: { xs: 2, lg: 1 },
+          minWidth: 0,
+        }}
+      >
+        <StatsSummary />
+
+        {chartOption === "table" ? <FractionAnalysisTable /> : <ChartView />}
+      </Stack>
+    </Box>
+  );
+}
+
+export default function ChartsPage() {
+  return (
+    <ChartsProvider>
+      <ChartsContent />
     </ChartsProvider>
   );
 }

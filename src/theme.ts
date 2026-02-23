@@ -1,18 +1,34 @@
 import { ruRU } from "@mui/x-data-grid/locales";
 
-export const themeColors = {
-  primary: "#3f51b5",
-  secondary: "#dc004e",
-  tertiary: "#03dac6",
-};
-
 import { createTheme } from "@mui/material/styles";
 
 export function getTheme(mode: "light" | "dark") {
   return createTheme(
     {
+      components: {
+        MuiCssBaseline: {
+          styleOverrides: {
+            "*": {
+              transition:
+                "background-color 0.2s ease-in-out, background 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out, backdrop-filter 0.2s ease-in-out",
+            },
+            "svg, svg *": {
+              transition: "none !important",
+            },
+          },
+        },
+      },
       typography: {
-        fontFamily: 'sans-serif, "Arial", "Roboto"',
+        fontFamily: [
+          "Inter",
+          "Roboto",
+          '"Helvetica Neue"',
+          "Arial",
+          "sans-serif",
+        ].join(","),
+        button: {
+          textTransform: "none",
+        },
       },
       palette: {
         mode: mode,
@@ -35,6 +51,6 @@ export function getTheme(mode: "light" | "dark") {
         },
       },
     },
-    ruRU
+    ruRU,
   );
 }

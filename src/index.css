@@ -1,5 +1,14 @@
-@import "tailwindcss";
+#root {
+  min-height: 100vh;
+  background-color: #1976d22a;
 
-html {
-  background-color: aliceblue;
+  background-attachment: fixed;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }

@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LineChart } from "@mui/x-charts";
-import { useState, useEffect } from "react";
+import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import { FRACTION_COLORS } from "../../utils/fractionColors";
 import { DailyReport, PeriodType } from "../../types/chart.types";
 
@@ -18,86 +19,95 @@ const RU_MONTHS = [
   "Июнь",
   "Июль",
   "Август",
-  "Сентябрь",
+  "Сенябрь",
   "Октябрь",
   "Ноябрь",
   "Декабрь",
 ];
 
 export default function ChartBlock({ title, data, period }: ChartBlockProps) {
-  const [chartWidth, setChartWidth] = useState(
-    window.innerWidth < 768 ? 340 : 900,
-  );
-  const [chartHeight, setChartHeight] = useState(
-    window.innerWidth < 768 ? 300 : 500,
-  );
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  useEffect(() => {
-    const handleResize = () => {
-      setChartWidth(window.innerWidth < 768 ? 340 : 900);
-      setChartHeight(window.innerWidth < 768 ? 300 : 500);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Сортируем данные по дате
   const sortedData = [...data].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
-  // Массивы для графика
+
   const xLabels = sortedData.map((d) =>
-    period === "5min"
-      ? new Date(d.ts ?? d.date).getTime()
-      : new Date(d.date).getTime(),
+    new Date(period === "5min" ? (d.ts ?? d.date) : d.date).getTime(),
   );
-  const countData = sortedData.map((d) =>
-    typeof d.count === "number" ? d.count : 0,
+
+  const countData = sortedData.map((d) => Number(d.count || 0));
+  const confidenceData = sortedData.map((d) =>
+    Math.round(Number(d.avgConfidence || 0) * 100),
   );
-  const confidenceData = sortedData.map((d) => {
-    if (typeof d.avgConfidence === "number")
-      return Math.round(d.avgConfidence * 100);
-    if (d.avgConfidence === "number") return Math.round(d.avgConfidence * 100);
-    return 0;
-  });
 
-  const mainColor = FRACTION_COLORS[title] || "#8E24AA";
+  const mainColor = FRACTION_COLORS[title] || theme.palette.primary.main;
 
-  const xFormatter = (timestamp: number) => {
+  const xFormatter = (timestamp: any) => {
     const date = new Date(timestamp);
-
     if (period === "5min") {
       return date.toLocaleTimeString("ru-RU", {
         hour: "2-digit",
         minute: "2-digit",
       });
     }
-
     if (period === "month") {
       return RU_MONTHS[date.getMonth()];
     }
-
-    return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    return `${day}.${month}`;
   };
 
   return (
-    <div className="flex items-center w-full bg-white rounded-2xl shadow-lg p-4">
+    <Box
+      sx={{ width: "100%", height: isMobile ? 380 : 420, position: "relative" }}
+    >
+      <Typography variant="h6" sx={{ fontWeight: 700, color: "text.primary" }}>
+        {title}
+      </Typography>
+
+      <Box sx={{ position: "absolute", top: 60, left: 5, zIndex: 1 }}>
+        <Typography
+          variant="caption"
+          sx={{ fontWeight: 600, color: "text.secondary" }}
+        >
+          Обнаружено, шт.
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          position: "absolute",
+          top: 60,
+          right: 10,
+          zIndex: 1,
+          textAlign: "right",
+        }}
+      >
+        <Typography
+          variant="caption"
+          sx={{ fontWeight: 600, color: "text.secondary" }}
+        >
+          Точность, %
+        </Typography>
+      </Box>
+
       <LineChart
-        width={chartWidth}
-        height={chartHeight}
+        height={isMobile ? 300 : 350}
         series={[
           {
-            data: confidenceData,
-            label: "Точность",
-            yAxisId: "rightAxisId",
-            color: "#FF6F00",
+            data: countData,
+            label: "Обнаружено, шт.",
+            yAxisId: "leftAxisId",
+            color: mainColor,
             showMark: true,
           },
           {
-            data: countData,
-            label: title,
-            yAxisId: "leftAxisId",
-            color: mainColor,
+            data: confidenceData,
+            label: "Точность, %",
+            yAxisId: "rightAxisId",
+            color: "#FF6F00",
             showMark: true,
           },
         ]}
@@ -106,15 +116,26 @@ export default function ChartBlock({ title, data, period }: ChartBlockProps) {
             scaleType: "time",
             data: xLabels,
             valueFormatter: xFormatter,
-            tickNumber: period === "month" ? sortedData.length : undefined,
+            tickInterval: xLabels,
           },
         ]}
-        yAxis={[
-          { id: "leftAxisId", label: "Количество" },
-          { id: "rightAxisId", min: 0, max: 100, label: "Проценты" },
-        ]}
+        yAxis={[{ id: "leftAxisId" }, { id: "rightAxisId", min: 0, max: 100 }]}
+        leftAxis="leftAxisId"
         rightAxis="rightAxisId"
+        slotProps={{
+          legend: {
+            direction: "row",
+            position: { vertical: "bottom", horizontal: "middle" },
+            padding: 0,
+          },
+        }}
+        margin={{ top: 85, right: 70, bottom: 60, left: 60 }}
+        sx={{
+          "& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel": {
+            fontSize: isMobile ? "0.65rem" : "0.75rem",
+          },
+        }}
       />
-    </div>
+    </Box>
   );
 }

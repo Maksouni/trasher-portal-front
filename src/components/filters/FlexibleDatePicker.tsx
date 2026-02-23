@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Box,
   FormControl,
@@ -5,10 +6,12 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Stack,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
-  Typography,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import { useCharts } from "../../context/charts/useChart";
@@ -28,7 +31,18 @@ const months = [
   "Декабрь",
 ];
 
+const textFieldStyle = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "12px",
+    transition: "all 0.2s",
+    "&:hover": {
+      bgcolor: (theme: any) => alpha(theme.palette.primary.main, 0.02),
+    },
+  },
+};
+
 export default function FlexibleDatePicker() {
+  const theme = useTheme();
   const {
     period,
     changePeriod,
@@ -83,218 +97,204 @@ export default function FlexibleDatePicker() {
       setStartDate(dayRange.startDate);
       setEndDate(dayRange.endDate);
     }
-
     if (val === "month") {
       setDayRange({ startDate, endDate });
       setStartDate(monthRange.startDate);
       setEndDate(monthRange.endDate);
     }
-
     changePeriod(val);
   };
 
   return (
-    <Box className="flex flex-col gap-3">
-      <Typography>Период</Typography>
-
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
       <ToggleButtonGroup
         value={period}
         onChange={(_, val) => val && handlePeriodChange(val)}
         exclusive
         size="small"
         fullWidth
+        sx={{
+          bgcolor: alpha(theme.palette.primary.main, 0.05),
+          p: 0.5,
+          borderRadius: "14px",
+          border: "none",
+          "& .MuiToggleButton-root": {
+            border: "none",
+            borderRadius: "10px !important",
+            fontWeight: 600,
+            textTransform: "none",
+            color: "text.secondary",
+            "&.Mui-selected": {
+              bgcolor: "background.paper",
+              color: "primary.main",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              "&:hover": { bgcolor: "background.paper" },
+            },
+          },
+        }}
       >
         <ToggleButton value="day">День</ToggleButton>
         <ToggleButton value="month">Месяц</ToggleButton>
         <ToggleButton value="5min">Минуты</ToggleButton>
       </ToggleButtonGroup>
 
-      {period === "5min" ? (
-        <Box className="flex gap-2 flex-wrap">
-          <TextField
-            size="small"
-            label="Дата"
-            type="date"
-            value={startDateTime.slice(0, 10)}
-            onChange={(e) => {
-              const date = e.target.value;
-              const startTime = startDateTime.slice(11) || "00:00";
-              let endTime = endDateTime.slice(11) || "00:00";
-
-              const start = new Date(`${date}T${startTime}`);
-              let end = new Date(`${date}T${endTime}`);
-
-              if (start > end) {
-                end = new Date(start.getTime() + 5 * 60 * 1000);
-                endTime = end.toTimeString().slice(0, 5);
-              }
-
-              setStartDateTime(`${date}T${startTime}`);
-              setEndDateTime(`${date}T${endTime}`);
-            }}
-            fullWidth
-          />
-
-          <TextField
-            size="small"
-            label="С"
-            type="time"
-            slotProps={{ htmlInput: { step: 300 } }}
-            value={startDateTime.slice(11)}
-            onChange={(e) => {
-              const time = e.target.value;
-              const date = startDateTime.slice(0, 10);
-              const start = new Date(`${date}T${time}`);
-              let end = new Date(endDateTime);
-
-              if (start > end) {
-                end = new Date(start.getTime() + 5 * 60 * 1000);
-              }
-
-              setStartDateTime(`${date}T${time}`);
-              setEndDateTime(`${date}T${end.toTimeString().slice(0, 5)}`);
-            }}
-            fullWidth
-          />
-
-          {/* Время до */}
-          <TextField
-            size="small"
-            label="По"
-            type="time"
-            slotProps={{ htmlInput: { step: 300 } }}
-            value={endDateTime.slice(11)}
-            onChange={(e) => {
-              const time = e.target.value;
-              const date = startDateTime.slice(0, 10);
-              const end = new Date(`${date}T${time}`);
-              let start = new Date(startDateTime);
-
-              if (end < start) {
-                start = new Date(end.getTime() - 5 * 60 * 1000);
-              }
-
-              setStartDateTime(`${date}T${start.toTimeString().slice(0, 5)}`);
-              setEndDateTime(`${date}T${time}`);
-            }}
-            fullWidth
-          />
-        </Box>
-      ) : period === "day" ? (
-        <Box className="flex gap-2 flex-wrap">
-          <TextField
-            size="small"
-            label="С"
-            type="date"
-            value={startDate}
-            onChange={(e) => {
-              const s = new Date(e.target.value);
-              let e2 = new Date(endDate);
-              if (s > e2) e2 = s;
-              e2 = clampEndDate(s, e2);
-              setStartDate(formatDateLocal(s));
-              setEndDate(formatDateLocal(e2));
-            }}
-            fullWidth
-          />
-          <TextField
-            size="small"
-            label="По"
-            type="date"
-            value={endDate}
-            onChange={(e) => {
-              const e2 = new Date(e.target.value);
-              let s = new Date(startDate);
-              if (e2 < s) s = e2;
-              s = clampStartDate(s, e2);
-              setStartDate(formatDateLocal(s));
-              setEndDate(formatDateLocal(e2));
-            }}
-            fullWidth
-          />
-        </Box>
-      ) : (
-        <Box className="flex gap-2 flex-wrap">
-          <FormControl size="small" fullWidth>
-            <InputLabel>Год</InputLabel>
-            <Select
-              value={String(getYear(startDate))}
-              label="Год"
-              onChange={(e: SelectChangeEvent) => {
-                const y = Number(e.target.value);
-                const s = new Date(y, getMonth(startDate), 1);
-                const e2 = new Date(y, getMonth(endDate) + 1, 0);
-                const ss = formatDateLocal(s);
-                const ee = formatDateLocal(e2);
-                setStartDate(ss);
-                setEndDate(ee);
-                setMonthRange({ startDate: ss, endDate: ee });
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {period === "5min" ? (
+          <>
+            <TextField
+              size="small"
+              label="Дата"
+              type="date"
+              value={startDateTime.slice(0, 10)}
+              onChange={(e) => {
+                const date = e.target.value;
+                const startTime = startDateTime.slice(11) || "00:00";
+                const endTime = endDateTime.slice(11) || "00:00";
+                setStartDateTime(`${date}T${startTime}`);
+                setEndDateTime(`${date}T${endTime}`);
               }}
-            >
-              {Array.from({ length: 5 }).map((_, i) => {
-                const y = new Date().getFullYear() - i;
-                return (
-                  <MenuItem key={y} value={String(y)}>
-                    {y}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" fullWidth>
-            <InputLabel>От</InputLabel>
-            <Select
-              value={String(getMonth(startDate))}
+              sx={textFieldStyle}
+              fullWidth
+            />
+            <Box sx={{ display: "flex", gap: 1.5 }}>
+              <TextField
+                size="small"
+                label="С"
+                type="time"
+                slotProps={{ htmlInput: { step: 300 } }}
+                value={startDateTime.slice(11)}
+                onChange={(e) => {
+                  const time = e.target.value;
+                  const date = startDateTime.slice(0, 10);
+                  setStartDateTime(`${date}T${time}`);
+                }}
+                sx={textFieldStyle}
+                fullWidth
+              />
+              <TextField
+                size="small"
+                label="По"
+                type="time"
+                slotProps={{ htmlInput: { step: 300 } }}
+                value={endDateTime.slice(11)}
+                onChange={(e) => {
+                  const time = e.target.value;
+                  const date = startDateTime.slice(0, 10);
+                  setEndDateTime(`${date}T${time}`);
+                }}
+                sx={textFieldStyle}
+                fullWidth
+              />
+            </Box>
+          </>
+        ) : period === "day" ? (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            <TextField
+              size="small"
               label="От"
-              onChange={(e: SelectChangeEvent) => {
-                const m = Number(e.target.value);
-                const y = getYear(startDate);
-                const s = new Date(y, m, 1);
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                const s = new Date(e.target.value);
                 let e2 = new Date(endDate);
-                if (s > e2) e2 = new Date(y, m + 1, 0);
-                const ss = formatDateLocal(s);
-                const ee = formatDateLocal(e2);
-                setStartDate(ss);
-                setEndDate(ee);
-                setMonthRange({ startDate: ss, endDate: ee });
+                if (s > e2) e2 = s;
+                e2 = clampEndDate(s, e2);
+                setStartDate(formatDateLocal(s));
+                setEndDate(formatDateLocal(e2));
               }}
-            >
-              {months.map((m, i) => (
-                <MenuItem key={i} value={String(i)}>
-                  {m}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" fullWidth>
-            <InputLabel>До</InputLabel>
-            <Select
-              value={String(getMonth(endDate))}
+              sx={textFieldStyle}
+              fullWidth
+            />
+            <TextField
+              size="small"
               label="До"
-              onChange={(e: SelectChangeEvent) => {
-                const m = Number(e.target.value);
-                const y = getYear(endDate);
-                const e2 = new Date(y, m + 1, 0);
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                const e2 = new Date(e.target.value);
                 let s = new Date(startDate);
-                if (e2 < s) s = new Date(y, m, 1);
-                const ss = formatDateLocal(s);
-                const ee = formatDateLocal(e2);
-                setStartDate(ss);
-                setEndDate(ee);
-                setMonthRange({ startDate: ss, endDate: ee });
+                if (e2 < s) s = e2;
+                s = clampStartDate(s, e2);
+                setStartDate(formatDateLocal(s));
+                setEndDate(formatDateLocal(e2));
               }}
-            >
-              {months.map((m, i) => (
-                <MenuItem key={i} value={String(i)}>
-                  {m}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-      )}
+              sx={textFieldStyle}
+              fullWidth
+            />
+          </Box>
+        ) : (
+          <Stack spacing={2}>
+            <FormControl size="small" fullWidth sx={textFieldStyle}>
+              <InputLabel>Год</InputLabel>
+              <Select
+                value={String(getYear(startDate))}
+                label="Год"
+                onChange={(e: SelectChangeEvent) => {
+                  const y = Number(e.target.value);
+                  const s = new Date(y, getMonth(startDate), 1);
+                  const e2 = new Date(y, getMonth(endDate) + 1, 0);
+                  setStartDate(formatDateLocal(s));
+                  setEndDate(formatDateLocal(e2));
+                }}
+                sx={{ borderRadius: "12px" }}
+              >
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const y = new Date().getFullYear() - i;
+                  return (
+                    <MenuItem key={y} value={String(y)}>
+                      {y}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+
+            <Box sx={{ display: "flex", gap: 1.5 }}>
+              <FormControl size="small" fullWidth sx={textFieldStyle}>
+                <InputLabel>От</InputLabel>
+                <Select
+                  value={String(getMonth(startDate))}
+                  label="От"
+                  onChange={(e: SelectChangeEvent) => {
+                    const m = Number(e.target.value);
+                    const y = getYear(startDate);
+                    const s = new Date(y, m, 1);
+                    setStartDate(formatDateLocal(s));
+                  }}
+                  sx={{ borderRadius: "12px" }}
+                >
+                  {months.map((m, i) => (
+                    <MenuItem key={i} value={String(i)}>
+                      {m}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl size="small" fullWidth sx={textFieldStyle}>
+                <InputLabel>До</InputLabel>
+                <Select
+                  value={String(getMonth(endDate))}
+                  label="До"
+                  onChange={(e: SelectChangeEvent) => {
+                    const m = Number(e.target.value);
+                    const y = getYear(endDate);
+                    const e2 = new Date(y, m + 1, 0);
+                    setEndDate(formatDateLocal(e2));
+                  }}
+                  sx={{ borderRadius: "12px" }}
+                >
+                  {months.map((m, i) => (
+                    <MenuItem key={i} value={String(i)}>
+                      {m}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          </Stack>
+        )}
+      </Box>
     </Box>
   );
 }

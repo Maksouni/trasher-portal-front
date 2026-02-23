@@ -1,100 +1,197 @@
-import { Drawer, IconButton, Typography, useMediaQuery } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  useMediaQuery,
+  Drawer,
+  Button,
+  Stack,
+  Box,
+  alpha,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/auth/useAuth";
-import DrawerListItems from "./DrawerListItems";
-import TopBarItems from "./TopBarItems";
-import LogoIcon from "./LogoIcon";
+import SettingsIcon from "@mui/icons-material/Settings";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import { themeColors } from "../../theme";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/auth/useAuth";
 import { useState } from "react";
-import type { DrawerItem } from "../../types/drawerItem.types";
-import { useScrollDirection } from "../../hooks/useScrollDirection";
+import DrawerListItems from "./DrawerListItems";
+import LogoIcon from "./LogoIcon";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const { logout, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
   const isLargeScreen = useMediaQuery("(min-width:1024px)");
-  const scrollDirection = useScrollDirection();
 
   if (location.pathname === "/login") return null;
 
-  const DrawerItems1: DrawerItem[] = [
-    {
-      title: "Статистика",
-      icon: <ShowChartIcon />,
-      color: "black",
-      onClick: () => navigate("/"),
-      address: "/",
-    },
-    {
-      title: "Поток",
-      icon: <VideocamIcon />,
-      color: "black",
-      onClick: () => navigate("/stream"),
-      address: "/stream",
-    },
+  const menuGroups = [
+    { title: "Статистика", icon: <ShowChartIcon />, address: "/" },
+    { title: "Поток", icon: <VideocamIcon />, address: "/stream" },
+    { title: "Пользователи", icon: <ManageAccountsIcon />, address: "/users" },
   ];
-
-  const DrawerItems2: DrawerItem[] = [
-    {
-      title: "Управление пользователями",
-      icon: <ManageAccountsIcon sx={{ color: themeColors.primary }} />,
-      color: themeColors.primary,
-      onClick: () => navigate("/users"),
-      address: "/users",
-    },
-    {
-      title: "Выйти",
-      icon: <ExitToAppIcon sx={{ color: themeColors.secondary }} />,
-      color: themeColors.secondary,
-      onClick: logout,
-      address: "/logout",
-    },
-  ];
-
-  const addresses = [...DrawerItems1, ...DrawerItems2];
-
+  const currentPage =
+    menuGroups.find((item) => item.address === location.pathname)?.title || "";
   return (
-    <header
-      className={`w-full flex items-center justify-center transition-transform duration-300 z-50 ${
-        scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"
-      } fixed top-0 left-0 bg-transparent`}
+    <AppBar
+      position="static"
+      elevation={0}
+      sx={{
+        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+        width: { xs: "calc(100% - 32px)", sm: "calc(100% - 64px)" },
+        mx: "auto",
+        mb: 1,
+        borderRadius: "16px",
+        background: (theme) => alpha(theme.palette.background.paper, 0.8),
+        backdropFilter: "blur(12px)",
+        border: "1px solid",
+        borderColor: (theme) => alpha(theme.palette.divider, 0.1),
+        color: "text.primary",
+        boxSizing: "border-box",
+      }}
     >
-      {" "}
-      <div className="m-2 mt-3 w-full max-w-[1400px] flex items-center bg-white shadow-md rounded-md p-2 pb-1 pt-1">
-        {!isLargeScreen && (
-          <>
+      <Toolbar
+        sx={{ justifyContent: "space-between", minHeight: { xs: 56, sm: 56 } }}
+      >
+        <Stack direction="row" alignItems="center" spacing={2}>
+          {!isLargeScreen && (
+            <>
+              <IconButton
+                onClick={() => setOpen(true)}
+                sx={{ color: "primary.main" }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" sx={{ fontWeight: 500, ml: 1 }}>
+                {currentPage}
+              </Typography>
+            </>
+          )}
+
+          {isLargeScreen && (
+            <>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  cursor: "pointer",
+                }}
+                onClick={() => navigate("/")}
+              >
+                <LogoIcon />
+              </Box>
+              <Stack direction="row" spacing={0.5} sx={{ ml: 3 }}>
+                {menuGroups.map((item) => {
+                  const isActive = location.pathname === item.address;
+                  return (
+                    <Button
+                      key={item.address}
+                      onClick={() => navigate(item.address)}
+                      startIcon={item.icon}
+                      sx={{
+                        borderRadius: "10px",
+                        px: 2,
+                        py: 1,
+                        fontSize: "0.875rem",
+                        fontWeight: 500,
+                        textTransform: "none",
+                        color: isActive ? "primary.main" : "text.secondary",
+                        bgcolor: isActive
+                          ? (theme) => alpha(theme.palette.primary.main, 0.08)
+                          : "transparent",
+                        transition: "all 0.2s",
+                        "&:hover": {
+                          bgcolor: (theme) =>
+                            alpha(theme.palette.primary.main, 0.04),
+                          color: "primary.main",
+                        },
+                        "&::after": isActive
+                          ? {
+                              content: '""',
+                              position: "absolute",
+                              bottom: 4,
+                              width: "12px",
+                              height: "2px",
+                              borderRadius: "2px",
+                              bgcolor: "primary.main",
+                            }
+                          : {},
+                      }}
+                    >
+                      {item.title}
+                    </Button>
+                  );
+                })}
+              </Stack>
+            </>
+          )}
+        </Stack>
+
+        <Stack direction="row" alignItems="center" spacing={1}>
+          {isLargeScreen && user && (
+            <Box sx={{ textAlign: "right", mr: 1 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{ lineHeight: 1.2, fontWeight: 600 }}
+              >
+                {user.username || "Admin"}
+              </Typography>
+            </Box>
+          )}
+
+          <Stack
+            direction="row"
+            sx={{
+              bgcolor: (theme) => alpha(theme.palette.divider, 0.05),
+              borderRadius: "12px",
+              p: 0.5,
+            }}
+          >
             <IconButton
-              onClick={() => setOpen(true)}
-              sx={{ width: 40, height: 40 }}
+              onClick={() => navigate("/profile")}
+              size="small"
+              sx={{
+                borderRadius: "10px",
+                color: "text.secondary",
+                "&:hover": { color: "primary.main" },
+              }}
             >
-              <MenuIcon />
+              <SettingsIcon fontSize="small" />
             </IconButton>
-            <Typography variant="h6" sx={{ flexGrow: 1, ml: 2 }}>
-              {addresses.find((a) => a.address === location.pathname)?.title ||
-                (location.pathname === "/statistics/table" && "Статистика") ||
-                "Ошибка"}
-            </Typography>
-          </>
-        )}
 
-        {isLargeScreen && <TopBarItems items={addresses} />}
+            <IconButton
+              onClick={logout}
+              size="small"
+              sx={{
+                borderRadius: "10px",
+                color: "text.secondary",
+                "&:hover": { color: "error.main" },
+              }}
+            >
+              <ExitToAppIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        </Stack>
 
-        <LogoIcon />
-        <Drawer open={open} onClose={() => setOpen(false)}>
+        <Drawer
+          open={open}
+          onClose={() => setOpen(false)}
+          PaperProps={{ sx: { borderRadius: "0 16px 16px 0", width: 280 } }}
+        >
           <DrawerListItems
-            items1={DrawerItems1}
-            items2={DrawerItems2}
+            items1={menuGroups.slice(0, 2)}
+            items2={menuGroups.slice(2)}
             onClose={() => setOpen(false)}
+            onLogout={logout}
           />
         </Drawer>
-      </div>
-    </header>
+      </Toolbar>
+    </AppBar>
   );
 }

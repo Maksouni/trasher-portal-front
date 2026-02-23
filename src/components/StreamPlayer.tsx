@@ -1,83 +1,111 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
+import { Box, alpha, useTheme, CircularProgress } from "@mui/material";
 
 interface StreamPlayerProps {
   src: string;
-  width?: number;
+  width?: string | number;
 }
 
-export default function StreamPlayer({ src, width = 720 }: StreamPlayerProps) {
+export default function StreamPlayer({
+  src,
+  width = "100%",
+}: StreamPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const theme = useTheme();
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.playbackRate = 0.5;
+    let hls: Hls;
 
     if (Hls.isSupported()) {
-      const hls = new Hls({
-        // enableWebVTT: false,
-        // lowLatencyMode: true,
+      hls = new Hls({
+        lowLatencyMode: true,
+        backBufferLength: 0,
       });
 
       hls.loadSource(src);
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        setIsLoading(false);
         video.playbackRate = 0.16;
         video.play().catch((err) => console.error("Auto-play failed:", err));
       });
 
       hls.on(Hls.Events.ERROR, (_event, data) => {
-        console.error("HLS error:", data);
-
         if (data.fatal) {
           switch (data.type) {
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              if (data.details === Hls.ErrorDetails.BUFFER_ADD_CODEC_ERROR) {
-                console.warn("Buffer add codec error, trying to recover...");
-                // Пробуем восстановиться:
-                hls.destroy();
-                // Можно попробовать пересоздать плеер или просто остановить
-              } else {
-                console.warn(
-                  "Fatal media error, trying to recover media error"
-                );
-                hls.recoverMediaError();
-              }
-              break;
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.warn("Network error, trying to recover...");
               hls.startLoad();
               break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              hls.recoverMediaError();
+              break;
             default:
-              console.error("Unrecoverable error, destroying hls instance");
               hls.destroy();
               break;
           }
         }
       });
-
-      return () => {
-        hls.destroy();
-      };
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
       video.addEventListener("loadedmetadata", () => {
-        video.playbackRate = 0.5;
+        setIsLoading(false);
+        video.playbackRate = 0.16;
         video.play();
       });
     }
+
+    return () => {
+      if (hls) hls.destroy();
+    };
   }, [src]);
 
   return (
-    <video
-      ref={videoRef}
-      controls={false}
-      muted
-      style={{ width }}
-      className="rounded-2xl shadow-lg max-h-[600px]"
-    />
+    <Box
+      sx={{
+        position: "relative",
+        width: width,
+        borderRadius: "24px",
+        overflow: "hidden",
+        bgcolor: "#000",
+        lineHeight: 0,
+        boxShadow: `0 8px 32px 0 ${alpha(theme.palette.common.black, 0.2)}`,
+        border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+      }}
+    >
+      {isLoading && (
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1,
+            bgcolor: alpha(theme.palette.common.black, 0.5),
+          }}
+        >
+          <CircularProgress color="primary" />
+        </Box>
+      )}
+
+      <video
+        ref={videoRef}
+        controls={false}
+        muted
+        playsInline
+        style={{
+          width: "100%",
+          height: "auto",
+          aspectRatio: "16/9",
+          objectFit: "cover",
+        }}
+      />
+    </Box>
   );
 }

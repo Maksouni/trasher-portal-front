@@ -5,11 +5,15 @@ import { AuthProvider } from "./context/auth/AuthProvider";
 import { useAuth } from "./context/auth/useAuth";
 import LoginPage from "./pages/login/LoginPage";
 import ChartsPage from "./pages/statistics/charts";
-import AddUser from "./pages/user-actions/AddUser";
-import EditUser from "./pages/user-actions/EditUser";
 import UserManagement from "./pages/user-actions/UserManagement";
 import Header from "./components/Header";
-import { Backdrop, CircularProgress, ThemeProvider } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  CssBaseline,
+  ThemeProvider,
+} from "@mui/material";
 import { getTheme } from "./theme";
 import StreamPage from "./pages/stream/StreamPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -21,14 +25,12 @@ function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <div>
-        <Backdrop
-          sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
-          open={true}
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
-      </div>
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={true}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     );
   }
 
@@ -41,15 +43,29 @@ function RedirectIfAuthenticated({ children }: { children: ReactNode }) {
 }
 
 function App() {
-  return (
-    //TODO: потом сделать тёмную тему
-    <ThemeProvider theme={getTheme("light")}>
-      <div className="app pt-18 px-2">
-        <BrowserRouter>
-          <AuthProvider>
-            <AlertProvider>
-              <Header />
+  const theme = getTheme("light");
 
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+
+      <BrowserRouter>
+        <AuthProvider>
+          <AlertProvider>
+            <Box sx={{ p: 1 }} />
+            <Header />
+
+            <Box
+              component="main"
+              sx={{
+                width: { xs: "calc(100% - 32px)", sm: "calc(100% - 64px)" },
+                mx: "auto",
+                mt: 2,
+                minHeight: "80vh",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               <Routes>
                 <Route
                   path="/login"
@@ -67,7 +83,6 @@ function App() {
                     </RequireAuth>
                   }
                 />
-
                 <Route
                   path="/stream"
                   element={
@@ -84,28 +99,12 @@ function App() {
                     </RequireAuth>
                   }
                 />
-                <Route
-                  path="/users/edit/:userId"
-                  element={
-                    <RequireAuth>
-                      <EditUser />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/users/add"
-                  element={
-                    <RequireAuth>
-                      <AddUser />
-                    </RequireAuth>
-                  }
-                />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
-            </AlertProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </div>
+            </Box>
+          </AlertProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
