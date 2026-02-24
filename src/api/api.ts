@@ -54,6 +54,7 @@ async function request(endpoint: string, options: RequestInit = {}) {
   ) {
     return response.blob();
   }
+  
   return response.json();
 }
 
