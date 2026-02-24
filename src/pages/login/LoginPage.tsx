@@ -42,7 +42,6 @@ export default function LoginPage() {
         password,
       });
 
-      // data — это уже распарсенный JSON
       login(data.token);
       navigate("/");
     } catch (error: any) {

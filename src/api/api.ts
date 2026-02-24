@@ -45,7 +45,15 @@ async function request(endpoint: string, options: RequestInit = {}) {
       .catch(() => ({ message: "Ошибка сервера" }));
     throw error;
   }
-
+  const contentType = response.headers.get("Content-Type");
+  if (
+    contentType &&
+    (contentType.includes("application/octet-stream") ||
+      contentType.includes("application/vnd.openxmlformats-officedocument") ||
+      contentType.includes("blob"))
+  ) {
+    return response.blob();
+  }
   return response.json();
 }
 

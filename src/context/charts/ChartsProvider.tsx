@@ -85,7 +85,6 @@ export default function ChartsProvider({ children }: Props) {
 
   const { showAlert } = useAlert();
 
-  // 3. Сохраняем всё отдельно
   useEffect(() => {
     localStorage.setItem("selectedFilters", JSON.stringify(selectedFilters));
     localStorage.setItem("chartOption", JSON.stringify(chartOption));
@@ -94,7 +93,6 @@ export default function ChartsProvider({ children }: Props) {
     localStorage.setItem("startDateTime", JSON.stringify(startDateTime));
     localStorage.setItem("endDateTime", JSON.stringify(endDateTime));
 
-    // Сохраняем даты в зависимости от текущего режима, чтобы не перезатереть "другой" режим
     if (period === "month") {
       localStorage.setItem("month_startDate", JSON.stringify(startDate));
       localStorage.setItem("month_endDate", JSON.stringify(endDate));
@@ -113,7 +111,6 @@ export default function ChartsProvider({ children }: Props) {
     endDateTime,
   ]);
 
-  // Остальной код (загрузка категорий и fetchData) остается без изменений...
   useEffect(() => {
     setLoading(true);
     api
@@ -233,7 +230,6 @@ export default function ChartsProvider({ children }: Props) {
     );
   };
 
-  // 4. Логика переключения: сначала ищем в памяти, если нет — ставим дефолт
   const changePeriod = (val: PeriodType) => {
     setPeriod(val);
     if (val === "5min") {

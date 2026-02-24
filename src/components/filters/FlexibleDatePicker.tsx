@@ -54,6 +54,8 @@ export default function FlexibleDatePicker() {
     endDateTime,
     setStartDateTime,
     setEndDateTime,
+    step,
+    setStep,
   } = useCharts();
 
   const [dayRange, setDayRange] = useState({ startDate, endDate });
@@ -70,6 +72,13 @@ export default function FlexibleDatePicker() {
   };
 
   const MAX_DAY_DIFF = 30;
+
+  const getCurrentToggleValue = () => {
+    if (period === "5min") return step === 60 ? "hour" : "5min";
+    return period;
+  };
+
+  // --- ЛОГИКА ВАЛИДАЦИИ ---
 
   const clampEndDate = (start: Date, end: Date) => {
     const diff = (end.getTime() - start.getTime()) / 86400000;
@@ -91,25 +100,32 @@ export default function FlexibleDatePicker() {
     return start;
   };
 
-  const handlePeriodChange = (val: typeof period) => {
-    if (val === "day") {
+  const handleToggleChange = (val: string) => {
+    if (!val) return;
+    if (val === "5min") {
+      changePeriod("5min");
+      setStep(5);
+    } else if (val === "hour") {
+      changePeriod("5min");
+      setStep(60);
+    } else if (val === "day") {
       setMonthRange({ startDate, endDate });
       setStartDate(dayRange.startDate);
       setEndDate(dayRange.endDate);
-    }
-    if (val === "month") {
+      changePeriod("day");
+    } else if (val === "month") {
       setDayRange({ startDate, endDate });
       setStartDate(monthRange.startDate);
       setEndDate(monthRange.endDate);
+      changePeriod("month");
     }
-    changePeriod(val);
   };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
       <ToggleButtonGroup
-        value={period}
-        onChange={(_, val) => val && handlePeriodChange(val)}
+        value={getCurrentToggleValue()}
+        onChange={(_, val) => handleToggleChange(val)}
         exclusive
         size="small"
         fullWidth
@@ -123,19 +139,20 @@ export default function FlexibleDatePicker() {
             borderRadius: "10px !important",
             fontWeight: 600,
             textTransform: "none",
+            fontSize: "0.75rem",
             color: "text.secondary",
             "&.Mui-selected": {
               bgcolor: "background.paper",
               color: "primary.main",
               boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              "&:hover": { bgcolor: "background.paper" },
             },
           },
         }}
       >
         <ToggleButton value="day">День</ToggleButton>
         <ToggleButton value="month">Месяц</ToggleButton>
-        <ToggleButton value="5min">Минуты</ToggleButton>
+        <ToggleButton value="5min">5 мин</ToggleButton>
+        <ToggleButton value="hour">Час</ToggleButton>
       </ToggleButtonGroup>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -148,10 +165,8 @@ export default function FlexibleDatePicker() {
               value={startDateTime.slice(0, 10)}
               onChange={(e) => {
                 const date = e.target.value;
-                const startTime = startDateTime.slice(11) || "00:00";
-                const endTime = endDateTime.slice(11) || "00:00";
-                setStartDateTime(`${date}T${startTime}`);
-                setEndDateTime(`${date}T${endTime}`);
+                setStartDateTime(`${date}T${startDateTime.slice(11)}`);
+                setEndDateTime(`${date}T${endDateTime.slice(11)}`);
               }}
               sx={textFieldStyle}
               fullWidth
@@ -161,12 +176,15 @@ export default function FlexibleDatePicker() {
                 size="small"
                 label="С"
                 type="time"
-                slotProps={{ htmlInput: { step: 300 } }}
                 value={startDateTime.slice(11)}
                 onChange={(e) => {
-                  const time = e.target.value;
+                  const newStartTime = e.target.value;
                   const date = startDateTime.slice(0, 10);
-                  setStartDateTime(`${date}T${time}`);
+                  setStartDateTime(`${date}T${newStartTime}`);
+                  // Если начало стало позже конца, двигаем конец
+                  if (newStartTime > endDateTime.slice(11)) {
+                    setEndDateTime(`${date}T${newStartTime}`);
+                  }
                 }}
                 sx={textFieldStyle}
                 fullWidth
@@ -175,12 +193,15 @@ export default function FlexibleDatePicker() {
                 size="small"
                 label="По"
                 type="time"
-                slotProps={{ htmlInput: { step: 300 } }}
                 value={endDateTime.slice(11)}
                 onChange={(e) => {
-                  const time = e.target.value;
+                  const newEndTime = e.target.value;
                   const date = startDateTime.slice(0, 10);
-                  setEndDateTime(`${date}T${time}`);
+                  setEndDateTime(`${date}T${newEndTime}`);
+                  // Если конец стал раньше начала, двигаем начало
+                  if (newEndTime < startDateTime.slice(11)) {
+                    setStartDateTime(`${date}T${newEndTime}`);
+                  }
                 }}
                 sx={textFieldStyle}
                 fullWidth
@@ -258,8 +279,11 @@ export default function FlexibleDatePicker() {
                   onChange={(e: SelectChangeEvent) => {
                     const m = Number(e.target.value);
                     const y = getYear(startDate);
-                    const s = new Date(y, m, 1);
-                    setStartDate(formatDateLocal(s));
+                    setStartDate(formatDateLocal(new Date(y, m, 1)));
+                    // Если начальный месяц > конечного, двигаем конечный
+                    if (m > getMonth(endDate)) {
+                      setEndDate(formatDateLocal(new Date(y, m + 1, 0)));
+                    }
                   }}
                   sx={{ borderRadius: "12px" }}
                 >
@@ -279,8 +303,11 @@ export default function FlexibleDatePicker() {
                   onChange={(e: SelectChangeEvent) => {
                     const m = Number(e.target.value);
                     const y = getYear(endDate);
-                    const e2 = new Date(y, m + 1, 0);
-                    setEndDate(formatDateLocal(e2));
+                    setEndDate(formatDateLocal(new Date(y, m + 1, 0)));
+                    // Если конечный месяц < начального, двигаем начальный
+                    if (m < getMonth(startDate)) {
+                      setStartDate(formatDateLocal(new Date(y, m, 1)));
+                    }
                   }}
                   sx={{ borderRadius: "12px" }}
                 >
