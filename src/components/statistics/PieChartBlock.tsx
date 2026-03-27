@@ -1,78 +1,73 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PieChart } from "@mui/x-charts";
-import { useMediaQuery, useTheme, Box } from "@mui/material";
-import { FRACTION_COLORS } from "../../utils/fractionColors";
-import { FractionData } from "../../types/fraction.types";
-import formatWeight from "../../utils/formatWeight";
+import { useMediaQuery, useTheme } from "@mui/material";
+import { getFractionColor } from "../../utils/fractionColors";
 
-interface PieChartBlockProps {
-  data: FractionData[];
+const DEMO_VALUES = [105, 157, 212, 76];
+
+export type PieChartDatum = {
+  id: number | string;
+  name?: string;
+  categoryName?: string;
+  totalCount?: number;
+  value?: number;
+};
+
+interface PieChartProps {
+  data: PieChartDatum[];
 }
 
-export default function PieChartBlock({ data }: PieChartBlockProps) {
+export default function PieChartBlock({ data }: PieChartProps) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const chartHeight = isSmallScreen ? 500 : 400;
-  const margin = isSmallScreen
-    ? { top: 20, bottom: 150, left: 20, right: 20 }
-    : { top: 40, bottom: 40, left: 40, right: 200 };
+  const pieParams = isSmallScreen
+    ? {
+        margin: { left: 100 },
+        height: 600,
+      }
+    : {
+        margin: { right: 225 },
+        height: 300,
+      };
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <PieChart
-        height={chartHeight}
-        margin={margin}
-        series={[
-          {
-            data: data.map((item) => ({
-              id: item.id,
-              label: item.categoryName,
-              value: item.totalCount,
-              weight: item.weight,
-              confidence: item.avgConfidence,
-              color:
-                FRACTION_COLORS[item.categoryName] || theme.palette.grey[400],
-            })),
-            innerRadius: isSmallScreen ? 40 : 60,
-            outerRadius: isSmallScreen ? 100 : 140,
-            paddingAngle: 3,
-            cornerRadius: 8,
-            highlightScope: { fade: "global", highlight: "item" },
-            faded: { innerRadius: 30, additionalRadius: -30, color: "gray" },
-
-            valueFormatter: (item: any) => {
-              return `Кол-во: ${item.value} шт.\nВес: ${formatWeight(item.weight)}\nТочность: ${(item.confidence * 100).toFixed(1)}%`;
+    <div className="flex items-center w-full bg-white rounded-2xl shadow-lg p-1 lg:p-8">
+      <div className="flex w-full">
+        <PieChart
+          series={[
+            {
+              data: data.map((chart, index) => {
+                const label = chart.categoryName ?? chart.name ?? "—";
+                const raw =
+                  chart.totalCount ?? chart.value ?? DEMO_VALUES[index % DEMO_VALUES.length];
+                const value = typeof raw === "number" ? raw : Number(raw) || 0;
+                return {
+                  id: chart.id,
+                  value,
+                  label,
+                  color: getFractionColor(label, theme.palette.primary.main),
+                };
+              }),
+              highlightScope: { fade: "global", highlight: "item" },
+              faded: {
+                innerRadius: 30,
+                additionalRadius: -30,
+                color: "gray",
+              },
             },
-          },
-        ]}
-        slotProps={{
-          legend: {
-            direction: isSmallScreen ? "row" : "column",
-            position: {
-              vertical: isSmallScreen ? "bottom" : "middle",
-              horizontal: isSmallScreen ? "middle" : "right",
-            },
-            padding: isSmallScreen ? 10 : 20,
-            labelStyle: {
-              fontSize: 14,
-              fontWeight: 500,
-              fill: theme.palette.text.primary,
-            },
-            itemMarkWidth: 12,
-            itemMarkHeight: 12,
-            markGap: 10,
-            itemGap: 15,
-          },
-        }}
-      />
-    </Box>
+          ]}
+          {...pieParams}
+          slotProps={{
+            legend: isSmallScreen
+              ? {
+                  padding: { bottom: 50 },
+                  direction: "row",
+                  position: { horizontal: "middle", vertical: "bottom" },
+                }
+              : {},
+          }}
+        />
+      </div>
+    </div>
   );
 }

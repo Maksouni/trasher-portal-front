@@ -1,140 +1,143 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LineChart } from "@mui/x-charts";
-import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
-import { FRACTION_COLORS } from "../../utils/fractionColors";
+import { Box } from "@mui/material";
+import dayjs from "dayjs";
+import "dayjs/locale/ru";
+import { useMemo, useEffect, useLayoutEffect, useState, useRef } from "react";
 import { DailyReport, PeriodType } from "../../types/chart.types";
+import { getFractionColor } from "../../utils/fractionColors";
+
+dayjs.locale("ru");
+
+const Y_AXIS_ID = "main-y";
 
 interface ChartBlockProps {
   title: string;
-  data: DailyReport[];
-  period: PeriodType;
+  data?: DailyReport[];
+  period?: PeriodType;
 }
 
-const RU_MONTHS = [
-  "Январь",
-  "Февраль",
-  "Март",
-  "Апрель",
-  "Май",
-  "Июнь",
-  "Июль",
-  "Август",
-  "Сенябрь",
-  "Октябрь",
-  "Ноябрь",
-  "Декабрь",
-];
+function fallbackDemo() {
+  const xLabels = [
+    "2025-02-17",
+    "2025-02-18",
+    "2025-02-19",
+    "2025-02-20",
+    "2025-02-21",
+    "2025-02-22",
+    "2025-02-23",
+  ];
+  const xData = xLabels.map((d) => new Date(d).getTime());
+  const yData = [42, 35, 133, 232, 12, 60, 92];
+  return { xData, yData };
+}
 
-export default function ChartBlock({ title, data, period }: ChartBlockProps) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+export default function ChartBlock({
+  title,
+  data,
+  period = "day",
+}: ChartBlockProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [plotWidth, setPlotWidth] = useState(600);
+  const [plotHeight, setPlotHeight] = useState(400);
 
-  const sortedData = [...data].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-  );
-
-  const xLabels = sortedData.map((d) =>
-    new Date(period === "5min" ? (d.ts ?? d.date) : d.date).getTime(),
-  );
-
-  const countData = sortedData.map((d) => Number(d.count || 0));
-  const confidenceData = sortedData.map((d) =>
-    Math.round(Number(d.avgConfidence || 0) * 100),
-  );
-
-  const mainColor = FRACTION_COLORS[title] || theme.palette.primary.main;
-
-  const xFormatter = (timestamp: any) => {
-    const date = new Date(timestamp);
-    if (period === "5min") {
-      return date.toLocaleTimeString("ru-RU", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+  useLayoutEffect(() => {
+    const w = containerRef.current?.clientWidth;
+    if (w && w > 0) {
+      const cw = Math.floor(w);
+      setPlotWidth(Math.max(260, cw));
+      setPlotHeight(window.innerWidth < 768 ? 300 : Math.min(400, Math.floor(cw * 0.55)));
     }
-    if (period === "month") {
-      return RU_MONTHS[date.getMonth()];
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const cr = entries[0]?.contentRect;
+      if (!cr?.width) return;
+      const w = Math.floor(cr.width);
+      setPlotWidth(Math.max(260, w));
+      setPlotHeight(window.innerWidth < 768 ? 300 : Math.min(400, Math.floor(w * 0.55)));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const { xData, yData, formatX } = useMemo(() => {
+    if (!data?.length) {
+      const demo = fallbackDemo();
+      return {
+        ...demo,
+        formatX: (ts: number) => dayjs(ts).format("DD.MM.YYYY"),
+      };
     }
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    return `${day}.${month}`;
-  };
+
+    const sorted = [...data].sort((a, b) => {
+      const ka = a.ts ?? a.date;
+      const kb = b.ts ?? b.date;
+      return dayjs(ka).valueOf() - dayjs(kb).valueOf();
+    });
+
+    const xData = sorted.map((d) => dayjs(d.ts ?? d.date).valueOf());
+    const yData = sorted.map((d) => d.count);
+
+    const formatX =
+      period === "5min"
+        ? (ts: number) => dayjs(ts).format("HH:mm")
+        : period === "month"
+          ? (ts: number) => dayjs(ts).format("MMMM YYYY")
+          : (ts: number) => dayjs(ts).format("DD.MM.YYYY");
+
+    return { xData, yData, formatX };
+  }, [data, period]);
+
+  const yMax = useMemo(() => {
+    const maxCount = yData.length ? Math.max(...yData) : 0;
+    const padded = Math.ceil(maxCount * 1.12);
+    return Math.max(padded, 1);
+  }, [yData]);
 
   return (
     <Box
-      sx={{ width: "100%", height: isMobile ? 380 : 420, position: "relative" }}
+      ref={containerRef}
+      sx={{
+        width: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
+      }}
     >
-      <Typography variant="h6" sx={{ fontWeight: 700, color: "text.primary" }}>
-        {title}
-      </Typography>
-
-      <Box sx={{ position: "absolute", top: 60, left: 5, zIndex: 1 }}>
-        <Typography
-          variant="caption"
-          sx={{ fontWeight: 600, color: "text.secondary" }}
-        >
-          Обнаружено, шт.
-        </Typography>
-      </Box>
-      <Box
-        sx={{
-          position: "absolute",
-          top: 60,
-          right: 10,
-          zIndex: 1,
-          textAlign: "right",
-        }}
-      >
-        <Typography
-          variant="caption"
-          sx={{ fontWeight: 600, color: "text.secondary" }}
-        >
-          Точность, %
-        </Typography>
-      </Box>
-
       <LineChart
-        height={isMobile ? 300 : 350}
-        series={[
-          {
-            data: countData,
-            label: "Обнаружено, шт.",
-            yAxisId: "leftAxisId",
-            color: mainColor,
-            showMark: true,
-          },
-          {
-            data: confidenceData,
-            label: "Точность, %",
-            yAxisId: "rightAxisId",
-            color: "#FF6F00",
-            showMark: true,
-          },
-        ]}
+        width={plotWidth}
+        height={plotHeight}
+        margin={{ left: 56, right: 20, top: 16, bottom: 36 }}
         xAxis={[
           {
             scaleType: "time",
-            data: xLabels,
-            valueFormatter: xFormatter,
-            tickInterval: xLabels,
+            data: xData,
+            valueFormatter: (timestamp) =>
+              formatX(
+                typeof timestamp === "number"
+                  ? timestamp
+                  : new Date(timestamp).getTime(),
+              ),
           },
         ]}
-        yAxis={[{ id: "leftAxisId" }, { id: "rightAxisId", min: 0, max: 100 }]}
-        leftAxis="leftAxisId"
-        rightAxis="rightAxisId"
-        slotProps={{
-          legend: {
-            direction: "row",
-            position: { vertical: "bottom", horizontal: "middle" },
-            padding: 0,
+        yAxis={[
+          {
+            id: Y_AXIS_ID,
+            min: 0,
+            max: yMax,
           },
-        }}
-        margin={{ top: 85, right: 70, bottom: 60, left: 60 }}
-        sx={{
-          "& .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel": {
-            fontSize: isMobile ? "0.65rem" : "0.75rem",
+        ]}
+        series={[
+          {
+            data: yData,
+            label: title,
+            yAxisId: Y_AXIS_ID,
+            showMark: true,
+            color: getFractionColor(title),
           },
-        }}
+        ]}
       />
     </Box>
   );

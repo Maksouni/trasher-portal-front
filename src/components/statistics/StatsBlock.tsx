@@ -11,15 +11,7 @@ export default function StatsBlock({ icon, title, value }: StatsBlockProps) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
-  const isAccuracy = title.toLowerCase().includes("точность");
-
-  const activeColor = isAccuracy
-    ? isDark
-      ? "#4caf50"
-      : "#388e3c"
-    : isDark
-      ? "#bb86fc"
-      : "#1976d2";
+  const activeColor = isDark ? "#bb86fc" : "#1976d2";
 
   return (
     <Paper
@@ -76,6 +68,7 @@ export default function StatsBlock({ icon, title, value }: StatsBlockProps) {
             fontWeight: 700,
             color: isDark ? "#ffffff" : "#000000",
             letterSpacing: "-0.5px",
+            fontVariantNumeric: "tabular-nums",
           }}
         >
           {value}

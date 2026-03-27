@@ -1,10 +1,11 @@
 function formatWeight(weight: number): string {
-  if (weight < 1_000) {
-    return `${weight} г`;
-  } else if (weight < 1_000_000) {
-    return `${(weight / 1_000).toFixed(2)} кг`;
-  } else {
-    return `${(weight / 1_000_000).toFixed(2)} т`;
+  const w = Math.round(Number(weight) || 0);
+  if (w < 1_000) {
+    return `${w} г`;
   }
+  if (w < 1_000_000) {
+    return `${Math.round(w / 1_000)} кг`;
+  }
+  return `${Math.round(w / 1_000_000)} т`;
 }
 export default formatWeight;

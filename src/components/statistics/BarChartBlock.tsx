@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import formatWeight from "../../utils/formatWeight";
-import { FRACTION_COLORS } from "../../utils/fractionColors";
+import { getFractionColor } from "../../utils/fractionColors";
 import {
   BarChart,
   Bar,
@@ -18,7 +18,6 @@ interface BarChartBlockProps {
     name: string;
     value: number;
     weight: number;
-    confidence: number;
     share: number;
   }[];
 }
@@ -26,8 +25,8 @@ interface BarChartBlockProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   const theme = useTheme();
   if (active && payload && payload.length) {
-    const { share, value, weight, confidence } = payload[0].payload;
-    const color = FRACTION_COLORS[label] || theme.palette.primary.main;
+    const { share, value, weight } = payload[0].payload;
+    const color = getFractionColor(label, theme.palette.primary.main);
 
     return (
       <Box
@@ -49,16 +48,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         </Typography>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
           <Typography variant="caption" display="block">
-            Доля: <b>{share.toFixed(1)}%</b>
+            Доля: <b>{Math.round(share)}%</b>
           </Typography>
           <Typography variant="caption" display="block">
             Количество: <b>{value} шт.</b>
           </Typography>
           <Typography variant="caption" display="block">
             Объём: <b>{formatWeight(weight)}</b>
-          </Typography>
-          <Typography variant="caption" display="block">
-            Точность: <b>{confidence.toFixed(0)}%</b>
           </Typography>
         </Box>
       </Box>
@@ -131,7 +127,7 @@ export default function BarChartBlock({ data }: BarChartBlockProps) {
                 <Cell
                   key={`cell-${index}`}
                   fill={
-                    FRACTION_COLORS[entry.name] || theme.palette.primary.main
+                    getFractionColor(entry.name, theme.palette.primary.main)
                   }
                 />
               ))}

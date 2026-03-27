@@ -83,7 +83,6 @@ export default function ChartView() {
             ...item,
             name: item.categoryName,
             value: item.totalCount,
-            confidence: item.avgConfidence * 100,
             share: total > 0 ? (item.totalCount / total) * 100 : 0,
           }))}
         />

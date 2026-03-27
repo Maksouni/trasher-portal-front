@@ -14,21 +14,12 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
-import { FRACTION_COLORS } from "../../utils/fractionColors";
+import { getFractionColor, normalizeCategoryKey } from "../../utils/fractionColors";
 import formatWeight from "../../utils/formatWeight";
 import { DailyReport } from "../../types/chart.types";
 import { useCharts } from "../../context/charts/useChart";
 
 dayjs.locale("ru");
-
-function normalize(name?: string): string {
-  return name
-    ? name
-        .replace(/\u00A0/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-    : "";
-}
 
 function toSafeClassName(name?: string): string {
   return name
@@ -43,9 +34,7 @@ function toSafeClassName(name?: string): string {
 
 export default function FractionPivotTable() {
   const { period, dailyData, isDataLoading } = useCharts();
-  const [metric, setMetric] = useState<"count" | "weight" | "avgConfidence">(
-    "count",
-  );
+  const [metric, setMetric] = useState<"count" | "weight">("count");
   const theme = useTheme();
 
   const grouped = useMemo(() => {
@@ -60,7 +49,7 @@ export default function FractionPivotTable() {
 
   const allCategories = useMemo(() => {
     const set = new Set<string>();
-    dailyData.forEach((d) => set.add(normalize(d.categoryName)));
+    dailyData.forEach((d) => set.add(normalizeCategoryKey(d.categoryName)));
     return Array.from(set);
   }, [dailyData]);
 
@@ -82,10 +71,7 @@ export default function FractionPivotTable() {
         valueFormatter: (value: any) => {
           if (value === null || value === undefined) return "—";
           if (metric === "weight") return formatWeight(value);
-          if (metric === "count")
-            return new Intl.NumberFormat("ru-RU").format(value);
-          if (metric === "avgConfidence") return `${value}%`;
-          return value;
+          return new Intl.NumberFormat("ru-RU").format(value);
         },
       })),
       {
@@ -99,9 +85,7 @@ export default function FractionPivotTable() {
         valueFormatter: (value: any) => {
           if (value === null || value === undefined) return "—";
           if (metric === "weight") return formatWeight(value);
-          if (metric === "count")
-            return new Intl.NumberFormat("ru-RU").format(value);
-          return value;
+          return new Intl.NumberFormat("ru-RU").format(value);
         },
       },
     ],
@@ -124,17 +108,13 @@ export default function FractionPivotTable() {
 
       allCategories.forEach((cat) => {
         const field = toSafeClassName(cat);
-        const items = arr.filter((i) => normalize(i.categoryName) === cat);
+        const items = arr.filter(
+          (i) => normalizeCategoryKey(i.categoryName) === cat,
+        );
 
-        if (metric === "avgConfidence") {
-          const avg = items.length
-            ? items.reduce((s, i) => s + (i.avgConfidence ?? 0), 0) /
-              items.length
-            : 0;
-          row[field] = parseFloat((avg * 100).toFixed(2));
-        } else if (metric === "count") {
+        if (metric === "count") {
           row[field] = items.reduce((s, i) => s + (i.count ?? 0), 0);
-        } else if (metric === "weight") {
+        } else {
           row[field] = items.reduce((s, i) => s + (i.weight ?? 0), 0);
         }
       });
@@ -142,35 +122,19 @@ export default function FractionPivotTable() {
       const categoryFields = allCategories.map((cat) => toSafeClassName(cat));
       row.total = categoryFields.reduce((sum, f) => sum + (row[f] || 0), 0);
 
-      if (metric === "avgConfidence")
-        row.total = parseFloat(
-          (row.total / (categoryFields.length || 1)).toFixed(2),
-        );
-
       return row;
     });
 
     const totalRow: any = { id: "total", date: "ИТОГО" };
     allCategories.forEach((cat) => {
       const field = toSafeClassName(cat);
-      if (metric === "avgConfidence") {
-        const avg =
-          rowData.reduce((s, r) => s + (r[field] || 0), 0) /
-          (rowData.length || 1);
-        totalRow[field] = parseFloat(avg.toFixed(2));
-      } else {
-        totalRow[field] = rowData.reduce((s, r) => s + (r[field] || 0), 0);
-      }
+      totalRow[field] = rowData.reduce((s, r) => s + (r[field] || 0), 0);
     });
 
     totalRow.total = allCategories.reduce(
       (s, cat) => s + (totalRow[toSafeClassName(cat)] || 0),
       0,
     );
-    if (metric === "avgConfidence")
-      totalRow.total = parseFloat(
-        (totalRow.total / (allCategories.length || 1)).toFixed(2),
-      );
 
     return [...rowData, totalRow];
   }, [grouped, period, allCategories, metric, dailyData]);
@@ -220,7 +184,9 @@ export default function FractionPivotTable() {
 
           <Select
             value={metric}
-            onChange={(e) => setMetric(e.target.value as any)}
+            onChange={(e) =>
+              setMetric(e.target.value as "count" | "weight")
+            }
             size="small"
             sx={{
               borderRadius: "10px",
@@ -230,7 +196,6 @@ export default function FractionPivotTable() {
           >
             <MenuItem value="count">Количество (шт)</MenuItem>
             <MenuItem value="weight">Объём (кг/т)</MenuItem>
-            <MenuItem value="avgConfidence">Точность (%)</MenuItem>
           </Select>
         </Stack>
 
@@ -255,7 +220,7 @@ export default function FractionPivotTable() {
               },
               ...Object.fromEntries(
                 allCategories.map((cat) => {
-                  const color = FRACTION_COLORS[cat] || "#999";
+                  const color = getFractionColor(cat, "#999");
                   const field = toSafeClassName(cat);
                   return [
                     `& .MuiDataGrid-cell[data-field="${field}"]`,
