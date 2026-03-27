@@ -1,7 +1,8 @@
 export interface ChartType {
   id: number;
   name: string;
-  value: number;
+  /** Опционально: для круговых диаграмм и т.п. */
+  value?: number;
 }
 
 export interface DailyReport {

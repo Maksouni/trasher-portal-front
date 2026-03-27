@@ -17,20 +17,14 @@ import PieChartIcon from "@mui/icons-material/PieChart";
 import BarChartRounded from "@mui/icons-material/BarChartRounded";
 import DateFilter from "../../components/filters/DateFilter";
 import { useEffect, useState } from "react";
-import axios from "../../api/axios";
-import { apiUrl } from "../../dotenv";
+import { api, toQueryString } from "../../api/api";
 import CheckFilters from "../../components/filters/CheckFilters";
-import qs from "qs";
+import { ChartType } from "../../types/chart.types";
 import StatsBlock from "../../components/statistics/StatsBlock";
 import ChartBlock from "../../components/statistics/ChartBlock";
 import { useAlert } from "../../context/alert/useAlert";
 
 import PieChartBlock from "../../components/statistics/PieChartBlock";
-
-export interface ChartType {
-  id: number;
-  name: string;
-}
 
 export default function StatisticsPage() {
   const totalCount = 25000;
@@ -56,14 +50,10 @@ export default function StatisticsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/categories`);
-        if (
-          response.data &&
-          Array.isArray(response.data) &&
-          response.data.length > 0
-        ) {
-          setCharts(response.data);
-          setFilteredCharts(response.data);
+        const data = await api.get("/api/v1/categories");
+        if (data && Array.isArray(data) && data.length > 0) {
+          setCharts(data);
+          setFilteredCharts(data);
         } else {
           showAlert("Категории не найдены. Попробуйте позже.", "error", 4000);
         }
@@ -117,7 +107,7 @@ export default function StatisticsPage() {
   };
 
   const handleEndDateChange = (date: string) => {
-    setEndDate(new Date(date).toISOString());
+    setEndDate(date);
   };
 
   const downloadFile = async () => {
@@ -125,20 +115,16 @@ export default function StatisticsPage() {
     const date2 = endDate;
 
     try {
-      const response = await axios.get(`${apiUrl}/reports`, {
-        params: {
-          cat: filteredCharts.map((filter) => filter.id),
-          from: date1,
-          to: date2,
-        },
-        paramsSerializer: (params) =>
-          qs.stringify(params, { arrayFormat: "repeat" }),
-        responseType: "blob",
+      const ids = filteredCharts.map((f) => f.id).filter(Boolean);
+      const query = toQueryString({
+        cat: ids,
+        from: date1,
+        to: date2.split("T")[0],
       });
-
-      const blob = new Blob([response.data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // MIME-тип Excel
-      });
+      const blob = await api.get(`/api/v1/reports${query}`);
+      if (!(blob instanceof Blob)) {
+        throw new Error("Неверный формат данных");
+      }
 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
